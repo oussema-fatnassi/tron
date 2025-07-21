@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\oroit\\Desktop\\tron\\UseDLLTest\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{40863CCE-BCA8-4839-BB1F-B0667B9E13D0}|UseDLLTest.vcxproj|C:\\Users\\oroit\\Desktop\\tron\\UseDLLTest\\UseDLLTest.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{40863CCE-BCA8-4839-BB1F-B0667B9E13D0}|UseDLLTest.vcxproj|solutionrelative:UseDLLTest.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UseDLLTest.cpp",
+              "DocumentMoniker": "C:\\Users\\oroit\\Desktop\\tron\\UseDLLTest\\UseDLLTest.cpp",
+              "RelativeDocumentMoniker": "UseDLLTest.cpp",
+              "ToolTip": "C:\\Users\\oroit\\Desktop\\tron\\UseDLLTest\\UseDLLTest.cpp*",
+              "RelativeToolTip": "UseDLLTest.cpp*",
+              "ViewState": "AgIAABQAAAAAAAAAAAAgwCsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-07-21T14:35:04.812Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
