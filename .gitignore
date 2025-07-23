@@ -44,3 +44,9 @@
 *build
 .vscode
 *.vscode
+/x64/
+/TronEngine/x64/
+/TestConsole/x64/
+
+.vs
+*.bat
