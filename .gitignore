@@ -39,3 +39,7 @@
 
 # debug information files
 *.dwo
+
+/x64/
+/TronEngine/x64/
+/TestConsole/x64/
