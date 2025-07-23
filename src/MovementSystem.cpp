@@ -15,7 +15,7 @@
 // The Update method is called every frame, allowing for continuous movement based on the current velocity.
 // </remarks>
 void MovementSystem::Update(float deltaTime) {
-    for (Tron::Entity entity : entities) {
+    for (Entity entity : entities) {
         auto* transform = world->GetComponent<Transform>(entity);
         auto* velocity = world->GetComponent<Velocity>(entity);
         

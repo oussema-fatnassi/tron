@@ -11,7 +11,7 @@
 // the complete state of an entity in the ECS (Entity-Component-System) architecture.
 // The TransformComponent can be initialized with default values or specific transformation parameters.
 // </remarks>
-struct Transform : Tron::Component {
+struct Transform : Component {
     float x, y, z;
     float rotationX, rotationY, rotationZ;
     float scaleX, scaleY, scaleZ;

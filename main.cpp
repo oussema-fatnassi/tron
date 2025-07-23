@@ -13,7 +13,7 @@
 
 int main() {
     // Create the ECS world
-    Tron::World world;
+    World world;
     
     // Register components
     world.RegisterComponent<Transform>();
@@ -33,7 +33,7 @@ int main() {
     std::cout << "Creating entities..." << std::endl;
     
     // Player entity
-    Tron::Entity player = world.CreateEntity();
+    Entity player = world.CreateEntity();
     world.AddComponent<Transform>(player, 0, 0, 0);
     world.AddComponent<Velocity>(player, 10, 0, 0);  // Moving right
     std::cout << "Created player (Entity " << player << ")" << std::endl;
@@ -41,7 +41,7 @@ int main() {
     world.DestroyEntity(player); // Remove player entity
 
     // Enemy entity
-    Tron::Entity enemy = world.CreateEntity();
+    Entity enemy = world.CreateEntity();
     world.AddComponent<Transform>(enemy, 50, 0, 0);
     world.AddComponent<Velocity>(enemy, -5, 0, 0);   // Moving left
     std::cout << "Created enemy (Entity " << enemy << ")" << std::endl;
@@ -51,7 +51,7 @@ int main() {
 
     
     // Static object (no velocity)
-    Tron::Entity staticObject = world.CreateEntity();
+    Entity staticObject = world.CreateEntity();
     world.AddComponent<Transform>(staticObject, 25, 10, 0);
     std::cout << "Created static object (Entity " << staticObject << ")" << std::endl;
     std::cout << "Entity ID: " << staticObject << std::endl;

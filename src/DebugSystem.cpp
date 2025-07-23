@@ -32,7 +32,7 @@ void DebugSystem::Update(float deltaTime) {
 
         std::cout << "\n=== Entity Debug Info ===" << std::endl;
 
-        for (Tron::Entity entity : entities) {
+        for (Entity entity : entities) {
             std::cout << "Entity " << entity << ": ";
 
             auto* transform = world->GetComponent<Transform>(entity);

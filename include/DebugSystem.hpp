@@ -13,7 +13,7 @@
 // The print interval can be adjusted to control how often debug information is output.
 // </remarks>
 
-class DebugSystem : public Tron::System {
+class DebugSystem : public System {
 private:
     float printTimer = 0.0f;
     float printInterval = 1.0f;

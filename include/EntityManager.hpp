@@ -15,30 +15,28 @@
 // It also provides methods to set and get component masks for entities, enabling the ECS to track
 // which components are associated with each entity.
 // </remarks>
-namespace Tron {
-    class EntityManager {
-    private:
-        std::vector<ComponentMask> entityComponentMasks;
-        std::vector<bool> entityActive;
-        std::queue<Entity> availableEntities;
-        uint32_t totalEntities;
-        
-    public:
-        EntityManager();
-        ~EntityManager();
-        
-        // Entity operations
-        Entity CreateEntity();
-        void DestroyEntity(Entity entity);
-        bool IsValidEntity(Entity entity) const;
-        
-        // Component mask operations
-        void SetComponentMask(Entity entity, ComponentType componentType, bool hasComponent);
-        ComponentMask GetComponentMask(Entity entity) const;
-        
-        // Query operations
-        std::vector<Entity> GetAllActiveEntities() const;
-        uint32_t GetEntityCount() const;
-        uint32_t GetActiveEntityCount() const;
-    };
-}
+class EntityManager {
+private:
+    std::vector<ComponentMask> entityComponentMasks;
+    std::vector<bool> entityActive;
+    std::queue<Entity> availableEntities;
+    uint32_t totalEntities;
+    
+public:
+    EntityManager();
+    ~EntityManager();
+    
+    // Entity operations
+    Entity CreateEntity();
+    void DestroyEntity(Entity entity);
+    bool IsValidEntity(Entity entity) const;
+    
+    // Component mask operations
+    void SetComponentMask(Entity entity, ComponentType componentType, bool hasComponent);
+    ComponentMask GetComponentMask(Entity entity) const;
+    
+    // Query operations
+    std::vector<Entity> GetAllActiveEntities() const;
+    uint32_t GetEntityCount() const;
+    uint32_t GetActiveEntityCount() const;
+};

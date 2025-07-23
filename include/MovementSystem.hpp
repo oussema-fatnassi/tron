@@ -12,7 +12,7 @@
 // This allows for smooth movement of entities in the game world.
 // The Update method is called every frame, allowing for continuous movement based on the current velocity.
 // </remarks>
-class MovementSystem : public Tron::System {
+class MovementSystem : public System {
 public:
     MovementSystem() = default;
     void Update(float deltaTime) override;

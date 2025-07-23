@@ -13,26 +13,24 @@
 // The Update method must be implemented by derived classes to define the system's behavior during each frame.
 // Systems can also handle entity addition and removal events, allowing them to react to changes in the ECS.
 // </remarks>
-namespace Tron {
-    class World;
+class World;
 
-    class System {
-    protected:
-        World* world;
+class System {
+protected:
+    World* world;
 
-    public:
-        std::vector<Entity> entities;
+public:
+    std::vector<Entity> entities;
 
-        System();
-        virtual ~System();
-        
-        virtual void Init(World* world);
-        virtual void Update(float deltaTime) = 0;
-        virtual void Shutdown();
+    System();
+    virtual ~System();
+    
+    virtual void Init(World* world);
+    virtual void Update(float deltaTime) = 0;
+    virtual void Shutdown();
 
-        virtual void OnEntityAdded(Entity entity);
-        virtual void OnEntityRemoved(Entity entity);
-        
-        World* GetWorld() const;
-    };
-}
+    virtual void OnEntityAdded(Entity entity);
+    virtual void OnEntityRemoved(Entity entity);
+    
+    World* GetWorld() const;
+};

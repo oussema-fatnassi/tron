@@ -10,7 +10,7 @@
 // It can be used in conjunction with other components to define the complete state of an entity in the ECS (Entity-Component-System) architecture.
 // The VelocityComponent can be initialized with default values or specific velocity parameters.
 // </remarks>
-struct Velocity : Tron::Component {
+struct Velocity : Component {
     float vx, vy, vz;
     float angularVx, angularVy, angularVz;
     

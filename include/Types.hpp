@@ -14,14 +14,11 @@
 // MAX_COMPONENTS defines the maximum number of components that can be associated with an entity.
 // INVALID_ENTITY is a constant used to represent an invalid or non-existent entity.
 // </remarks>
-namespace Tron {
+using Entity = uint32_t;
+using ComponentType = uint8_t;
 
-    using Entity = uint32_t;
-    using ComponentType = uint8_t;
+constexpr size_t MAX_COMPONENTS = 32;
 
-    constexpr size_t MAX_COMPONENTS = 32;
+using ComponentMask = std::bitset<MAX_COMPONENTS>;
 
-    using ComponentMask = std::bitset<MAX_COMPONENTS>;
-
-    constexpr Entity INVALID_ENTITY = 0;
-}
+constexpr Entity INVALID_ENTITY = 0;
