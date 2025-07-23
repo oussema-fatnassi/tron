@@ -17,7 +17,7 @@
 // This constructor sets the initial state of the component manager, including the component type counter,
 // which is used to assign unique IDs to component types as they are registered.
 // </remarks>
-ComponentManager::ComponentManager() : componentTypeCounter(0) {
+ComponentManager::ComponentManager() : _componentTypeCounter(0) {
 }
 
 // <summary>
@@ -38,7 +38,7 @@ ComponentManager::~ComponentManager() = default;
 // and initializes an empty pool for that component type. It uses unique pointers to manage component lifetimes.
 // </remarks>
 void ComponentManager::RemoveAllComponents(Entity entity) {
-    for (auto& [typeIndex, pool] : componentPools) {
+    for (auto& [typeIndex, pool] : _componentPools) {
         if (entity < pool.size()) {
             pool[entity].reset();
         }
@@ -62,10 +62,10 @@ void ComponentManager::RemoveAllComponents(Entity entity) {
 // </remarks>
 bool ComponentManager::HasComponent(Entity entity, ComponentType type) const {
     // Find which type_index corresponds to this ComponentType
-    for (const auto& [typeIndex, componentType] : componentTypes) {
+    for (const auto& [typeIndex, componentType] : _componentTypes) {
         if (componentType == type) {
-            auto poolIt = componentPools.find(typeIndex);
-            if (poolIt != componentPools.end() && 
+            auto poolIt = _componentPools.find(typeIndex);
+            if (poolIt != _componentPools.end() && 
                 entity < poolIt->second.size() && 
                 poolIt->second[entity]) {
                 return true;
@@ -90,10 +90,10 @@ bool ComponentManager::HasComponent(Entity entity, ComponentType type) const {
 // </remarks>
 size_t ComponentManager::GetComponentPoolSize(ComponentType type) const {
     // Find which type_index corresponds to this ComponentType
-    for (const auto& [typeIndex, componentType] : componentTypes) {
+    for (const auto& [typeIndex, componentType] : _componentTypes) {
         if (componentType == type) {
-            auto poolIt = componentPools.find(typeIndex);
-            if (poolIt != componentPools.end()) {
+            auto poolIt = _componentPools.find(typeIndex);
+            if (poolIt != _componentPools.end()) {
                 return poolIt->second.size();
             }
             break;

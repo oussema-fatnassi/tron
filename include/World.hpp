@@ -22,9 +22,9 @@
 // </remarks>
 class World {
 private:
-    EntityManager entityManager;
-    ComponentManager componentManager;
-    SystemManager systemManager;
+    EntityManager _entityManager;
+    ComponentManager _componentManager;
+    SystemManager _systemManager;
     
 public:
     World();
@@ -50,7 +50,7 @@ public:
     // </remarks>
     template<typename T>
     void RegisterComponent() {
-        componentManager.RegisterComponent<T>();
+        _componentManager.RegisterComponent<T>();
     }
     
     // <summary>
@@ -64,13 +64,13 @@ public:
     // </remarks>
     template<typename T, typename... Args>
     T* AddComponent(Entity entity, Args&&... args) {
-        T* component = componentManager.AddComponent<T>(entity, std::forward<Args>(args)...);
+        T* component = _componentManager.AddComponent<T>(entity, std::forward<Args>(args)...);
         
-        auto componentType = componentManager.GetComponentType<T>();
-        entityManager.SetComponentMask(entity, componentType, true);
+        auto componentType = _componentManager.GetComponentType<T>();
+        _entityManager.SetComponentMask(entity, componentType, true);
         
-        auto signature = entityManager.GetComponentMask(entity);
-        systemManager.EntitySignatureChanged(entity, signature);
+        auto signature = _entityManager.GetComponentMask(entity);
+        _systemManager.EntitySignatureChanged(entity, signature);
         
         return component;
     }
@@ -84,7 +84,7 @@ public:
     // </remarks>
     template<typename T>
     T* GetComponent(Entity entity) {
-        return componentManager.GetComponent<T>(entity);
+        return _componentManager.GetComponent<T>(entity);
     }
     
     // <summary>
@@ -97,13 +97,13 @@ public:
     // </remarks>
     template<typename T>
     void RemoveComponent(Entity entity) {
-        componentManager.RemoveComponent<T>(entity);
-        
-        auto componentType = componentManager.GetComponentType<T>();
-        entityManager.SetComponentMask(entity, componentType, false);
-        
-        auto signature = entityManager.GetComponentMask(entity);
-        systemManager.EntitySignatureChanged(entity, signature);
+        _componentManager.RemoveComponent<T>(entity);
+
+        auto componentType = _componentManager.GetComponentType<T>();
+        _entityManager.SetComponentMask(entity, componentType, false);
+
+        auto signature = _entityManager.GetComponentMask(entity);
+        _systemManager.EntitySignatureChanged(entity, signature);
     }
     
     // <summary>
@@ -118,7 +118,7 @@ public:
     // </remarks>
     template<typename T, typename... Args>
     T* RegisterSystem(Args&&... args) {
-        return systemManager.RegisterSystem<T>(this, std::forward<Args>(args)...);
+        return _systemManager.RegisterSystem<T>(this, std::forward<Args>(args)...);
     }
     
     // <summary>
@@ -132,7 +132,7 @@ public:
     // </remarks>
     template<typename T>
     T* GetSystem() {
-        return systemManager.GetSystem<T>();
+        return _systemManager.GetSystem<T>();
     }
     
     // <summary>
@@ -148,13 +148,13 @@ public:
     void SetSystemSignature(System* system) {
         ComponentMask signature;
         SetSignatureHelper<Components...>(signature);
-        systemManager.SetSystemSignature(system, signature);
-        
+        _systemManager.SetSystemSignature(system, signature);
+
         // Update system with all matching entities
-        auto entities = entityManager.GetAllActiveEntities();
+        auto entities = _entityManager.GetAllActiveEntities();
         for (Entity entity : entities) {
-            auto entitySignature = entityManager.GetComponentMask(entity);
-            systemManager.EntitySignatureChanged(entity, entitySignature);
+            auto entitySignature = _entityManager.GetComponentMask(entity);
+            _systemManager.EntitySignatureChanged(entity, entitySignature);
         }
     }
     
@@ -178,7 +178,7 @@ private:
     //</remarks>
     template<typename T, typename... Rest>
     void SetSignatureHelper(ComponentMask& signature) {
-        auto componentType = componentManager.GetComponentType<T>();
+        auto componentType = _componentManager.GetComponentType<T>();
         if (componentType != static_cast<ComponentType>(-1)) {
             signature.set(componentType);
         }

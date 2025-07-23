@@ -17,10 +17,10 @@
 // </remarks>
 class EntityManager {
 private:
-    std::vector<ComponentMask> entityComponentMasks;
-    std::vector<bool> entityActive;
-    std::queue<Entity> availableEntities;
-    uint32_t totalEntities;
+    std::vector<ComponentMask> _entityComponentMasks;
+    std::vector<bool> _entityActive;
+    std::queue<Entity> _availableEntities;
+    uint32_t _totalEntities;
     
 public:
     EntityManager();

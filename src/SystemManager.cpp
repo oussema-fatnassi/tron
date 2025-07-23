@@ -41,7 +41,7 @@ SystemManager::~SystemManager() {
 // The signature is used to determine which entities should be processed by the system during updates.
 // </remarks>
 void SystemManager::SetSystemSignature(System* system, ComponentMask signature) {
-    systemSignatures[system] = signature;
+    _systemSignatures[system] = signature;
 }
 
 // <summary>
@@ -56,8 +56,8 @@ void SystemManager::SetSystemSignature(System* system, ComponentMask signature) 
 // If the system does not have a signature set, it returns an empty component mask.
 // </remarks>
 ComponentMask SystemManager::GetSystemSignature(System* system) const {
-    auto it = systemSignatures.find(system);
-    if (it != systemSignatures.end()) {
+    auto it = _systemSignatures.find(system);
+    if (it != _systemSignatures.end()) {
         return it->second;
     }
     return ComponentMask();
@@ -72,7 +72,7 @@ ComponentMask SystemManager::GetSystemSignature(System* system) const {
 // It is typically called once per frame in the game loop.
 // </remarks>
 void SystemManager::UpdateSystems(float deltaTime) {
-    for (auto& system : systems) {
+    for (auto& system : _systems) {
         system->Update(deltaTime);
     }
 }
@@ -88,9 +88,9 @@ void SystemManager::UpdateSystems(float deltaTime) {
 // This allows systems to dynamically adjust to changes in entity components.
 // </remarks>
 void SystemManager::EntitySignatureChanged(Entity entity, ComponentMask entitySignature) {
-    for (auto& system : systems) {
-        auto it = systemSignatures.find(system.get());
-        if (it != systemSignatures.end()) {
+    for (auto& system : _systems) {
+        auto it = _systemSignatures.find(system.get());
+        if (it != _systemSignatures.end()) {
             ComponentMask systemSignature = it->second;
             
             // Check if entity should be in this system
@@ -122,7 +122,7 @@ void SystemManager::EntitySignatureChanged(Entity entity, ComponentMask entitySi
 // This is typically called when an entity is no longer needed, such as when it is destroyed or goes out of scope.
 // </remarks>
 void SystemManager::EntityDestroyed(Entity entity) {
-    for (auto& system : systems) {
+    for (auto& system : _systems) {
         auto& entities = system->entities;
         auto it = std::find(entities.begin(), entities.end(), entity);
         if (it != entities.end()) {
@@ -141,12 +141,12 @@ void SystemManager::EntityDestroyed(Entity entity) {
 // This is typically called when the ECS world is being destroyed or when systems are no longer needed.
 // </remarks>
 void SystemManager::Shutdown() {
-    for (auto& system : systems) {
+    for (auto& system : _systems) {
         system->Shutdown();
     }
-    systems.clear();
-    systemLookup.clear();
-    systemSignatures.clear();
+    _systems.clear();
+    _systemLookup.clear();
+    _systemSignatures.clear();
 }
 
 // <summary>
@@ -160,7 +160,7 @@ void SystemManager::Shutdown() {
 // It can be useful for debugging or for systems that need to know how many systems are active.
 // </remarks>
 size_t SystemManager::GetSystemCount() const {
-    return systems.size();
+    return _systems.size();
 }
 
 // <summary>
@@ -175,8 +175,8 @@ size_t SystemManager::GetSystemCount() const {
 // </remarks>
 std::vector<System*> SystemManager::GetAllSystems() const {
     std::vector<System*> result;
-    result.reserve(systems.size());
-    for (const auto& system : systems) {
+    result.reserve(_systems.size());
+    for (const auto& system : _systems) {
         result.push_back(system.get());
     }
     return result;

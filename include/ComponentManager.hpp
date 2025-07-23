@@ -21,9 +21,9 @@ private:
     // componentTypes: Maps type indices to their corresponding ComponentType.
     // componentTypeCounter: Counter for assigning unique ComponentType values.
     //</remarks>
-    std::unordered_map<std::type_index, std::vector<std::unique_ptr<Component>>> componentPools;
-    std::unordered_map<std::type_index, ComponentType> componentTypes;
-    ComponentType componentTypeCounter;
+    std::unordered_map<std::type_index, std::vector<std::unique_ptr<Component>>> _componentPools;
+    std::unordered_map<std::type_index, ComponentType> _componentTypes;
+    ComponentType _componentTypeCounter;
     
 public:
     ComponentManager();
@@ -43,9 +43,9 @@ public:
         
         std::type_index typeIndex(typeid(T));
         
-        if (componentTypes.find(typeIndex) == componentTypes.end()) {
-            componentTypes[typeIndex] = componentTypeCounter++;
-            componentPools[typeIndex] = std::vector<std::unique_ptr<Component>>();
+        if (_componentTypes.find(typeIndex) == _componentTypes.end()) {
+            _componentTypes[typeIndex] = _componentTypeCounter++;
+            _componentPools[typeIndex] = std::vector<std::unique_ptr<Component>>();
         }
     }
     
@@ -60,14 +60,14 @@ public:
     T* AddComponent(Entity entity, Args&&... args) {
         std::type_index typeIndex(typeid(T));
         
-        if (componentTypes.find(typeIndex) == componentTypes.end()) {
+        if (_componentTypes.find(typeIndex) == _componentTypes.end()) {
             RegisterComponent<T>();
         }
         
         auto component = std::make_unique<T>(std::forward<Args>(args)...);
         T* componentPtr = component.get();
         
-        auto& pool = componentPools[typeIndex];
+        auto& pool = _componentPools[typeIndex];
         if (entity >= pool.size()) {
             pool.resize(entity + 1);
         }
@@ -86,8 +86,8 @@ public:
     T* GetComponent(Entity entity) {
         std::type_index typeIndex(typeid(T));
         
-        auto it = componentPools.find(typeIndex);
-        if (it != componentPools.end() && entity < it->second.size() && it->second[entity]) {
+        auto it = _componentPools.find(typeIndex);
+        if (it != _componentPools.end() && entity < it->second.size() && it->second[entity]) {
             return static_cast<T*>(it->second[entity].get());
         }
         
@@ -104,8 +104,8 @@ public:
     void RemoveComponent(Entity entity) {
         std::type_index typeIndex(typeid(T));
         
-        auto poolIt = componentPools.find(typeIndex);
-        if (poolIt != componentPools.end() && entity < poolIt->second.size()) {
+        auto poolIt = _componentPools.find(typeIndex);
+        if (poolIt != _componentPools.end() && entity < poolIt->second.size()) {
             poolIt->second[entity].reset();
         }
     }
@@ -119,8 +119,8 @@ public:
     template<typename T>
     ComponentType GetComponentType() const {
         std::type_index typeIndex(typeid(T));
-        auto it = componentTypes.find(typeIndex);
-        if (it != componentTypes.end()) {
+        auto it = _componentTypes.find(typeIndex);
+        if (it != _componentTypes.end()) {
             return it->second;
         }
         return static_cast<ComponentType>(-1);

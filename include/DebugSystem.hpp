@@ -15,8 +15,8 @@
 
 class DebugSystem : public System {
 private:
-    float printTimer = 0.0f;
-    float printInterval = 1.0f;
+    float _printTimer = 0.0f;
+    float _printInterval = 1.0f;
 
 public:
     DebugSystem(float interval = 1.0f);

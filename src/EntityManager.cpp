@@ -14,9 +14,9 @@
 // This constructor sets up the initial state of the entity manager, including the total number of
 // entities and the vectors for component masks and active states.
 // </remarks>
-EntityManager::EntityManager() : totalEntities(0) {
-    entityComponentMasks.reserve(1000);
-    entityActive.reserve(1000);
+EntityManager::EntityManager() : _totalEntities(0) {
+    _entityComponentMasks.reserve(1000);
+    _entityActive.reserve(1000);
 }
 
 // <summary>
@@ -36,22 +36,22 @@ EntityManager::~EntityManager() = default;
 // </remarks>
 Entity EntityManager::CreateEntity() {
     Entity entity;
-    
-    if (!availableEntities.empty()) {
-        entity = availableEntities.front();
-        availableEntities.pop();
-        entityActive[entity] = true;
+
+    if (!_availableEntities.empty()) {
+        entity = _availableEntities.front();
+        _availableEntities.pop();
+        _entityActive[entity] = true;
     } else {
-        entity = ++totalEntities;
-        
-        if (entity >= entityComponentMasks.size()) {
-            entityComponentMasks.resize(entity + 1);
-            entityActive.resize(entity + 1, false);
+        entity = ++_totalEntities;
+
+        if (entity >= _entityComponentMasks.size()) {
+            _entityComponentMasks.resize(entity + 1);
+            _entityActive.resize(entity + 1, false);
         }
-        entityActive[entity] = true;
+        _entityActive[entity] = true;
     }
-    
-    entityComponentMasks[entity].reset();
+
+    _entityComponentMasks[entity].reset();
     return entity;
 }
 
@@ -65,9 +65,9 @@ Entity EntityManager::CreateEntity() {
 // </remarks>
 void EntityManager::DestroyEntity(Entity entity) {
     if (IsValidEntity(entity)) {
-        entityActive[entity] = false;
-        entityComponentMasks[entity].reset();
-        availableEntities.push(entity);
+        _entityActive[entity] = false;
+        _entityComponentMasks[entity].reset();
+        _availableEntities.push(entity);
     }
 }
 
@@ -82,7 +82,7 @@ void EntityManager::DestroyEntity(Entity entity) {
 // An entity is considered valid if its ID is greater than 0 and it is marked as active in the entityActive vector.
 // </remarks>
 bool EntityManager::IsValidEntity(Entity entity) const {
-    return entity > 0 && entity < entityActive.size() && entityActive[entity];
+    return entity > 0 && entity < _entityActive.size() && _entityActive[entity];
 }
 
 // <summary>
@@ -98,9 +98,9 @@ bool EntityManager::IsValidEntity(Entity entity) const {
 void EntityManager::SetComponentMask(Entity entity, ComponentType componentType, bool hasComponent) {
     if (IsValidEntity(entity)) {
         if (hasComponent) {
-            entityComponentMasks[entity].set(componentType);
+            _entityComponentMasks[entity].set(componentType);
         } else {
-            entityComponentMasks[entity].reset(componentType);
+            _entityComponentMasks[entity].reset(componentType);
         }
     }
 }
@@ -118,7 +118,7 @@ void EntityManager::SetComponentMask(Entity entity, ComponentType componentType,
 // </remarks>
 ComponentMask EntityManager::GetComponentMask(Entity entity) const {
     if (IsValidEntity(entity)) {
-        return entityComponentMasks[entity];
+        return _entityComponentMasks[entity];
     }
     return ComponentMask();
 }
@@ -135,8 +135,8 @@ ComponentMask EntityManager::GetComponentMask(Entity entity) const {
 std::vector<Entity> EntityManager::GetAllActiveEntities() const {
     std::vector<Entity> activeEntities;
     activeEntities.reserve(GetActiveEntityCount());
-    
-    for (Entity e = 1; e <= totalEntities; ++e) {
+
+    for (Entity e = 1; e <= _totalEntities; ++e) {
         if (IsValidEntity(e)) {
             activeEntities.push_back(e);
         }
@@ -155,7 +155,7 @@ std::vector<Entity> EntityManager::GetAllActiveEntities() const {
 // are currently active or not.
 // </remarks>
 uint32_t EntityManager::GetEntityCount() const {
-    return totalEntities;
+    return _totalEntities;
 }
 
 // <summary>
@@ -170,7 +170,7 @@ uint32_t EntityManager::GetEntityCount() const {
 // </remarks>
 uint32_t EntityManager::GetActiveEntityCount() const {
     uint32_t count = 0;
-    for (Entity e = 1; e <= totalEntities; ++e) {
+    for (Entity e = 1; e <= _totalEntities; ++e) {
         if (IsValidEntity(e)) {
             ++count;
         }

@@ -13,7 +13,7 @@
 // It can be configured to print at different intervals, and it automatically updates its list of entities
 // based on the components they have.
 // </remarks>
-DebugSystem::DebugSystem(float interval) : printInterval(interval) {}
+DebugSystem::DebugSystem(float interval) : _printInterval(interval) {}
 
 // <summary>
 // Updates the debug system, printing entity information at specified intervals.
@@ -25,10 +25,10 @@ DebugSystem::DebugSystem(float interval) : printInterval(interval) {}
 // It iterates through all entities managed by the world and prints their positions and velocities.
 // </remarks>
 void DebugSystem::Update(float deltaTime) {
-    printTimer += deltaTime;
+    _printTimer += deltaTime;
 
-    if (printTimer >= printInterval) {
-        printTimer -= printInterval;
+    if (_printTimer >= _printInterval) {
+        _printTimer -= _printInterval;
 
         std::cout << "\n=== Entity Debug Info ===" << std::endl;
 
@@ -62,5 +62,5 @@ void DebugSystem::Update(float deltaTime) {
 // debug output based on the needs of the developer or the performance requirements of the game.
 // </remarks>
 void DebugSystem::SetPrintInterval(float interval) {
-    printInterval = interval;
+    _printInterval = interval;
 }

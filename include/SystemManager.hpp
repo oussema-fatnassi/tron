@@ -22,10 +22,10 @@ class World;
 
 class SystemManager {
 private:
-    std::vector<std::unique_ptr<System>> systems;
-    std::unordered_map<std::type_index, System*> systemLookup;
-    std::unordered_map<System*, ComponentMask> systemSignatures;
-    
+    std::vector<std::unique_ptr<System>> _systems;
+    std::unordered_map<std::type_index, System*> _systemLookup;
+    std::unordered_map<System*, ComponentMask> _systemSignatures;
+
 public:
     SystemManager();
     ~SystemManager();
@@ -46,8 +46,8 @@ public:
         T* systemPtr = system.get();
         
         systemPtr->Init(world);
-        systems.push_back(std::move(system));
-        systemLookup[std::type_index(typeid(T))] = systemPtr;
+        _systems.push_back(std::move(system));
+        _systemLookup[std::type_index(typeid(T))] = systemPtr;
         
         return systemPtr;
     }
@@ -60,8 +60,8 @@ public:
     // </remarks>
     template<typename T>
     T* GetSystem() {
-        auto it = systemLookup.find(std::type_index(typeid(T)));
-        if (it != systemLookup.end()) {
+        auto it = _systemLookup.find(std::type_index(typeid(T)));
+        if (it != _systemLookup.end()) {
             return static_cast<T*>(it->second);
         }
         return nullptr;

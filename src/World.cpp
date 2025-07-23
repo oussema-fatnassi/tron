@@ -42,7 +42,7 @@ World::~World() {
 // The entity is initially inactive and has no components.
 // </remarks>
 Entity World::CreateEntity() {
-    return entityManager.CreateEntity();
+    return _entityManager.CreateEntity();
 }
 
 // <summary>
@@ -54,9 +54,9 @@ Entity World::CreateEntity() {
 // been destroyed, and then calls the EntityManager to mark the entity as inactive and reset its component mask.
 // </remarks>
 void World::DestroyEntity(Entity entity) {
-    componentManager.RemoveAllComponents(entity);
-    systemManager.EntityDestroyed(entity);
-    entityManager.DestroyEntity(entity);
+    _componentManager.RemoveAllComponents(entity);
+    _systemManager.EntityDestroyed(entity);
+    _entityManager.DestroyEntity(entity);
 }
 
 // <summary>
@@ -70,7 +70,7 @@ void World::DestroyEntity(Entity entity) {
 // An entity is considered valid if its ID is greater than 0 and it is marked as active in the entityActive vector.
 // </remarks>
 bool World::IsValidEntity(Entity entity) const {
-    return entityManager.IsValidEntity(entity);
+    return _entityManager.IsValidEntity(entity);
 }
 
 // <summary>
@@ -85,7 +85,7 @@ bool World::IsValidEntity(Entity entity) const {
 // <param name="deltaTime">The time elapsed since the last update, used for time-based logic.</param>
 // <remarks>
 void World::Update(float deltaTime) {
-    systemManager.UpdateSystems(deltaTime);
+    _systemManager.UpdateSystems(deltaTime);
 }
 
 // <summary>
@@ -97,12 +97,12 @@ void World::Update(float deltaTime) {
 // properly released and that there are no lingering references to entities or systems.
 // </remarks>
 void World::Shutdown() {
-    auto allEntities = entityManager.GetAllActiveEntities();
+    auto allEntities = _entityManager.GetAllActiveEntities();
     for (Entity entity : allEntities) {
         DestroyEntity(entity);
     }
-    
-    systemManager.Shutdown();
+
+    _systemManager.Shutdown();
 }
 
 // <summary>
@@ -116,7 +116,7 @@ void World::Shutdown() {
 // for iterating over entities in systems or for debugging purposes.
 // </remarks>
 std::vector<Entity> World::GetAllEntities() const {
-    return entityManager.GetAllActiveEntities();
+    return _entityManager.GetAllActiveEntities();
 }
 
 // <summary>
@@ -130,7 +130,7 @@ std::vector<Entity> World::GetAllEntities() const {
 // can be useful for debugging or for systems that need to know how many entities exist.
 // </remarks>
 uint32_t World::GetEntityCount() const {
-    return entityManager.GetEntityCount();
+    return _entityManager.GetEntityCount();
 }
 
 // <summary>
@@ -145,5 +145,5 @@ uint32_t World::GetEntityCount() const {
 // available to process entities.
 // </remarks>
 size_t World::GetSystemCount() const {
-    return systemManager.GetSystemCount();
+    return _systemManager.GetSystemCount();
 }
