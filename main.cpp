@@ -8,6 +8,7 @@
 #include "VelocityComponent.hpp"
 
 #include "DebugSystem.hpp"
+#include "MovementSystem.hpp"
 
 
 int main() {
@@ -22,8 +23,11 @@ int main() {
 
     // Register systems
     auto* debugSystem = world.RegisterSystem<DebugSystem>();
+    auto* movementSystem = world.RegisterSystem<MovementSystem>();
 
+    // Set system signatures
     world.SetSystemSignature<Transform>(debugSystem);
+    world.SetSystemSignature<Transform, Velocity>(movementSystem);
     
     // Create some entities
     std::cout << "Creating entities..." << std::endl;
@@ -58,8 +62,7 @@ int main() {
     // Main game loop
     std::cout << "Starting game loop..." << std::endl;
     for (int i = 0; i < 100; ++i) {
-        // Update the world
-        world.Update(0.1f);  // Simulate 1000ms per frame
+        world.Update(0.1f);  // Simulate 100ms per frame
     }
     std::cout << "Game loop finished." << std::endl;
     // Cleanup
