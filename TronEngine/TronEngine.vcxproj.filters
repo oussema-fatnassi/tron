@@ -39,13 +39,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\EngineExports.h">
+    <ClInclude Include="Include\EngineExports.hpp">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="Include\TronEngine.h">
+    <ClInclude Include="Include\TronEngine.hpp">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Headers\Core\Engine.h">
+    <ClInclude Include="Source\Headers\Core\Engine.hpp">
       <Filter>Source\Headers\Core</Filter>
     </ClInclude>
   </ItemGroup>

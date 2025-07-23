@@ -1,10 +1,11 @@
-#include "../Headers/Core/Engine.h"
+#include "../Headers/Core/Engine.hpp"
+#include "../../Include/TronEngine.hpp"
 #include <iostream>
 
 Engine::Engine()
     : m_initialized(false)
     , m_running(false)
-    , m_version("1.0.0")
+    , m_version(TRON_ENGINE_VERSION_STRING)
 {
     std::cout << "[TronEngine] Constructor - Engine object created\n";
 }

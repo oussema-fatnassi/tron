@@ -1,7 +1,7 @@
 ﻿#include <iostream>
 #include <windows.h>
 
-#include "TronEngine.h"
+#include "TronEngine.hpp"
 
 // Link the library
 #pragma comment(lib, "TronEngine.lib")

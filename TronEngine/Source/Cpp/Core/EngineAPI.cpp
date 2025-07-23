@@ -1,6 +1,6 @@
 //#define ENGINE_EXPORTS
-#include "../Headers/Core/Engine.h"
-#include "../../Include/TronEngine.h"
+#include "../Headers/Core/Engine.hpp"
+#include "../../Include/TronEngine.hpp"
 #include <iostream>
 
 // C-style API implementation
