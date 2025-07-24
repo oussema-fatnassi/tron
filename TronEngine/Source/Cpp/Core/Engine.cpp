@@ -1,5 +1,7 @@
 #include "../Headers/Core/Engine.hpp"
 #include "../../Include/TronEngine.hpp"
+#include "../Headers/Rendering/RenderEngine.h"
+#include "../Headers/Core/WindowUtils.h"
 #include <iostream>
 #include <chrono>
 
@@ -148,6 +150,23 @@ bool Engine::InitializeSubsystems() {
 
     // TODO: Initialize RenderEngine, GameEngine, ThreadPool
     // For now, just placeholders
+
+    int width = 1280;
+    int height = 720;
+
+    // Crée la fenêtre Win32
+    HINSTANCE hInstance = GetModuleHandle(nullptr);
+    HWND hwnd = CreateSimpleWindow(hInstance, width, height, L"TronEngine");
+
+    if (!hwnd) {
+        std::cout << "[TronEngine] Failed to create window\n";
+        return false;
+    }
+    ShowWindow(hwnd, SW_SHOW);
+
+    RenderEngine* renderEngine = new RenderEngine(hwnd, width, height);
+    renderEngine->Initialize();
+    std::cout << "[TronEngine] RenderEngine initialized successfully\n";
 
     std::cout << "[Threading] Thread infrastructure: Ready\n";
     std::cout << "[Threading] Render Thread target: 60 FPS (16ms per frame)\n";

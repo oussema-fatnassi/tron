@@ -19,13 +19,41 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Headers\Rendering\D3D\CommandQueue.h" />
+    <ClInclude Include="Source\Headers\Rendering\D3D\D3DContext.h" />
     <ClInclude Include="Include\EngineExports.hpp" />
     <ClInclude Include="Include\TronEngine.hpp" />
+    <ClInclude Include="Source\Headers\Rendering\D3D\D3DRenderer.h" />
+    <ClInclude Include="Source\Headers\Rendering\RenderEngine.h" />
     <ClInclude Include="Source\Headers\Core\Engine.hpp" />
+    <ClInclude Include="Source\Headers\Rendering\D3D\SwapChain.h" />
+    <ClInclude Include="Source\Headers\Rendering\Resources\MaterialManager.h" />
+    <ClInclude Include="Source\Headers\Rendering\Resources\MeshManager.h" />
+    <ClInclude Include="Source\Headers\Rendering\Resources\ShaderManager.h" />
+    <ClInclude Include="Source\Headers\Rendering\Resources\TextureManager.h" />
+    <ClInclude Include="Source\Headers\Core\WindowUtils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Cpp\Rendering\D3D\CommandQueue.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\D3D\D3DContext.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\D3D\D3DRenderer.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\RenderEngine.cpp" />
     <ClCompile Include="Source\Cpp\Core\Engine.cpp" />
     <ClCompile Include="Source\Cpp\Core\EngineAPI.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\D3D\SwapChain.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\Resources\MaterialManager.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\Resources\MeshManager.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\Resources\ShaderManager.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\Resources\TextureManager.cpp" />
+    <ClCompile Include="Source\Cpp\Core\WindowUtils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Source\shaders\PixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -153,6 +181,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(TargetPath)" "$(SolutionDir)TestConsole\" /D /Y</Command>
@@ -178,6 +207,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(TargetPath)" "$(SolutionDir)TestConsole\" /D /Y</Command>
