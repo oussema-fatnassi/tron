@@ -1,8 +1,8 @@
 #pragma once
 #include <unordered_map>
 #include <string>
-#include "ShaderManager.h"
-#include "TextureManager.h"
+#include "ShaderManager.hpp"
+#include "TextureManager.hpp"
 
 struct Material {
     Shader* shader;

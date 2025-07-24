@@ -1,4 +1,4 @@
-#include "../../../Headers/Rendering/D3D/SwapChain.h"
+#include "../../../Headers/Rendering/D3D/SwapChain.hpp"
 #include <dxgi.h>
 
 SwapChain::SwapChain() : swapChain(nullptr), renderTargetView(nullptr) {}

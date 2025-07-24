@@ -1,4 +1,4 @@
-#include "../../../Headers/Rendering/D3D/D3DContext.h"
+#include "../../../Headers/Rendering/D3D/D3DContext.hpp"
 #include <stdexcept>
 
 D3DContext::D3DContext() : device(nullptr), context(nullptr) {}

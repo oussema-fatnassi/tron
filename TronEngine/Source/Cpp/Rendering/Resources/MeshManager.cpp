@@ -1,4 +1,4 @@
-#include "../../../Headers/Rendering/Resources/MeshManager.h"
+#include "../../../Headers/Rendering/Resources/MeshManager.hpp"
 
 bool MeshManager::LoadMesh(ID3D11Device* device, const std::string& name, const std::string& filepath) {
     // TODO : Charger un fichier .obj ou .mesh custom (placeholder ici)

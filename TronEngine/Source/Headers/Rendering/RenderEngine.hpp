@@ -1,10 +1,10 @@
 #pragma once
 
-#include "D3D/D3DContext.h"
-#include "D3D/D3DRenderer.h"
-#include "D3D/SwapChain.h"
-#include "D3D/CommandQueue.h"
-#include "Resources/ShaderManager.h"
+#include "D3D/D3DContext.hpp"
+#include "D3D/D3DRenderer.hpp"
+#include "D3D/SwapChain.hpp"
+#include "D3D/CommandQueue.hpp"
+#include "Resources/ShaderManager.hpp"
 
 class RenderEngine {
 public:

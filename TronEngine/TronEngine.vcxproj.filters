@@ -37,6 +37,21 @@
     <Filter Include="Source\Cpp\Communication">
       <UniqueIdentifier>{85128778-0d32-4636-8c17-ca6f652d8ecd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Cpp\Rendering\D3D">
+      <UniqueIdentifier>{54c1b527-d6c4-47aa-9125-0f194775b43d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Cpp\Rendering\Resources">
+      <UniqueIdentifier>{4b37e8d2-62e6-4679-8f79-b7a6aeebc90c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Headers\Rendering\D3D">
+      <UniqueIdentifier>{57f13124-c446-42ab-8165-71d1089cfbc1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Headers\Rendering\Resources">
+      <UniqueIdentifier>{13e395c6-fd89-411b-aa29-fb8e642cde95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Shaders">
+      <UniqueIdentifier>{1c22edef-993a-4782-b225-fe075c11e8ea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\EngineExports.hpp">
@@ -48,16 +63,36 @@
     <ClInclude Include="Source\Headers\Core\Engine.hpp">
       <Filter>Source\Headers\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Headers\Rendering\RenderEngine.h" />
-    <ClInclude Include="Source\Headers\Rendering\D3D\D3DContext.h" />
-    <ClInclude Include="Source\Headers\Rendering\D3D\SwapChain.h" />
-    <ClInclude Include="Source\Headers\Rendering\D3D\CommandQueue.h" />
-    <ClInclude Include="Source\Headers\Rendering\D3D\D3DRenderer.h" />
-    <ClInclude Include="Source\Headers\Rendering\Resources\MaterialManager.h" />
-    <ClInclude Include="Source\Headers\Rendering\Resources\MeshManager.h" />
-    <ClInclude Include="Source\Headers\Rendering\Resources\ShaderManager.h" />
-    <ClInclude Include="Source\Headers\Rendering\Resources\TextureManager.h" />
-    <ClInclude Include="Source\Headers\Core\WindowUtils.h" />
+    <ClInclude Include="Source\Headers\Rendering\RenderEngine.hpp">
+      <Filter>Source\Headers\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Rendering\D3D\CommandQueue.hpp">
+      <Filter>Source\Headers\Rendering\D3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Rendering\D3D\D3DContext.hpp">
+      <Filter>Source\Headers\Rendering\D3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Rendering\D3D\D3DRenderer.hpp">
+      <Filter>Source\Headers\Rendering\D3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Rendering\D3D\SwapChain.hpp">
+      <Filter>Source\Headers\Rendering\D3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Rendering\Resources\MaterialManager.hpp">
+      <Filter>Source\Headers\Rendering\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Rendering\Resources\MeshManager.hpp">
+      <Filter>Source\Headers\Rendering\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Rendering\Resources\ShaderManager.hpp">
+      <Filter>Source\Headers\Rendering\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Rendering\Resources\TextureManager.hpp">
+      <Filter>Source\Headers\Rendering\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Core\WindowUtils.hpp">
+      <Filter>Source\Headers\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Cpp\Core\Engine.cpp">
@@ -66,18 +101,40 @@
     <ClCompile Include="Source\Cpp\Core\EngineAPI.cpp">
       <Filter>Source\Cpp\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Cpp\Rendering\RenderEngine.cpp" />
-    <ClCompile Include="Source\Cpp\Rendering\D3D\D3DContext.cpp" />
-    <ClCompile Include="Source\Cpp\Rendering\D3D\SwapChain.cpp" />
-    <ClCompile Include="Source\Cpp\Rendering\D3D\CommandQueue.cpp" />
-    <ClCompile Include="Source\Cpp\Rendering\D3D\D3DRenderer.cpp" />
-    <ClCompile Include="Source\Cpp\Rendering\Resources\MaterialManager.cpp" />
-    <ClCompile Include="Source\Cpp\Rendering\Resources\MeshManager.cpp" />
-    <ClCompile Include="Source\Cpp\Rendering\Resources\ShaderManager.cpp" />
-    <ClCompile Include="Source\Cpp\Rendering\Resources\TextureManager.cpp" />
-    <ClCompile Include="Source\Cpp\Core\WindowUtils.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\RenderEngine.cpp">
+      <Filter>Source\Cpp\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Cpp\Rendering\D3D\CommandQueue.cpp">
+      <Filter>Source\Cpp\Rendering\D3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Cpp\Rendering\D3D\D3DContext.cpp">
+      <Filter>Source\Cpp\Rendering\D3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Cpp\Rendering\D3D\D3DRenderer.cpp">
+      <Filter>Source\Cpp\Rendering\D3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Cpp\Rendering\D3D\SwapChain.cpp">
+      <Filter>Source\Cpp\Rendering\D3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Cpp\Rendering\Resources\MaterialManager.cpp">
+      <Filter>Source\Cpp\Rendering\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Cpp\Rendering\Resources\MeshManager.cpp">
+      <Filter>Source\Cpp\Rendering\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Cpp\Rendering\Resources\ShaderManager.cpp">
+      <Filter>Source\Cpp\Rendering\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Cpp\Rendering\Resources\TextureManager.cpp">
+      <Filter>Source\Cpp\Rendering\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Cpp\Core\WindowUtils.cpp">
+      <Filter>Source\Cpp\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Source\shaders\PixelShader.hlsl" />
+    <FxCompile Include="Source\shaders\PixelShader.hlsl">
+      <Filter>Source\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

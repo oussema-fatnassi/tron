@@ -1,5 +1,5 @@
-#include "../../Headers/Rendering/RenderEngine.h"
-#include "../../Headers/Rendering/Resources/ShaderManager.h"
+#include "../../Headers/Rendering/RenderEngine.hpp"
+#include "../../Headers/Rendering/Resources/ShaderManager.hpp"
 
 RenderEngine::RenderEngine(HWND hwnd, int width, int height)
     : hwnd(hwnd), width(width), height(height),

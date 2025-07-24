@@ -1,4 +1,4 @@
-#include "../../../Headers/Rendering/Resources/ShaderManager.h"
+#include "../../../Headers/Rendering/Resources/ShaderManager.hpp"
 #include <d3dcompiler.h>
 #include <wrl/client.h>
 #include <fstream>

@@ -1,4 +1,4 @@
-#include "../../../Headers/Rendering/Resources/TextureManager.h"
+#include "../../../Headers/Rendering/Resources/TextureManager.hpp"
 #include <d3d11.h>
 #include <wrl/client.h>
 #include <wincodec.h>

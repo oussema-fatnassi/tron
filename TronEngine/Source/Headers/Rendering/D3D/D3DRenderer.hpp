@@ -1,10 +1,10 @@
 #pragma once
-#include "D3DContext.h"
-#include "SwapChain.h"
-#include "CommandQueue.h"
-#include "../Resources/ShaderManager.h"
-#include "../Resources/MeshManager.h"
-#include "../Resources/MaterialManager.h"
+#include "D3DContext.hpp"
+#include "SwapChain.hpp"
+#include "CommandQueue.hpp"
+#include "../Resources/ShaderManager.hpp"
+#include "../Resources/MeshManager.hpp"
+#include "../Resources/MaterialManager.hpp"
 
 class D3DRenderer {
 public:

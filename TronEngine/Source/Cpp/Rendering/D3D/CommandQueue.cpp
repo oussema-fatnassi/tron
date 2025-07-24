@@ -1,4 +1,4 @@
-#include "../../../Headers/Rendering/D3D/CommandQueue.h"
+#include "../../../Headers/Rendering/D3D/CommandQueue.hpp"
 
 void CommandQueue::Push(const RenderCommand& cmd) {
     std::lock_guard<std::mutex> lock(mutex);

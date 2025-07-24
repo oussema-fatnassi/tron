@@ -1,4 +1,4 @@
-#include "../../../Headers/Rendering/D3D/D3DRenderer.h"
+#include "../../../Headers/Rendering/D3D/D3DRenderer.hpp"
 
 D3DRenderer::D3DRenderer() : context(nullptr), swapChain(nullptr), commandQueue(nullptr) {}
 

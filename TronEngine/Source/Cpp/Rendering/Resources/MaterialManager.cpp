@@ -1,4 +1,4 @@
-#include "../../../Headers/Rendering/Resources/MaterialManager.h"
+#include "../../../Headers/Rendering/Resources/MaterialManager.hpp"
 
 bool MaterialManager::CreateMaterial(const std::string& name, Shader* shader, ID3D11ShaderResourceView* texture) {
     materials[name] = { shader, texture };

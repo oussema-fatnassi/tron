@@ -1,7 +1,7 @@
 #include "../Headers/Core/Engine.hpp"
 #include "../../Include/TronEngine.hpp"
-#include "../Headers/Rendering/RenderEngine.h"
-#include "../Headers/Core/WindowUtils.h"
+#include "../Headers/Rendering/RenderEngine.hpp"
+#include "../Headers/Core/WindowUtils.hpp"
 #include <iostream>
 #include <chrono>
 
