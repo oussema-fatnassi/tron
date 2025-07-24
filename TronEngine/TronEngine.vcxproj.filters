@@ -48,37 +48,37 @@
     <ClInclude Include="Source\Headers\Core\Engine.hpp">
       <Filter>Source\Headers\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\Component.hpp">
+    <ClInclude Include="Source\Headers\Game\Component.hpp">
       <Filter>Source\Headers\Game</Filter>
     </ClInclude>
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\ComponentManager.hpp">
+    <ClInclude Include="Source\Headers\Game\ComponentManager.hpp">
       <Filter>Source\Headers\Game</Filter>
     </ClInclude>
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\DebugSystem.hpp">
+    <ClInclude Include="Source\Headers\Game\DebugSystem.hpp">
       <Filter>Source\Headers\Game</Filter>
     </ClInclude>
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\EntityManager.hpp">
+    <ClInclude Include="Source\Headers\Game\EntityManager.hpp">
       <Filter>Source\Headers\Game</Filter>
     </ClInclude>
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\MovementSystem.hpp">
+    <ClInclude Include="Source\Headers\Game\MovementSystem.hpp">
       <Filter>Source\Headers\Game</Filter>
     </ClInclude>
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\System.hpp">
+    <ClInclude Include="Source\Headers\Game\System.hpp">
       <Filter>Source\Headers\Game</Filter>
     </ClInclude>
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\SystemManager.hpp">
+    <ClInclude Include="Source\Headers\Game\SystemManager.hpp">
       <Filter>Source\Headers\Game</Filter>
     </ClInclude>
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\TransformComponent.hpp">
+    <ClInclude Include="Source\Headers\Game\TransformComponent.hpp">
       <Filter>Source\Headers\Game</Filter>
     </ClInclude>
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\Types.hpp">
+    <ClInclude Include="Source\Headers\Game\Types.hpp">
       <Filter>Source\Headers\Game</Filter>
     </ClInclude>
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\VelocityComponent.hpp">
+    <ClInclude Include="Source\Headers\Game\VelocityComponent.hpp">
       <Filter>Source\Headers\Game</Filter>
     </ClInclude>
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\World.hpp">
+    <ClInclude Include="Source\Headers\Game\World.hpp">
       <Filter>Source\Headers\Game</Filter>
     </ClInclude>
   </ItemGroup>
@@ -89,25 +89,25 @@
     <ClCompile Include="Source\Cpp\Core\EngineAPI.cpp">
       <Filter>Source\Cpp\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\ALL_ECS_SYSTEM\src\ComponentManager.cpp">
+    <ClCompile Include="Source\Cpp\Game\ComponentManager.cpp">
       <Filter>Source\Cpp\Game</Filter>
     </ClCompile>
-    <ClCompile Include="..\ALL_ECS_SYSTEM\src\DebugSystem.cpp">
+    <ClCompile Include="Source\Cpp\Game\DebugSystem.cpp">
       <Filter>Source\Cpp\Game</Filter>
     </ClCompile>
-    <ClCompile Include="..\ALL_ECS_SYSTEM\src\EntityManager.cpp">
+    <ClCompile Include="Source\Cpp\Game\EntityManager.cpp">
       <Filter>Source\Cpp\Game</Filter>
     </ClCompile>
-    <ClCompile Include="..\ALL_ECS_SYSTEM\src\MovementSystem.cpp">
+    <ClCompile Include="Source\Cpp\Game\MovementSystem.cpp">
       <Filter>Source\Cpp\Game</Filter>
     </ClCompile>
-    <ClCompile Include="..\ALL_ECS_SYSTEM\src\System.cpp">
+    <ClCompile Include="Source\Cpp\Game\System.cpp">
       <Filter>Source\Cpp\Game</Filter>
     </ClCompile>
-    <ClCompile Include="..\ALL_ECS_SYSTEM\src\SystemManager.cpp">
+    <ClCompile Include="Source\Cpp\Game\SystemManager.cpp">
       <Filter>Source\Cpp\Game</Filter>
     </ClCompile>
-    <ClCompile Include="..\ALL_ECS_SYSTEM\src\World.cpp">
+    <ClCompile Include="Source\Cpp\Game\World.cpp">
       <Filter>Source\Cpp\Game</Filter>
     </ClCompile>
   </ItemGroup>

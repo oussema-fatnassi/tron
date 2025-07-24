@@ -1,4 +1,4 @@
-#include "../include/ComponentManager.hpp"
+#include "../../Headers/Game/ComponentManager.hpp"
 
 // <summary>
 // ComponentManager class, manages components in the ECS world.
@@ -11,7 +11,7 @@
 // </remarks>
 
 // <summary>
-// Constructor initializes the component manager, setting up the component type counter.
+// Constructor initializes the component manager, setting up the component type counteSr.
 // </summary>
 // <remarks>
 // This constructor sets the initial state of the component manager, including the component type counter,

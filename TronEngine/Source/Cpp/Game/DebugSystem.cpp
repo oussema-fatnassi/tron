@@ -1,7 +1,7 @@
-#include "../include/DebugSystem.hpp"
-#include "../include/World.hpp"
-#include "../include/TransformComponent.hpp"
-#include "../include/VelocityComponent.hpp"
+#include "../../Headers/Game/DebugSystem.hpp"
+#include "../../Headers/Game/World.hpp"
+#include "../../Headers/Game/TransformComponent.hpp"
+#include "../../Headers/Game/VelocityComponent.hpp"
 
 // <summary>
 // DebugSystem class, responsible for printing debug information about entities in the ECS world.

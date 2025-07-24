@@ -19,31 +19,31 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\Component.hpp" />
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\ComponentManager.hpp" />
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\DebugSystem.hpp" />
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\EntityManager.hpp" />
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\MovementSystem.hpp" />
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\System.hpp" />
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\SystemManager.hpp" />
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\TransformComponent.hpp" />
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\Types.hpp" />
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\VelocityComponent.hpp" />
-    <ClInclude Include="..\ALL_ECS_SYSTEM\include\World.hpp" />
     <ClInclude Include="Include\EngineExports.hpp" />
     <ClInclude Include="Include\TronEngine.hpp" />
     <ClInclude Include="Source\Headers\Core\Engine.hpp" />
+    <ClInclude Include="Source\Headers\Game\Component.hpp" />
+    <ClInclude Include="Source\Headers\Game\ComponentManager.hpp" />
+    <ClInclude Include="Source\Headers\Game\DebugSystem.hpp" />
+    <ClInclude Include="Source\Headers\Game\EntityManager.hpp" />
+    <ClInclude Include="Source\Headers\Game\MovementSystem.hpp" />
+    <ClInclude Include="Source\Headers\Game\System.hpp" />
+    <ClInclude Include="Source\Headers\Game\SystemManager.hpp" />
+    <ClInclude Include="Source\Headers\Game\TransformComponent.hpp" />
+    <ClInclude Include="Source\Headers\Game\Types.hpp" />
+    <ClInclude Include="Source\Headers\Game\VelocityComponent.hpp" />
+    <ClInclude Include="Source\Headers\Game\World.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\ALL_ECS_SYSTEM\src\ComponentManager.cpp" />
-    <ClCompile Include="..\ALL_ECS_SYSTEM\src\DebugSystem.cpp" />
-    <ClCompile Include="..\ALL_ECS_SYSTEM\src\EntityManager.cpp" />
-    <ClCompile Include="..\ALL_ECS_SYSTEM\src\MovementSystem.cpp" />
-    <ClCompile Include="..\ALL_ECS_SYSTEM\src\System.cpp" />
-    <ClCompile Include="..\ALL_ECS_SYSTEM\src\SystemManager.cpp" />
-    <ClCompile Include="..\ALL_ECS_SYSTEM\src\World.cpp" />
     <ClCompile Include="Source\Cpp\Core\Engine.cpp" />
     <ClCompile Include="Source\Cpp\Core\EngineAPI.cpp" />
+    <ClCompile Include="Source\Cpp\Game\ComponentManager.cpp" />
+    <ClCompile Include="Source\Cpp\Game\DebugSystem.cpp" />
+    <ClCompile Include="Source\Cpp\Game\EntityManager.cpp" />
+    <ClCompile Include="Source\Cpp\Game\MovementSystem.cpp" />
+    <ClCompile Include="Source\Cpp\Game\System.cpp" />
+    <ClCompile Include="Source\Cpp\Game\SystemManager.cpp" />
+    <ClCompile Include="Source\Cpp\Game\World.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
