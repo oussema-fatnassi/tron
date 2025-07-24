@@ -2,13 +2,13 @@
 #include <thread>
 #include <chrono>
 
-#include "World.hpp"
+#include "../ALL_ECS_SYSTEM/include/World.hpp"
 
-#include "TransformComponent.hpp"
-#include "VelocityComponent.hpp"
+#include "../ALL_ECS_SYSTEM/include/TransformComponent.hpp"
+#include "../ALL_ECS_SYSTEM/include/VelocityComponent.hpp"
 
-#include "DebugSystem.hpp"
-#include "MovementSystem.hpp"
+#include "../ALL_ECS_SYSTEM/include/DebugSystem.hpp"
+#include "../ALL_ECS_SYSTEM/include/MovementSystem.hpp"
 
 
 int main() {

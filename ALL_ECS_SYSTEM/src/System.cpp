@@ -1,4 +1,4 @@
-#include "System.hpp"
+#include "../include/System.hpp"
 
 // <summary>
 // System class, the base class for all systems in the ECS world.

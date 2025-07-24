@@ -1,4 +1,4 @@
-#include "ComponentManager.hpp"
+#include "../include/ComponentManager.hpp"
 
 // <summary>
 // ComponentManager class, manages components in the ECS world.
@@ -38,7 +38,8 @@ ComponentManager::~ComponentManager() = default;
 // and initializes an empty pool for that component type. It uses unique pointers to manage component lifetimes.
 // </remarks>
 void ComponentManager::RemoveAllComponents(Entity entity) {
-    for (auto& [typeIndex, pool] : _componentPools) {
+    for (auto& poolPair : _componentPools) {
+        auto& pool = poolPair.second;
         if (entity < pool.size()) {
             pool[entity].reset();
         }
@@ -62,11 +63,14 @@ void ComponentManager::RemoveAllComponents(Entity entity) {
 // </remarks>
 bool ComponentManager::HasComponent(Entity entity, ComponentType type) const {
     // Find which type_index corresponds to this ComponentType
-    for (const auto& [typeIndex, componentType] : _componentTypes) {
+    for (const auto& pair : _componentTypes) {
+        const auto& typeIndex = pair.first;
+        const auto& componentType = pair.second;
+
         if (componentType == type) {
             auto poolIt = _componentPools.find(typeIndex);
-            if (poolIt != _componentPools.end() && 
-                entity < poolIt->second.size() && 
+            if (poolIt != _componentPools.end() &&
+                entity < poolIt->second.size() &&
                 poolIt->second[entity]) {
                 return true;
             }
@@ -90,7 +94,10 @@ bool ComponentManager::HasComponent(Entity entity, ComponentType type) const {
 // </remarks>
 size_t ComponentManager::GetComponentPoolSize(ComponentType type) const {
     // Find which type_index corresponds to this ComponentType
-    for (const auto& [typeIndex, componentType] : _componentTypes) {
+    for (const auto& pair : _componentTypes) {
+        const auto& typeIndex = pair.first;
+        const auto& componentType = pair.second;
+
         if (componentType == type) {
             auto poolIt = _componentPools.find(typeIndex);
             if (poolIt != _componentPools.end()) {

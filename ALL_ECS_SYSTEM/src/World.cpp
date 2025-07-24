@@ -1,4 +1,4 @@
-#include "World.hpp"
+#include "../include/World.hpp"
 
 // <summary>
 // World class, the main entry point for the ECS system.
