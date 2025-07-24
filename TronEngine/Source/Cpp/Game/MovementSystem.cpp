@@ -1,7 +1,7 @@
-#include "MovementSystem.hpp"
-#include "World.hpp"
-#include "TransformComponent.hpp"
-#include "VelocityComponent.hpp"
+#include "../../Headers/Game/MovementSystem.hpp"
+#include "../../Headers/Game/World.hpp"
+#include "../../Headers/Game/TransformComponent.hpp"
+#include "../../Headers/Game/VelocityComponent.hpp"
 
 // <summary>
 // MovementSystem is a System that updates the position of entities based on their velocity.

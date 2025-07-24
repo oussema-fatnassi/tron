@@ -1,140 +1,53 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Include">
-      <UniqueIdentifier>{11ebe708-808d-46c2-9d0f-eae794e2ed16}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source">
-      <UniqueIdentifier>{83f6baac-3fa2-4567-83a7-0ab6d6a202b4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Headers">
-      <UniqueIdentifier>{26908a11-66ca-47b3-85b5-3ab9ce454e2f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Headers\Core">
-      <UniqueIdentifier>{803919f3-27d7-40db-b4a5-a57f9d15a67a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Headers\Game">
-      <UniqueIdentifier>{34ffbaa9-c22a-4188-8fda-da98fd911987}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Headers\Rendering">
-      <UniqueIdentifier>{224f03c6-cee7-4642-9e82-a96c1c7459ef}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Headers\Communication">
-      <UniqueIdentifier>{cee2f4f7-bceb-4dee-a6f3-640b1079e921}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Cpp">
-      <UniqueIdentifier>{76486aa5-ae31-4e97-a4d3-e50e0c1d71fa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Cpp\Core">
-      <UniqueIdentifier>{1d03f339-7ca0-4e1d-8e41-e1ae1df52d7f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Cpp\Game">
-      <UniqueIdentifier>{f482740b-4383-4ea0-9ae1-0fd037c06941}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Cpp\Rendering">
-      <UniqueIdentifier>{52bad8bd-a522-47d5-aa48-e4ccb6fd51a5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Cpp\Communication">
-      <UniqueIdentifier>{85128778-0d32-4636-8c17-ca6f652d8ecd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Cpp\Rendering\D3D">
-      <UniqueIdentifier>{54c1b527-d6c4-47aa-9125-0f194775b43d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Cpp\Rendering\Resources">
-      <UniqueIdentifier>{4b37e8d2-62e6-4679-8f79-b7a6aeebc90c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Headers\Rendering\D3D">
-      <UniqueIdentifier>{57f13124-c446-42ab-8165-71d1089cfbc1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Headers\Rendering\Resources">
-      <UniqueIdentifier>{13e395c6-fd89-411b-aa29-fb8e642cde95}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Shaders">
-      <UniqueIdentifier>{1c22edef-993a-4782-b225-fe075c11e8ea}</UniqueIdentifier>
-    </Filter>
+    <FxCompile Include="Source\shaders\PixelShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\EngineExports.hpp">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\TronEngine.hpp">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\Core\Engine.hpp">
-      <Filter>Source\Headers\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\Rendering\RenderEngine.hpp">
-      <Filter>Source\Headers\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\Rendering\D3D\CommandQueue.hpp">
-      <Filter>Source\Headers\Rendering\D3D</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\Rendering\D3D\D3DContext.hpp">
-      <Filter>Source\Headers\Rendering\D3D</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\Rendering\D3D\D3DRenderer.hpp">
-      <Filter>Source\Headers\Rendering\D3D</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\Rendering\D3D\SwapChain.hpp">
-      <Filter>Source\Headers\Rendering\D3D</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\Rendering\Resources\MaterialManager.hpp">
-      <Filter>Source\Headers\Rendering\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\Rendering\Resources\MeshManager.hpp">
-      <Filter>Source\Headers\Rendering\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\Rendering\Resources\ShaderManager.hpp">
-      <Filter>Source\Headers\Rendering\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\Rendering\Resources\TextureManager.hpp">
-      <Filter>Source\Headers\Rendering\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\Core\WindowUtils.hpp">
-      <Filter>Source\Headers\Core</Filter>
-    </ClInclude>
+    <ClCompile Include="Source\Cpp\Rendering\D3D\CommandQueue.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\D3D\D3DContext.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\D3D\D3DRenderer.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\RenderEngine.cpp" />
+    <ClCompile Include="Source\Cpp\Core\Engine.cpp" />
+    <ClCompile Include="Source\Cpp\Core\EngineAPI.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\D3D\SwapChain.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\Resources\MaterialManager.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\Resources\MeshManager.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\Resources\ShaderManager.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\Resources\TextureManager.cpp" />
+    <ClCompile Include="Source\Cpp\Core\WindowUtils.cpp" />
+    <ClCompile Include="Source\Cpp\Game\ComponentManager.cpp" />
+    <ClCompile Include="Source\Cpp\Game\DebugSystem.cpp" />
+    <ClCompile Include="Source\Cpp\Game\EntityManager.cpp" />
+    <ClCompile Include="Source\Cpp\Game\MovementSystem.cpp" />
+    <ClCompile Include="Source\Cpp\Game\System.cpp" />
+    <ClCompile Include="Source\Cpp\Game\SystemManager.cpp" />
+    <ClCompile Include="Source\Cpp\Game\World.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Cpp\Core\Engine.cpp">
-      <Filter>Source\Cpp\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Cpp\Core\EngineAPI.cpp">
-      <Filter>Source\Cpp\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Cpp\Rendering\RenderEngine.cpp">
-      <Filter>Source\Cpp\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Cpp\Rendering\D3D\CommandQueue.cpp">
-      <Filter>Source\Cpp\Rendering\D3D</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Cpp\Rendering\D3D\D3DContext.cpp">
-      <Filter>Source\Cpp\Rendering\D3D</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Cpp\Rendering\D3D\D3DRenderer.cpp">
-      <Filter>Source\Cpp\Rendering\D3D</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Cpp\Rendering\D3D\SwapChain.cpp">
-      <Filter>Source\Cpp\Rendering\D3D</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Cpp\Rendering\Resources\MaterialManager.cpp">
-      <Filter>Source\Cpp\Rendering\Resources</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Cpp\Rendering\Resources\MeshManager.cpp">
-      <Filter>Source\Cpp\Rendering\Resources</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Cpp\Rendering\Resources\ShaderManager.cpp">
-      <Filter>Source\Cpp\Rendering\Resources</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Cpp\Rendering\Resources\TextureManager.cpp">
-      <Filter>Source\Cpp\Rendering\Resources</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Cpp\Core\WindowUtils.cpp">
-      <Filter>Source\Cpp\Core</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Source\shaders\PixelShader.hlsl">
-      <Filter>Source\Shaders</Filter>
-    </FxCompile>
+    <ClInclude Include="Source\Headers\Rendering\D3D\CommandQueue.hpp" />
+    <ClInclude Include="Source\Headers\Rendering\D3D\D3DContext.hpp" />
+    <ClInclude Include="Include\EngineExports.hpp" />
+    <ClInclude Include="Include\TronEngine.hpp" />
+    <ClInclude Include="Source\Headers\Rendering\D3D\D3DRenderer.hpp" />
+    <ClInclude Include="Source\Headers\Rendering\RenderEngine.hpp" />
+    <ClInclude Include="Source\Headers\Core\Engine.hpp" />
+    <ClInclude Include="Source\Headers\Rendering\D3D\SwapChain.hpp" />
+    <ClInclude Include="Source\Headers\Rendering\Resources\MaterialManager.hpp" />
+    <ClInclude Include="Source\Headers\Rendering\Resources\MeshManager.hpp" />
+    <ClInclude Include="Source\Headers\Rendering\Resources\ShaderManager.hpp" />
+    <ClInclude Include="Source\Headers\Rendering\Resources\TextureManager.hpp" />
+    <ClInclude Include="Source\Headers\Core\WindowUtils.hpp" />
+    <ClInclude Include="Source\Headers\Game\Component.hpp" />
+    <ClInclude Include="Source\Headers\Game\ComponentManager.hpp" />
+    <ClInclude Include="Source\Headers\Game\DebugSystem.hpp" />
+    <ClInclude Include="Source\Headers\Game\EntityManager.hpp" />
+    <ClInclude Include="Source\Headers\Game\MovementSystem.hpp" />
+    <ClInclude Include="Source\Headers\Game\System.hpp" />
+    <ClInclude Include="Source\Headers\Game\SystemManager.hpp" />
+    <ClInclude Include="Source\Headers\Game\TransformComponent.hpp" />
+    <ClInclude Include="Source\Headers\Game\Types.hpp" />
+    <ClInclude Include="Source\Headers\Game\VelocityComponent.hpp" />
+    <ClInclude Include="Source\Headers\Game\World.hpp" />
   </ItemGroup>
 </Project>

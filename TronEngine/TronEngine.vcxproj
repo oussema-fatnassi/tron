@@ -32,6 +32,17 @@
     <ClInclude Include="Source\Headers\Rendering\Resources\ShaderManager.hpp" />
     <ClInclude Include="Source\Headers\Rendering\Resources\TextureManager.hpp" />
     <ClInclude Include="Source\Headers\Core\WindowUtils.hpp" />
+    <ClInclude Include="Source\Headers\Game\Component.hpp" />
+    <ClInclude Include="Source\Headers\Game\ComponentManager.hpp" />
+    <ClInclude Include="Source\Headers\Game\DebugSystem.hpp" />
+    <ClInclude Include="Source\Headers\Game\EntityManager.hpp" />
+    <ClInclude Include="Source\Headers\Game\MovementSystem.hpp" />
+    <ClInclude Include="Source\Headers\Game\System.hpp" />
+    <ClInclude Include="Source\Headers\Game\SystemManager.hpp" />
+    <ClInclude Include="Source\Headers\Game\TransformComponent.hpp" />
+    <ClInclude Include="Source\Headers\Game\Types.hpp" />
+    <ClInclude Include="Source\Headers\Game\VelocityComponent.hpp" />
+    <ClInclude Include="Source\Headers\Game\World.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Cpp\Rendering\D3D\CommandQueue.cpp" />
@@ -54,6 +65,13 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
+    <ClCompile Include="Source\Cpp\Game\ComponentManager.cpp" />
+    <ClCompile Include="Source\Cpp\Game\DebugSystem.cpp" />
+    <ClCompile Include="Source\Cpp\Game\EntityManager.cpp" />
+    <ClCompile Include="Source\Cpp\Game\MovementSystem.cpp" />
+    <ClCompile Include="Source\Cpp\Game\System.cpp" />
+    <ClCompile Include="Source\Cpp\Game\SystemManager.cpp" />
+    <ClCompile Include="Source\Cpp\Game\World.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -127,7 +145,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)Source\Headers;$(ProjectDir)Source;$(ProjectDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -135,6 +153,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib
+
+;</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(TargetPath)" "$(SolutionDir)TestConsole\" /D /Y</Command>
@@ -150,7 +171,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)Source\Headers;$(ProjectDir)Source;$(ProjectDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -160,6 +181,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib
+
+;</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(TargetPath)" "$(SolutionDir)TestConsole\" /D /Y</Command>
@@ -173,7 +197,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)Source\Headers;$(ProjectDir)Source;$(ProjectDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -181,7 +205,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib
+
+;d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(TargetPath)" "$(SolutionDir)TestConsole\" /D /Y</Command>
@@ -197,7 +223,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)Source\Headers;$(ProjectDir)Source;$(ProjectDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -207,7 +233,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib
+
+;d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(TargetPath)" "$(SolutionDir)TestConsole\" /D /Y</Command>

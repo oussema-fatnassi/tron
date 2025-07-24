@@ -42,14 +42,14 @@
 
 *.DS_Store
 *build
+
+/bin/
 .vscode
 *.vscode
 /x64/
 /TronEngine/x64/
 /TestConsole/x64/
-
+*.exp
 .vs
 *.bat
-
-/bin/
 
