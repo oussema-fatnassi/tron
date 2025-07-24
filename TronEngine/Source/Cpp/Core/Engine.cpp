@@ -149,8 +149,10 @@ bool Engine::InitializeSubsystems() {
     std::cout << "[TronEngine] Initializing subsystems...\n";
 
     // TODO: Initialize RenderEngine, GameEngine, ThreadPool
-    // For now, just placeholders
+    
 
+    // Render Engine 
+	// TODO: Initialize the RenderEngine with a single function in Window and other from the RenderEngine
     int width = 1280;
     int height = 720;
 
