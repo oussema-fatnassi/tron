@@ -1,6 +1,7 @@
 #include "../Headers/Core/Engine.hpp"
 #include "../../Include/TronEngine.hpp"
 #include <iostream>
+#include <chrono>
 
 Engine::Engine()
     : m_initialized(false)
@@ -23,7 +24,7 @@ bool Engine::Initialize() {
         return true;
     }
 
-    std::cout << "[TronEngine] Initializing TRON Engine v" << m_version << "\n";
+    std::cout << "[TronEngine] Initializing TRON Engine v" << TRON_ENGINE_VERSION_STRING << "\n";
 
     // Initialize subsystems
     if (!InitializeSubsystems()) {
@@ -44,23 +45,73 @@ void Engine::Run() {
 
     std::cout << "[TronEngine] Starting main engine loop...\n";
     m_running = true;
+    m_frameCount = 0;
 
-    // Simple test loop for now
-    int frameCount = 0;
-    while (m_running && frameCount < 5) {
-        std::cout << "[TronEngine] Frame " << (frameCount + 1) << " - Processing...\n";
+    // Start the Game Thread
+    m_gameThread = std::make_unique<std::thread>(&Engine::GameLoop, this);
+    
+    // RenderLoop in the main Thread
+    RenderLoop();
 
-        // TODO: In full implementation:
-        // - Coordinate render and game threads
-        // - Process Windows messages
-        // - Handle timing
-
-        frameCount++;
-        if (frameCount >= 5) {
-            std::cout << "[TronEngine] Test run complete\n";
-            m_running = false;
-        }
+    if (m_gameThread && m_gameThread->joinable()) {
+        m_gameThread->join();
     }
+
+    std::cout << "[TronEngine] Engine loops stopped\n";
+}
+
+void Engine::RenderLoop() {
+    std::cout << "[Threading] Main Thread -> Render Loop started\n";
+
+    while (m_running && m_frameCount < 20) {  // Test: 20 frames
+        auto frameStart = std::chrono::steady_clock::now();
+
+        // TODO: Call the Rendering method that groups all the thing need do it everyframe
+
+        // Placeholder: Simulate render work
+        std::cout << "[Render Thread] Frame " << m_frameCount + 1 << " - Rendering...\n";
+
+        // Simulate rendering time (16ms for 60 FPS) replace with VSync (optional)
+        std::this_thread::sleep_for(std::chrono::milliseconds(16));
+
+        // Frame timing
+        auto frameEnd = std::chrono::steady_clock::now();
+        float frameTime = std::chrono::duration<float, std::milli>(frameEnd - frameStart).count();
+
+        if (m_frameCount % 10 == 0) {  // Every 10 frames
+            std::cout << "[Render Thread] Frame time: " << frameTime << "ms (Target: 16ms)\n";
+        }
+
+        m_frameCount++;
+    }
+
+    std::cout << "[Threading] Render Thread finished\n";
+}
+
+void Engine::GameLoop() {
+    std::cout << "[Threading] Game Thread started\n";
+
+    int gameFrame = 0;
+    while (m_running && gameFrame < 20) {  // Test: 20 frames
+        auto frameStart = std::chrono::steady_clock::now();
+
+        // TODO: call ECS UPDATE function that call everything, I think is in World.cpp on the Game folder
+
+        // Placeholder: Simulate game work
+        std::cout << "[Game Thread] Frame " << gameFrame + 1 << " - Processing game logic...\n";
+
+        gameFrame++;
+
+        // Calculate delta time for game systems
+        auto frameEnd = std::chrono::steady_clock::now();
+        m_deltaTime = std::chrono::duration<float>(frameEnd - frameStart).count();
+
+        // Target 60 FPS for game logic (less than render thread) for build we can comment this, for gameplay fluidity
+        std::this_thread::sleep_for(std::chrono::milliseconds(6));
+    }
+
+    m_running = false;  // Signal render thread to stop
+    std::cout << "[Threading] Game Thread finished\n";
 }
 
 void Engine::Shutdown() {
@@ -71,6 +122,13 @@ void Engine::Shutdown() {
     std::cout << "[TronEngine] Shutting down...\n";
 
     m_running = false;
+
+    if (m_gameThread && m_gameThread->joinable()) {
+        std::cout << "[Threading] Waiting for Game Thread to finish...\n";
+        m_gameThread->join();
+        std::cout << "[Threading] Game Thread joined successfully\n";
+    }
+
     ShutdownSubsystems();
 
     m_initialized = false;
@@ -90,9 +148,10 @@ bool Engine::InitializeSubsystems() {
 
     // TODO: Initialize RenderEngine, GameEngine, ThreadPool
     // For now, just placeholders
-    std::cout << "[TronEngine] Render Engine: Ready (placeholder)\n";
-    std::cout << "[TronEngine] Game Engine: Ready (placeholder)\n";
-    std::cout << "[TronEngine] Communication Layer: Ready (placeholder)\n";
+
+    std::cout << "[Threading] Thread infrastructure: Ready\n";
+    std::cout << "[Threading] Render Thread target: 60 FPS (16ms per frame)\n";
+    std::cout << "[Threading] Game Thread target: 60 FPS (16ms per frame)\n";
 
     return true;
 }
