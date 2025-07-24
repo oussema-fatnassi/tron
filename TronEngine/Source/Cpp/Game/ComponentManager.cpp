@@ -1,4 +1,4 @@
-#include "../include/ComponentManager.hpp"
+#include "../../Headers/Game/ComponentManager.hpp"
 
 // <summary>
 // ComponentManager class, manages components in the ECS world.

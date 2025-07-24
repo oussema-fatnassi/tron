@@ -5,11 +5,11 @@
 #include <thread>
 #include <atomic>
 
-#include "../../../../ALL_ECS_SYSTEM/include/World.hpp" 
-#include "../../../../ALL_ECS_SYSTEM/include/TransformComponent.hpp" 
-#include "../../../../ALL_ECS_SYSTEM/include/VelocityComponent.hpp"
-#include "../../../../ALL_ECS_SYSTEM/include/MovementSystem.hpp"
-#include "../../../../ALL_ECS_SYSTEM/include/DebugSystem.hpp"
+#include "../Game/World.hpp" 
+#include "../Game/TransformComponent.hpp" 
+#include "../Game/VelocityComponent.hpp"
+#include "../Game/MovementSystem.hpp"
+#include "../Game/DebugSystem.hpp"
 
 // Forward declarations for future subsystems
 // class RenderEngine;

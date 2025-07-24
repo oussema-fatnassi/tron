@@ -42,7 +42,8 @@
 
 *.DS_Store
 *build
-bin
+
+/bin/
 .vscode
 *.vscode
 /x64/
@@ -51,3 +52,4 @@ bin
 *.exp
 .vs
 *.bat
+*.exp
