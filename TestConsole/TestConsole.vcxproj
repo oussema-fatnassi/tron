@@ -153,6 +153,9 @@
   <ItemGroup>
     <ClCompile Include="TestConsole.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\ALL_ECS_SYSTEM\CMakeLists.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

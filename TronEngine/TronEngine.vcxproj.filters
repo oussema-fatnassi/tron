@@ -48,6 +48,39 @@
     <ClInclude Include="Source\Headers\Core\Engine.hpp">
       <Filter>Source\Headers\Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\ALL_ECS_SYSTEM\include\Component.hpp">
+      <Filter>Source\Headers\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ALL_ECS_SYSTEM\include\ComponentManager.hpp">
+      <Filter>Source\Headers\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ALL_ECS_SYSTEM\include\DebugSystem.hpp">
+      <Filter>Source\Headers\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ALL_ECS_SYSTEM\include\EntityManager.hpp">
+      <Filter>Source\Headers\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ALL_ECS_SYSTEM\include\MovementSystem.hpp">
+      <Filter>Source\Headers\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ALL_ECS_SYSTEM\include\System.hpp">
+      <Filter>Source\Headers\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ALL_ECS_SYSTEM\include\SystemManager.hpp">
+      <Filter>Source\Headers\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ALL_ECS_SYSTEM\include\TransformComponent.hpp">
+      <Filter>Source\Headers\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ALL_ECS_SYSTEM\include\Types.hpp">
+      <Filter>Source\Headers\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ALL_ECS_SYSTEM\include\VelocityComponent.hpp">
+      <Filter>Source\Headers\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ALL_ECS_SYSTEM\include\World.hpp">
+      <Filter>Source\Headers\Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Cpp\Core\Engine.cpp">
@@ -55,6 +88,27 @@
     </ClCompile>
     <ClCompile Include="Source\Cpp\Core\EngineAPI.cpp">
       <Filter>Source\Cpp\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ALL_ECS_SYSTEM\src\ComponentManager.cpp">
+      <Filter>Source\Cpp\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ALL_ECS_SYSTEM\src\DebugSystem.cpp">
+      <Filter>Source\Cpp\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ALL_ECS_SYSTEM\src\EntityManager.cpp">
+      <Filter>Source\Cpp\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ALL_ECS_SYSTEM\src\MovementSystem.cpp">
+      <Filter>Source\Cpp\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ALL_ECS_SYSTEM\src\System.cpp">
+      <Filter>Source\Cpp\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ALL_ECS_SYSTEM\src\SystemManager.cpp">
+      <Filter>Source\Cpp\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ALL_ECS_SYSTEM\src\World.cpp">
+      <Filter>Source\Cpp\Game</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
