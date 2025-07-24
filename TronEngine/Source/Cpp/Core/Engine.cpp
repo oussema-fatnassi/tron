@@ -139,14 +139,13 @@ void Engine::GameLoop() {
     while (m_running && gameFrame < 300) { 
         auto frameStart = std::chrono::steady_clock::now();
 
-        // TODO: call ECS UPDATE function that call everything, I think is in World.cpp on the Game folder
         // Update ECS World - this handles all movement, systems, etc.
         if (m_world)
         {
             m_world->Update(deltaTime);
         }
 
-        // Show progress every second
+        // Show progress every second TEST
         if (gameFrame % 60 == 0 && gameFrame > 0)
         {
             float elapsedTime = gameFrame * deltaTime;
@@ -177,7 +176,7 @@ void Engine::GameLoop() {
         m_deltaTime = std::chrono::duration<float>(frameEnd - frameStart).count();
 
         // Target 60 FPS for game logic (less than render thread) for build we can comment this, for gameplay fluidity
-        std::this_thread::sleep_for(std::chrono::milliseconds(6));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(6));
     }
 
     m_running = false;  // Signal render thread to stop
