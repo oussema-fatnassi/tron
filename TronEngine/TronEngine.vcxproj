@@ -59,7 +59,7 @@
     <ClCompile Include="Source\Cpp\Core\WindowUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Source\shaders\PixelShader.hlsl">
+    <FxCompile Include="Source\Shaders\PixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
