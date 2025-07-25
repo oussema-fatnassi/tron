@@ -5,24 +5,24 @@
 #include <chrono>
 
 Engine::Engine()
-    : m_initialized(false)
-    , m_running(false)
-    , m_version("1.0.0")
-    , m_world(nullptr)
-	, m_renderEngine(nullptr)
+    : _initialized(false)
+    , _running(false)
+    , _version("1.0.0")
+    , _world(nullptr)
+	, _renderEngine(nullptr)
 {
     std::cout << "[TronEngine] Constructor - Engine object created\n";
 }
 
 Engine::~Engine() {
-    if (m_initialized) {
+    if (_initialized) {
         Shutdown();
     }
     std::cout << "[TronEngine] Destructor - Engine object destroyed\n";
 }
 
 bool Engine::Initialize() {
-    if (m_initialized) {
+    if (_initialized) {
         std::cout << "[TronEngine] Warning: Already initialized\n";
         return true;
     }
@@ -35,7 +35,7 @@ bool Engine::Initialize() {
         return false;
     }
 
-    m_initialized = true;
+    _initialized = true;
     std::cout << "[TronEngine] Initialization successful!\n";
     return true;
 }
@@ -46,18 +46,18 @@ bool Engine::InitializeSubsystems() {
     // TODO: Initialize RenderEngine, GameEngine, ThreadPool
     
 	// Initialize ECS World
-    m_world = std::make_unique<World>();
+    _world = std::make_unique<World>();
 
-    m_world->RegisterComponent<Transform>();
-    m_world->RegisterComponent<Velocity>();
+    _world->RegisterComponent<Transform>();
+    _world->RegisterComponent<Velocity>();
 
     // Register systems
-    auto* debugSystem = m_world->RegisterSystem<DebugSystem>();
-    auto* movementSystem = m_world->RegisterSystem<MovementSystem>();
+    auto* debugSystem = _world->RegisterSystem<DebugSystem>();
+    auto* movementSystem = _world->RegisterSystem<MovementSystem>();
 
     // Set system signatures
-    m_world->SetSystemSignature<Transform>(debugSystem);
-    m_world->SetSystemSignature<Transform, Velocity>(movementSystem);
+    _world->SetSystemSignature<Transform>(debugSystem);
+    _world->SetSystemSignature<Transform, Velocity>(movementSystem);
 
     std::cout << "[TronEngine] ECS World initialized with components registered\n";
 
@@ -81,9 +81,9 @@ bool Engine::InitializeSubsystems() {
     ShowWindow(hwnd, SW_SHOW);
 
 	//Direct3D Initialization
-    m_renderEngine = std::make_unique<RenderEngine>(hwnd, width, height);
+    _renderEngine = std::make_unique<RenderEngine>(hwnd, width, height);
 
-    m_renderEngine->Initialize();
+    _renderEngine->Initialize();
 
     // LOGS
     std::cout << "[TronEngine] RenderEngine initialized successfully\n";
@@ -100,9 +100,9 @@ void Engine::ShutdownSubsystems() {
 
     // TODO: Shutdown in reverse order when implemented
     // Shutdown ECS World
-    if (m_world) {
-        m_world->Shutdown();
-        m_world.reset();
+    if (_world) {
+        _world->Shutdown();
+        _world.reset();
         std::cout << "[TronEngine] ECS World shut down\n";
     }
 
@@ -110,7 +110,7 @@ void Engine::ShutdownSubsystems() {
 }
 
 void Engine::Run() {
-    if (!m_initialized) {
+    if (!_initialized) {
         std::cout << "[TronEngine] Error: Engine not initialized\n";
         return;
     }
@@ -118,17 +118,17 @@ void Engine::Run() {
     std::cout << "[TronEngine] Starting main engine loop...\n";
     std::cout << "[TronEngine] Press Ctrl+C to stop (or will auto-stop after demo)\n";
 
-    m_running = true;
-    m_frameCount = 0;
+    _running = true;
+    _frameCount = 0;
 
     // Start the Game Thread
-    m_gameThread = std::make_unique<std::thread>(&Engine::GameLoop, this);
+    _gameThread = std::make_unique<std::thread>(&Engine::GameLoop, this);
     
     // RenderLoop in the main Thread
     RenderLoop();
 
-    if (m_gameThread && m_gameThread->joinable()) {
-        m_gameThread->join();
+    if (_gameThread && _gameThread->joinable()) {
+        _gameThread->join();
     }
 
     std::cout << "[TronEngine] Engine loops stopped\n";
@@ -138,7 +138,7 @@ void Engine::RenderLoop() {
     std::cout << "[Threading] Main Thread -> Render Loop started\n";
 
     //while (m_running && m_frameCount < 30) {   // Test: 20 frames
-    while (m_running) {
+    while (_running) {
         auto frameStart = std::chrono::steady_clock::now();
 
         // TODO: Call the Rendering method that groups all the thing need do it everyframe
@@ -153,11 +153,11 @@ void Engine::RenderLoop() {
         auto frameEnd = std::chrono::steady_clock::now();
         float frameTime = std::chrono::duration<float, std::milli>(frameEnd - frameStart).count();
 
-        if (m_frameCount % 10 == 0) {  // Every 10 frames
+        if (_frameCount % 10 == 0) {  // Every 10 frames
             // std::cout << "[Render Thread] Frame time: " << frameTime << "ms (Target: 16ms)\n";
         }
 
-        m_frameCount++;
+        _frameCount++;
     }
 
     std::cout << "[Threading] Render Thread finished\n";
@@ -171,11 +171,11 @@ void Engine::GameLoop() {
 
     // Test prints
     std::cout << "[TronEngine] === Initial Entity States ===\n";
-    auto allEntities = m_world->GetAllEntities();
+    auto allEntities = _world->GetAllEntities();
     for (Entity entity : allEntities)
     {
-        auto* transform = m_world->GetComponent<Transform>(entity);
-        auto* velocity = m_world->GetComponent<Velocity>(entity);
+        auto* transform = _world->GetComponent<Transform>(entity);
+        auto* velocity = _world->GetComponent<Velocity>(entity);
 
         std::cout << "[TronEngine] Entity " << entity;
         if (transform)
@@ -190,13 +190,13 @@ void Engine::GameLoop() {
     }
 
     int gameFrame = 0;
-    while (m_running && gameFrame < 30000) { 
+    while (_running && gameFrame < 30000) { 
         auto frameStart = std::chrono::steady_clock::now();
 
         // Update ECS World - this handles all movement, systems, etc.
-        if (m_world)
+        if (_world)
         {
-            m_world->Update(deltaTime);
+            _world->Update(deltaTime);
         }
 
         // Show progress every second TEST
@@ -207,10 +207,10 @@ void Engine::GameLoop() {
 
             for (Entity entity : allEntities)
             {
-                if (!m_world->IsValidEntity(entity))
+                if (!_world->IsValidEntity(entity))
                     continue; // Skip destroyed entities
 
-                auto* transform = m_world->GetComponent<Transform>(entity);
+                auto* transform = _world->GetComponent<Transform>(entity);
                 if (transform)
                 {
                     std::cout << "[TronEngine] Entity " << entity
@@ -227,35 +227,35 @@ void Engine::GameLoop() {
 
         // Calculate delta time for game systems
         auto frameEnd = std::chrono::steady_clock::now();
-        m_deltaTime = std::chrono::duration<float>(frameEnd - frameStart).count();
+        _deltaTime = std::chrono::duration<float>(frameEnd - frameStart).count();
 
         // Target 60 FPS for game logic (less than render thread) for build we can comment this, for gameplay fluidity
         //std::this_thread::sleep_for(std::chrono::milliseconds(6));
     }
 
-    m_running = false;  // Signal render thread to stop
+    _running = false;  // Signal render thread to stop
     std::cout << "[Threading] Game Thread finished\n";
 }
 
 void Engine::Shutdown() {
-    if (!m_initialized) {
+    if (!_initialized) {
         return;
     }
 
     std::cout << "[TronEngine] Shutting down...\n";
     
-    m_running = false;
+    _running = false;
 
     // Stoping Threads
-    if (m_gameThread && m_gameThread->joinable()) {
+    if (_gameThread && _gameThread->joinable()) {
         std::cout << "[Threading] Waiting for Game Thread to finish...\n";
-        m_gameThread->join();
+        _gameThread->join();
         std::cout << "[Threading] Game Thread joined successfully\n";
     }
 
     ShutdownSubsystems();
 
-    m_initialized = false;
+    _initialized = false;
     std::cout << "[TronEngine] Shutdown complete\n";
 }
 
@@ -264,10 +264,10 @@ void Engine::PrintMessage(const char* message) {
 }
 
 const char* Engine::GetVersion() const {
-    return m_version.c_str();
+    return _version.c_str();
 }
 
 // ECS Functions
 World* Engine::GetWorld() const {
-    return m_world.get();
+    return _world.get();
 }
