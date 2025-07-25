@@ -26,9 +26,9 @@ public:
     void PrintMessage(const char* message);
     const char* GetVersion() const;
 
-    // Subsystem access (will be implemented later)
-    // RenderEngine* GetRenderEngine() const { return m_renderEngine.get(); }
+    // Subsystem access
     World* GetWorld() const;
+    // RenderEngine* GetRenderEngine() const { return m_renderEngine.get(); }
 
 private:
     bool _initialized;
