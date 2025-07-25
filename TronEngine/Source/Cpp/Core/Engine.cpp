@@ -1,6 +1,5 @@
 #include "../Headers/Core/Engine.hpp" 
 #include "../../Include/TronEngine.hpp"
-#include "../Headers/Rendering/RenderEngine.hpp"
 #include "../Headers/Core/WindowUtils.hpp"
 #include <iostream>
 #include <chrono>
@@ -10,6 +9,7 @@ Engine::Engine()
     , m_running(false)
     , m_version("1.0.0")
     , m_world(nullptr)
+	, m_renderEngine(nullptr)
 {
     std::cout << "[TronEngine] Constructor - Engine object created\n";
 }
@@ -29,10 +29,6 @@ bool Engine::Initialize() {
 
     std::cout << "[TronEngine] Initializing TRON Engine v" << TRON_ENGINE_VERSION_STRING << "\n";
 
-    //TODO : Put this into another place
-    // Initialize ECS World
-    m_world = std::make_unique<World>();
-
     // Initialize other subsystems
     if (!InitializeSubsystems()) {
         std::cout << "[TronEngine] Failed to initialize subsystems\n";
@@ -50,7 +46,8 @@ bool Engine::InitializeSubsystems() {
     // TODO: Initialize RenderEngine, GameEngine, ThreadPool
     
 	// Initialize ECS World
-     // Register components
+    m_world = std::make_unique<World>();
+
     m_world->RegisterComponent<Transform>();
     m_world->RegisterComponent<Velocity>();
 
@@ -65,11 +62,15 @@ bool Engine::InitializeSubsystems() {
     std::cout << "[TronEngine] ECS World initialized with components registered\n";
 
     // Render Engine 
+ 
+	// WINDOW INITIALIZATION
     // TODO: Initialize the RenderEngine with a single function in Window and other from the RenderEngine
     int width = 1280;
     int height = 720;
 
     // Crée la fenêtre Win32
+	//TODO: LET SOMEWHERE THE USER CHOSE THE WINDOW SIZE
+    //TODO: Maybe add a variable to ref the window 
     HINSTANCE hInstance = GetModuleHandle(nullptr);
     HWND hwnd = CreateSimpleWindow(hInstance, width, height, L"TronEngine");
 
@@ -79,8 +80,12 @@ bool Engine::InitializeSubsystems() {
     }
     ShowWindow(hwnd, SW_SHOW);
 
-    RenderEngine* renderEngine = new RenderEngine(hwnd, width, height);
-    renderEngine->Initialize();
+	//Direct3D Initialization
+    m_renderEngine = std::make_unique<RenderEngine>(hwnd, width, height);
+
+    m_renderEngine->Initialize();
+
+    // LOGS
     std::cout << "[TronEngine] RenderEngine initialized successfully\n";
 
     std::cout << "[Threading] Thread infrastructure: Ready\n";
@@ -94,8 +99,12 @@ void Engine::ShutdownSubsystems() {
     std::cout << "[TronEngine] Shutting down subsystems...\n";
 
     // TODO: Shutdown in reverse order when implemented
-    // m_gameEngine.reset();
-    // m_renderEngine.reset();
+    // Shutdown ECS World
+    if (m_world) {
+        m_world->Shutdown();
+        m_world.reset();
+        std::cout << "[TronEngine] ECS World shut down\n";
+    }
 
     std::cout << "[TronEngine] All subsystems shut down\n";
 }
@@ -235,14 +244,9 @@ void Engine::Shutdown() {
 
     std::cout << "[TronEngine] Shutting down...\n";
     
-    // Shutdown ECS World
-    if (m_world) {
-        m_world->Shutdown();
-        m_world.reset();
-        std::cout << "[TronEngine] ECS World shut down\n";
-    }
     m_running = false;
-    // Stoping THreads
+
+    // Stoping Threads
     if (m_gameThread && m_gameThread->joinable()) {
         std::cout << "[Threading] Waiting for Game Thread to finish...\n";
         m_gameThread->join();

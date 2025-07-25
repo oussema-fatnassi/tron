@@ -82,8 +82,6 @@ int main() {
     std::cout << "\n=== Starting Engine - All updates handled internally ===\n";
     RunEngine(engine);
 
-
-
     // Cleanup
     std::cout << "\n=== Cleanup ===\n";
     ShutdownEngine(engine);

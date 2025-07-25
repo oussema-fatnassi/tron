@@ -11,8 +11,7 @@
 #include "../Game/MovementSystem.hpp"
 #include "../Game/DebugSystem.hpp"
 
-// Forward declarations for future subsystems
-// class RenderEngine;
+#include "../Rendering/RenderEngine.hpp"
 
 class Engine {
 public:
@@ -75,6 +74,7 @@ private:
     // std::unique_ptr<RenderEngine> m_renderEngine;
     // ECS World
     std::unique_ptr<World> m_world;
+    std::unique_ptr<RenderEngine> m_renderEngine;
 
     void RenderLoop();
     void GameLoop();
