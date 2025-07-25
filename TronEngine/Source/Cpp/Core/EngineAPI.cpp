@@ -90,7 +90,7 @@ extern "C" {
         component->userScript = userScript;
 
         // Now we can set entityId on ScriptBase - no casting needed!
-        userScript->entityId = entity;
+        userScript->entity = entity;
 
         return component != nullptr;
     }

@@ -15,6 +15,8 @@ tron/
 
 
 TODO : 
+Add to the CustomScripting functions Start et OnDestroy()
+Verify memory clean when an entity has benn erased
 Correct and improve the deltaTime and the time system
 Add more than Update to the custom scripts
 Do the system like entity->GetPosition.x or similar

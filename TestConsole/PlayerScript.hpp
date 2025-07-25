@@ -16,10 +16,10 @@ public:
 
         if (!hasStoppedAtTarget) {
             float x, y, z;
-            if (GetTransformComponent(entityId, &x, &y, &z)) {
+            if (GetTransformComponent(entity, &x, &y, &z)) {
                 if (x >= 500.0f) {
-                    std::cout << "Entity " << entityId << "  -> REACHED 500! Stopping at x=" << x << std::endl;
-                    RemoveVelocityComponent(entityId);
+                    std::cout << "Entity " << entity << "  -> REACHED 500! Stopping at x=" << x << std::endl;
+                    RemoveVelocityComponent(entity);
                     hasStoppedAtTarget = true;
                 }
             }
