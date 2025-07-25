@@ -35,15 +35,9 @@ TODO :
     FOR THE FUTURE IMPLEMENT A MEMORY SHRINK SYSTEM????
 
 -Add to the CustomScripting functions Start et OnDestroy()
+- ✅ Add the possibility to Destry the entity from a customScript
 -Correct and improve the deltaTime and the time system
 -Add more than Update to the custom scripts
 -Do the system like entity->GetPosition.x or similar
 -Add rotations
--Close logic and InputSystem
-
-
-
-
-
-FUTURE TODO : 
-REWORK THE COMPONENT SYSTEM TO SIMPLIFY THE CUSTOM SCRIPT PART (not needed for the moment)
+-InputSystem and close management

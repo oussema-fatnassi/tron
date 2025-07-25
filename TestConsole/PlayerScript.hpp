@@ -12,15 +12,16 @@ public:
     }
 
     void Update(float deltaTime) override {
-        //std::cout << "[" << playerName << "] Entity " << entityId << " updating" << std::endl;
+        std::cout << "[" << playerName << "] Entity " << entity << " updating" << std::endl;
 
         if (!hasStoppedAtTarget) {
             float x, y, z;
             if (GetTransformComponent(entity, &x, &y, &z)) {
                 if (x >= 500.0f) {
                     std::cout << "Entity " << entity << "  -> REACHED 500! Stopping at x=" << x << std::endl;
-                    RemoveVelocityComponent(entity);
+                    //RemoveVelocityComponent(entity);
                     hasStoppedAtTarget = true;
+                    DestroyEntity(entity);
                 }
             }
         }
