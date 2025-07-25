@@ -3,29 +3,40 @@
 #include "../../Include/TronEngine.hpp" 
 #include <iostream>
 
+// Global singleton instance
+static Engine* g_engineInstance = nullptr;
+
 // C-style API implementation
 extern "C" {
-    ENGINE_API Engine* CreateEngine() {
-        return new Engine();
+    ENGINE_API bool CreateAndInitializeEngine() {
+        if (g_engineInstance) {
+            std::cout << "[TronEngine] Engine already exists\n";
+            return true;
+        }
+
+        g_engineInstance = new Engine();
+        if (!g_engineInstance->Initialize()) {
+            delete g_engineInstance;
+            g_engineInstance = nullptr;
+            return false;
+        }
+        return true;
     }
 
-    ENGINE_API void DestroyEngine(Engine* engine) {
-        delete engine;
+    ENGINE_API void RunEngine() {
+        if (!g_engineInstance) {
+            std::cout << "[TronEngine] Error: No engine instance\n";
+            return;
+        }
+        g_engineInstance->Run();
     }
 
-    ENGINE_API bool InitializeEngine(Engine* engine) {
-        if (!engine) return false;
-        return engine->Initialize();
-    }
-
-    ENGINE_API void RunEngine(Engine* engine) {
-        if (!engine) return;
-        engine->Run();
-    }
-
-    ENGINE_API void ShutdownEngine(Engine* engine) {
-        if (!engine) return;
-        engine->Shutdown();
+    ENGINE_API void DestroyGlobalEngine() {
+        if (g_engineInstance) {
+            g_engineInstance->Shutdown();
+            delete g_engineInstance;
+            g_engineInstance = nullptr;
+        }
     }
 
     ENGINE_API void PrintEngineVersion() {
@@ -37,36 +48,39 @@ extern "C" {
     }
 
     // ECS C-style API with Engine prefix
-    ENGINE_API unsigned int EngineCreateEntity(Engine* engine) {
-        if (!engine) return 0;
-        return engine->CreateEntityC();
+    // Direct World Access API
+    ENGINE_API uint32_t CreateEntity() {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return 0;
+        return g_engineInstance->GetWorld()->CreateEntity();
     }
 
-    ENGINE_API void EngineDestroyEntity(Engine* engine, unsigned int entity) {
-        if (!engine) return;
-        engine->DestroyEntityC(entity);
+    ENGINE_API void DestroyEntity(uint32_t entity) {
+        if (g_engineInstance && g_engineInstance->GetWorld()) {
+            g_engineInstance->GetWorld()->DestroyEntity(entity);
+        }
     }
 
-    ENGINE_API bool EngineIsValidEntity(Engine* engine, unsigned int entity) {
-        if (!engine) return false;
-        return engine->IsValidEntityC(entity);
+    ENGINE_API bool IsValidEntity(uint32_t entity) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+        return g_engineInstance->GetWorld()->IsValidEntity(entity);
     }
 
-    ENGINE_API bool EngineAddTransformComponent(Engine* engine, unsigned int entity, float x, float y, float z) {
-        if (!engine) return false;
-        Transform* component = engine->AddTransformComponentC(entity, x, y, z);
+    ENGINE_API bool AddTransformComponent(uint32_t entity, float x, float y, float z) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+        Transform* component = g_engineInstance->GetWorld()->AddComponent<Transform>(entity, x, y, z);
         return component != nullptr;
     }
 
-    ENGINE_API bool EngineAddVelocityComponent(Engine* engine, unsigned int entity, float vx, float vy, float vz) {
-        if (!engine) return false;
-        Velocity* component = engine->AddVelocityComponentC(entity, vx, vy, vz);
+    ENGINE_API bool AddVelocityComponent(uint32_t entity, float vx, float vy, float vz) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+        Velocity* component = g_engineInstance->GetWorld()->AddComponent<Velocity>(entity, vx, vy, vz);
         return component != nullptr;
     }
 
-    ENGINE_API bool EngineGetTransformComponent(Engine* engine, unsigned int entity, float* x, float* y, float* z) {
-        if (!engine || !x || !y || !z) return false;
-        Transform* component = engine->GetTransformComponentC(entity);
+    ENGINE_API bool GetTransformComponent(uint32_t entity, float* x, float* y, float* z) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld() || !x || !y || !z) return false;
+
+        Transform* component = g_engineInstance->GetWorld()->GetComponent<Transform>(entity);
         if (component) {
             *x = component->x;
             *y = component->y;
@@ -76,9 +90,10 @@ extern "C" {
         return false;
     }
 
-    ENGINE_API bool EngineGetVelocityComponent(Engine* engine, unsigned int entity, float* vx, float* vy, float* vz) {
-        if (!engine || !vx || !vy || !vz) return false;
-        Velocity* component = engine->GetVelocityComponentC(entity);
+    ENGINE_API bool GetVelocityComponent(uint32_t entity, float* vx, float* vy, float* vz) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld() || !vx || !vy || !vz) return false;
+
+        Velocity* component = g_engineInstance->GetWorld()->GetComponent<Velocity>(entity);
         if (component) {
             *vx = component->vx;
             *vy = component->vy;
@@ -88,23 +103,22 @@ extern "C" {
         return false;
     }
 
-    ENGINE_API void EngineRemoveTransformComponent(Engine* engine, unsigned int entity) {
-        if (!engine) return;
-        engine->RemoveTransformComponentC(entity);
+    ENGINE_API void RemoveTransformComponent(uint32_t entity) {
+        if (g_engineInstance && g_engineInstance->GetWorld()) {
+            g_engineInstance->GetWorld()->RemoveComponent<Transform>(entity);
+        }
     }
 
-    ENGINE_API void EngineRemoveVelocityComponent(Engine* engine, unsigned int entity) {
-        if (!engine) return;
-        engine->RemoveVelocityComponentC(entity);
+    ENGINE_API void RemoveVelocityComponent(uint32_t entity) {
+        if (g_engineInstance && g_engineInstance->GetWorld()) {
+            g_engineInstance->GetWorld()->RemoveComponent<Velocity>(entity);
+        }
     }
 
-    ENGINE_API void EngineUpdateWorld(Engine* engine, float deltaTime) {
-        if (!engine) return;
-        engine->UpdateWorld(deltaTime);
+    ENGINE_API uint32_t GetEntityCount() {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return 0;
+        return g_engineInstance->GetWorld()->GetEntityCount();
     }
 
-    ENGINE_API unsigned int EngineGetEntityCount(Engine* engine) {
-        if (!engine) return 0;
-        return engine->GetEntityCountC();
-    }
+    //TODO ADD UPDATE COMPONENTS
 }

@@ -171,11 +171,11 @@ void Engine::GameLoop() {
 
     // Test prints
     std::cout << "[TronEngine] === Initial Entity States ===\n";
-    auto allEntities = GetAllEntities();
+    auto allEntities = m_world->GetAllEntities();
     for (Entity entity : allEntities)
     {
-        auto *transform = GetTransformComponent(entity);
-        auto *velocity = GetVelocityComponent(entity);
+        auto* transform = m_world->GetComponent<Transform>(entity);
+        auto* velocity = m_world->GetComponent<Velocity>(entity);
 
         std::cout << "[TronEngine] Entity " << entity;
         if (transform)
@@ -207,10 +207,10 @@ void Engine::GameLoop() {
 
             for (Entity entity : allEntities)
             {
-                if (!IsValidEntity(entity))
+                if (!m_world->IsValidEntity(entity))
                     continue; // Skip destroyed entities
 
-                auto *transform = GetTransformComponent(entity);
+                auto* transform = m_world->GetComponent<Transform>(entity);
                 if (transform)
                 {
                     std::cout << "[TronEngine] Entity " << entity
@@ -267,155 +267,7 @@ const char* Engine::GetVersion() const {
     return m_version.c_str();
 }
 
-// ECS Interface Implementation - Internal methods using Tron::Entity
-Entity Engine::CreateEntity() {
-    if (!m_world) {
-        std::cout << "[TronEngine] Error: World not initialized\n";
-        return INVALID_ENTITY;
-    }
-
-    Entity entity = m_world->CreateEntity();
-    std::cout << "[TronEngine] Created entity: " << entity << "\n";
-    return entity;
-}
-
-void Engine::DestroyEntity(Entity entity) {
-    if (!m_world) {
-        std::cout << "[TronEngine] Error: World not initialized\n";
-        return;
-    }
-
-    m_world->DestroyEntity(entity);
-    std::cout << "[TronEngine] Destroyed entity: " << entity << "\n";
-}
-
-bool Engine::IsValidEntity(Entity entity) const {
-    if (!m_world) {
-        return false;
-    }
-    return m_world->IsValidEntity(entity);
-}
-
-Transform* Engine::AddTransformComponent(Entity entity, float x, float y, float z) {
-    if (!m_world) {
-        std::cout << "[TronEngine] Error: World not initialized\n";
-        return nullptr;
-    }
-
-    Transform* transform = m_world->AddComponent<Transform>(entity, x, y, z);
-    std::cout << "[TronEngine] Added Transform component to entity " << entity
-        << " at position (" << x << ", " << y << ", " << z << ")\n";
-    return transform;
-}
-
-Velocity* Engine::AddVelocityComponent(Entity entity, float vx, float vy, float vz) {
-    if (!m_world) {
-        std::cout << "[TronEngine] Error: World not initialized\n";
-        return nullptr;
-    }
-
-    Velocity* velocity = m_world->AddComponent<Velocity>(entity, vx, vy, vz);
-    std::cout << "[TronEngine] Added Velocity component to entity " << entity
-        << " with velocity (" << vx << ", " << vy << ", " << vz << ")\n";
-    return velocity;
-}
-
-Transform* Engine::GetTransformComponent(Entity entity) {
-    if (!m_world) {
-        return nullptr;
-    }
-    return m_world->GetComponent<Transform>(entity);
-}
-
-Velocity* Engine::GetVelocityComponent(Entity entity) {
-    if (!m_world) {
-        return nullptr;
-    }
-    return m_world->GetComponent<Velocity>(entity);
-}
-
-void Engine::RemoveTransformComponent(Entity entity) {
-    if (!m_world) {
-        std::cout << "[TronEngine] Error: World not initialized\n";
-        return;
-    }
-
-    m_world->RemoveComponent<Transform>(entity);
-    std::cout << "[TronEngine] Removed Transform component from entity " << entity << "\n";
-}
-
-void Engine::RemoveVelocityComponent(Entity entity) {
-    if (!m_world) {
-        std::cout << "[TronEngine] Error: World not initialized\n";
-        return;
-    }
-
-    m_world->RemoveComponent<Velocity>(entity);
-    std::cout << "[TronEngine] Removed Velocity component from entity " << entity << "\n";
-}
-
-void Engine::UpdateWorld(float deltaTime) {
-    if (m_world) {
-        m_world->Update(deltaTime);
-    }
-}
-
-uint32_t Engine::GetEntityCount() const {
-    if (!m_world) {
-        return 0;
-    }
-    return m_world->GetEntityCount();
-}
-
-std::vector<Entity> Engine::GetAllEntities() const {
-    if (!m_world) {
-        return std::vector<Entity>();
-    }
-    return m_world->GetAllEntities();
-}
-
-// C API wrapper methods - these handle type conversion
-unsigned int Engine::CreateEntityC() {
-    Entity entity = CreateEntity();
-    return static_cast<unsigned int>(entity);
-}
-
-void Engine::DestroyEntityC(unsigned int entity) {
-    DestroyEntity(static_cast<Entity>(entity));
-}
-
-bool Engine::IsValidEntityC(unsigned int entity) const {
-    return IsValidEntity(static_cast<Entity>(entity));
-}
-
-Transform* Engine::AddTransformComponentC(unsigned int entity, float x, float y, float z) {
-    return AddTransformComponent(static_cast<Entity>(entity), x, y, z);
-}
-
-Velocity* Engine::AddVelocityComponentC(unsigned int entity, float vx, float vy, float vz) {
-    return AddVelocityComponent(static_cast<Entity>(entity), vx, vy, vz);
-}
-
-Transform* Engine::GetTransformComponentC(unsigned int entity) {
-    return GetTransformComponent(static_cast<Entity>(entity));
-}
-
-Velocity* Engine::GetVelocityComponentC(unsigned int entity) {
-    return GetVelocityComponent(static_cast<Entity>(entity));
-}
-
-void Engine::RemoveTransformComponentC(unsigned int entity) {
-    RemoveTransformComponent(static_cast<Entity>(entity));
-}
-
-void Engine::RemoveVelocityComponentC(unsigned int entity) {
-    RemoveVelocityComponent(static_cast<Entity>(entity));
-}
-
-unsigned int Engine::GetEntityCountC() const {
-    return static_cast<unsigned int>(GetEntityCount());
-}
-
+// ECS Functions
 World* Engine::GetWorld() const {
     return m_world.get();
 }
