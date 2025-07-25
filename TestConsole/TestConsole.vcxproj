@@ -160,6 +160,9 @@
   <ItemGroup>
     <Text Include="..\ALL_ECS_SYSTEM\CMakeLists.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="PlayerScript.hpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

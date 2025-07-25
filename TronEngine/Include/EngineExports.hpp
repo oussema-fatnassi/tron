@@ -31,6 +31,7 @@ extern "C" {
     // ECS Interface - Component management
     ENGINE_API bool AddTransformComponent(uint32_t entity, float x, float y, float z);
     ENGINE_API bool AddVelocityComponent(uint32_t entity, float vx, float vy, float vz);
+    ENGINE_API bool AddCustomScript(uint32_t entity, void* scriptInstance);
 
     ENGINE_API bool GetTransformComponent(uint32_t entity, float* x, float* y, float* z);
     ENGINE_API bool GetVelocityComponent(uint32_t entity, float* vx, float* vy, float* vz);

@@ -22,4 +22,9 @@
   <ItemGroup>
     <Text Include="..\ALL_ECS_SYSTEM\CMakeLists.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="PlayerScript.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

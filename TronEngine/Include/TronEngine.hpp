@@ -3,6 +3,7 @@
 // Main include for TRON Engine clients
 // This is the ONLY header external projects need
 #include "EngineExports.hpp"
+#include "ScriptAPI.hpp"
 
 // Version information
 #define TRON_ENGINE_VERSION_MAJOR 1

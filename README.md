@@ -12,3 +12,18 @@ tron/
     ├── TronEngine.dll
     ├── TestConsole.exe
     └── TronGame.exe
+
+
+TODO : 
+Correct and improve the deltaTime and the time system
+Add more than Update to the custom scripts
+Do the system like entity->GetPosition.x or similar
+Add rotations
+Close logic and InputSystem
+
+
+
+
+
+FUTURE TODO : 
+REWORK THE COMPONENT SYSTEM TO SIMPLIFY THE CUSTOM SCRIPT PART (not needed for the moment)

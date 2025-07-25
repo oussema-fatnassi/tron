@@ -5,12 +5,18 @@
 #include <thread>
 #include <atomic>
 
-#include "../Game/World.hpp" 
-#include "../Game/TransformComponent.hpp" 
-#include "../Game/VelocityComponent.hpp"
+// TronEngine - Game imports
+#include "../Game/World.hpp"
+    //Systems
 #include "../Game/MovementSystem.hpp"
 #include "../Game/DebugSystem.hpp"
+#include "../Game/ScriptSystem.hpp"
+    // Components
+#include "../Game/VelocityComponent.hpp"
+#include "../Game/TransformComponent.hpp"
+#include "../Game/ScriptComponent.hpp"
 
+// TronEngine - Rendering imports
 #include "../Rendering/RenderEngine.hpp"
 
 class Engine {

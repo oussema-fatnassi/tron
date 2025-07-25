@@ -50,14 +50,17 @@ bool Engine::InitializeSubsystems() {
 
     _world->RegisterComponent<Transform>();
     _world->RegisterComponent<Velocity>();
+	_world->RegisterComponent<Script>();
 
     // Register systems
     auto* debugSystem = _world->RegisterSystem<DebugSystem>();
     auto* movementSystem = _world->RegisterSystem<MovementSystem>();
+	auto* scriptSystem = _world->RegisterSystem<ScriptSystem>();
 
     // Set system signatures
     _world->SetSystemSignature<Transform>(debugSystem);
     _world->SetSystemSignature<Transform, Velocity>(movementSystem);
+	_world->SetSystemSignature<Script>(scriptSystem);
 
     std::cout << "[TronEngine] ECS World initialized with components registered\n";
 
@@ -190,7 +193,7 @@ void Engine::GameLoop() {
     }
 
     int gameFrame = 0;
-    while (_running && gameFrame < 30000) { 
+    while (_running && gameFrame < 3500) { 
         auto frameStart = std::chrono::steady_clock::now();
 
         // Update ECS World - this handles all movement, systems, etc.
@@ -220,9 +223,6 @@ void Engine::GameLoop() {
             }
         }
 
-        // Placeholder: Simulate game work
-        // std::cout << "[Game Thread] Frame " << gameFrame + 1 << " - Processing game logic...\n";
-
         gameFrame++;
 
         // Calculate delta time for game systems
@@ -234,7 +234,7 @@ void Engine::GameLoop() {
     }
 
     _running = false;  // Signal render thread to stop
-    std::cout << "[Threading] Game Thread finished\n";
+    std::cout << "[Threading] Game Thread finished at " << gameFrame << "\n";
 }
 
 void Engine::Shutdown() {

@@ -77,6 +77,24 @@ extern "C" {
         return component != nullptr;
     }
 
+    ENGINE_API bool AddCustomScript(uint32_t entity, void* scriptInstance) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld() || !scriptInstance) return false;
+
+        // Cast the void* to ScriptBase* (user's script)
+        ScriptBase* userScript = static_cast<ScriptBase*>(scriptInstance);
+
+        // Create internal Script component
+        Script* component = g_engineInstance->GetWorld()->AddComponent<Script>(entity);
+
+        // Store pointer to user's script (don't copy by value!)
+        component->userScript = userScript;
+
+        // Now we can set entityId on ScriptBase - no casting needed!
+        userScript->entityId = entity;
+
+        return component != nullptr;
+    }
+
     ENGINE_API bool GetTransformComponent(uint32_t entity, float* x, float* y, float* z) {
         if (!g_engineInstance || !g_engineInstance->GetWorld() || !x || !y || !z) return false;
 

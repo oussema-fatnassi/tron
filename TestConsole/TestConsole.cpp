@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <windows.h>
 #include "TronEngine.hpp"
+#include "PlayerScript.hpp"
 // Link the library
 #pragma comment(lib, "TronEngine.lib")
 
@@ -30,6 +31,17 @@ int main() {
     // Add velocity component moving right
     if (AddVelocityComponent(player, 10.0f, 0.0f, 0.0f)) {
         std::cout << "Added velocity component to player\n";
+    }
+
+    // Create custom script instance
+	// TODO: Use a factory or script manager in the engine to handle this properly
+    PlayerScript* playerScript1 = new PlayerScript("Hero");
+    PlayerScript* playerScript2 = new PlayerScript("Enemy");
+    PlayerScript* playerScript3 = new PlayerScript("NPC");
+
+    // Add it to entity
+    if (AddCustomScript(player, playerScript1)) {
+        std::cout << "Added custom player script\n";
     }
 
     // Create an enemy entity
