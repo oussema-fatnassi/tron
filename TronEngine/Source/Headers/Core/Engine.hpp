@@ -5,6 +5,9 @@
 #include <thread>
 #include <atomic>
 
+// TronEngine - Core imports
+#include "InputManager.hpp"
+
 // TronEngine - Game imports
 #include "../Game/World.hpp"
     //Systems
@@ -27,6 +30,7 @@ public:
     bool Initialize();
     void Run();
     void Shutdown();
+    void RequestShutdown();
 
     // Public interface
     void PrintMessage(const char* message);
@@ -49,6 +53,7 @@ private:
     // ECS World
     std::unique_ptr<World> _world;
     std::unique_ptr<RenderEngine> _renderEngine;
+    //std::unique_ptr<InputManager> _inputManager;
 
     void RenderLoop();
     void GameLoop();

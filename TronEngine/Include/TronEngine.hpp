@@ -1,5 +1,4 @@
 #pragma once
-
 // Main include for TRON Engine clients
 // This is the ONLY header external projects need
 #include "EngineExports.hpp"
@@ -12,4 +11,5 @@
 #define TRON_ENGINE_VERSION_STRING "1.0.1"
 
 // Utility macros
+// TODO: Check what is used for and if we need to keep it
 #define TRON_UNUSED(x) ((void)(x))

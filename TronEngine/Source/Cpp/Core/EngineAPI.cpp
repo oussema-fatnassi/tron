@@ -39,12 +39,32 @@ extern "C" {
         }
     }
 
+    ENGINE_API void QuitGame() {
+        if (g_engineInstance) {
+            std::cout << "[EngineAPI] QuitGame() called - stopping engine\n";
+            g_engineInstance->RequestShutdown();
+        }
+    }
+
     ENGINE_API void PrintEngineVersion() {
         std::cout << "TRON Engine Version: " << TRON_ENGINE_VERSION_STRING << std::endl;
     }
 
     ENGINE_API const char* GetEngineInfo() {
         return "TRON 3D Game Engine - Professional DLL Version with ECS";
+    }
+
+	// Input API
+    ENGINE_API bool IsKeyDown(int keyCode) {
+        return false;
+    }
+
+    ENGINE_API bool IsKeyPressed(int keyCode) {
+        return false;
+    }
+
+    ENGINE_API bool IsKeyUp(int keyCode) {
+		return false;
     }
 
     // ECS C-style API with Engine prefix

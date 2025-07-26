@@ -61,6 +61,9 @@
     <ClCompile Include="Source\Cpp\Game\ScriptSystem.cpp">
       <Filter>Source\Cpp\Game</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Cpp\Core\InputManager.cpp">
+      <Filter>Source\Cpp\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\EngineExports.hpp">
@@ -143,6 +146,9 @@
     </ClInclude>
     <ClInclude Include="Include\ScriptAPI.hpp">
       <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Core\InputManager.hpp">
+      <Filter>Source\Headers\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

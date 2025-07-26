@@ -43,11 +43,14 @@ bool Engine::Initialize() {
 bool Engine::InitializeSubsystems() {
     std::cout << "[TronEngine] Initializing subsystems...\n";
 
-    // TODO: Initialize RenderEngine, GameEngine, ThreadPool
-    
+    // Initialize InputManager first
+    //_inputManager = std::make_unique<InputManager>();
+    //std::cout << "[TronEngine] InputManager initialized\n";
+
 	// Initialize ECS World
     _world = std::make_unique<World>();
 
+	//TODO: Make the registration of components in World a single function call
     _world->RegisterComponent<Transform>();
     _world->RegisterComponent<Velocity>();
 	_world->RegisterComponent<Script>();
@@ -71,7 +74,7 @@ bool Engine::InitializeSubsystems() {
     int width = 1280;
     int height = 720;
 
-    // Crée la fenêtre Win32
+    // Creates Win32 window
 	//TODO: LET SOMEWHERE THE USER CHOSE THE WINDOW SIZE
     //TODO: Maybe add a variable to ref the window 
     HINSTANCE hInstance = GetModuleHandle(nullptr);
@@ -96,6 +99,32 @@ bool Engine::InitializeSubsystems() {
     std::cout << "[Threading] Game Thread target: 60 FPS (16ms per frame)\n";
 
     return true;
+}
+void Engine::Shutdown() {
+    if (!_initialized) {
+        return;
+    }
+
+    std::cout << "[TronEngine] Shutting down...\n";
+
+    _running = false;
+
+    // Stoping Threads
+    if (_gameThread && _gameThread->joinable()) {
+        std::cout << "[Threading] Waiting for Game Thread to finish...\n";
+        _gameThread->join();
+        std::cout << "[Threading] Game Thread joined successfully\n";
+    }
+
+    ShutdownSubsystems();
+
+    _initialized = false;
+    std::cout << "[TronEngine] Shutdown complete\n";
+}
+
+void Engine::RequestShutdown() {
+    std::cout << "[Engine] Shutdown requested\n";
+    _running = false;
 }
 
 void Engine::ShutdownSubsystems() {
@@ -145,37 +174,34 @@ void Engine::RenderLoop() {
         auto frameStart = std::chrono::steady_clock::now();
 
         // TODO: Call the Rendering method that groups all the thing need do it everyframe
+        // TODO: Actual rendering calls here
+        // Present with VSync for 60 FPS cap
 
-        // Placeholder: Simulate render work
-        // std::cout << "[Render Thread] Frame " << m_frameCount + 1 << " - Rendering...\n";
-
-        // Simulate rendering time (16ms for 60 FPS) replace with VSync (optional)
-        std::this_thread::sleep_for(std::chrono::milliseconds(16));
-
-        // Frame timing
+        // Target 60 FPS (16.67ms per frame)
         auto frameEnd = std::chrono::steady_clock::now();
-        float frameTime = std::chrono::duration<float, std::milli>(frameEnd - frameStart).count();
+        auto frameTime = std::chrono::duration<float, std::milli>(frameEnd - frameStart).count();
 
-        if (_frameCount % 10 == 0) {  // Every 10 frames
-            // std::cout << "[Render Thread] Frame time: " << frameTime << "ms (Target: 16ms)\n";
+        float targetFrameTime = 16.67f;  // 60 FPS
+        float sleepTime = targetFrameTime - frameTime;
+
+        if (sleepTime > 0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(sleepTime)));
         }
-
-        _frameCount++;
     }
 
     std::cout << "[Threading] Render Thread finished\n";
 }
 
 void Engine::GameLoop() {
-    std::cout << "[Threading] Game Thread started\n";
+    std::cout << "[Threading] Game Thread started (120 FPS target)\n";
 
-    //TODO: do a proper thing and care because it exist in another place too Ctrl + F.
-    const float deltaTime = 0.016f; // ~60 FPS
+    const float targetDeltaTime = 1.0f / 120.0f;
+    auto previousTime = std::chrono::steady_clock::now();
 
     // Test prints
     std::cout << "[TronEngine] === Initial Entity States ===\n";
     auto allEntities = _world->GetAllEntities();
-    for (Entity entity : allEntities)
+   /* for (Entity entity : allEntities)
     {
         auto* transform = _world->GetComponent<Transform>(entity);
         auto* velocity = _world->GetComponent<Velocity>(entity);
@@ -190,22 +216,28 @@ void Engine::GameLoop() {
             std::cout << " - Vel(" << velocity->vx << ", " << velocity->vy << ", " << velocity->vz << ")";
         }
         std::cout << "\n";
-    }
-
+    }*/
     int gameFrame = 0;
-    while (_running && gameFrame < 3500) { 
-        auto frameStart = std::chrono::steady_clock::now();
+    while (_running) {
+        auto currentTime = std::chrono::steady_clock::now();
+        float realDeltaTime = std::chrono::duration<float>(currentTime - previousTime).count();
+
+        // Cap delta time to prevent spiral of death
+        float clampedDelta = (realDeltaTime < 0.033f) ? realDeltaTime : 0.033f;  // Max 33ms (30 FPS min)
 
         // Update ECS World - this handles all movement, systems, etc.
         if (_world)
         {
-            _world->Update(deltaTime);
+            _world->Update(clampedDelta);
         }
+
+        previousTime = currentTime;
+        gameFrame++;
 
         // Show progress every second TEST
         if (gameFrame % 60 == 0 && gameFrame > 0)
         {
-            float elapsedTime = gameFrame * deltaTime;
+            float elapsedTime = gameFrame * targetDeltaTime;
             std::cout << "[TronEngine] === After " << elapsedTime << " seconds ===\n";
 
             for (Entity entity : allEntities)
@@ -223,40 +255,24 @@ void Engine::GameLoop() {
             }
         }
 
-        gameFrame++;
-
-        // Calculate delta time for game systems
+        // Target 120 FPS - sleep for remaining time
         auto frameEnd = std::chrono::steady_clock::now();
-        _deltaTime = std::chrono::duration<float>(frameEnd - frameStart).count();
+        auto actualFrameTime = std::chrono::duration<float>(frameEnd - currentTime).count();
 
-        // Target 60 FPS for game logic (less than render thread) for build we can comment this, for gameplay fluidity
-        //std::this_thread::sleep_for(std::chrono::milliseconds(6));
+        float sleepTime = targetDeltaTime - actualFrameTime;
+        if (sleepTime > 0.001f) {  // Only sleep if we have at least 1ms to spare
+            std::this_thread::sleep_for(std::chrono::duration<float>(sleepTime));
+        }
+
+        // Optional: Log frame timing every second for debugging
+        /*if (gameFrame % 120 == 0) {
+            float fps = 1.0f / realDeltaTime;
+             std::cout << "[GameLoop] FPS: " << fps << ", DeltaTime: " << realDeltaTime * 1000 << "ms\n";
+        }*/
     }
 
     _running = false;  // Signal render thread to stop
-    std::cout << "[Threading] Game Thread finished at " << gameFrame << "\n";
-}
-
-void Engine::Shutdown() {
-    if (!_initialized) {
-        return;
-    }
-
-    std::cout << "[TronEngine] Shutting down...\n";
-    
-    _running = false;
-
-    // Stoping Threads
-    if (_gameThread && _gameThread->joinable()) {
-        std::cout << "[Threading] Waiting for Game Thread to finish...\n";
-        _gameThread->join();
-        std::cout << "[Threading] Game Thread joined successfully\n";
-    }
-
-    ShutdownSubsystems();
-
-    _initialized = false;
-    std::cout << "[TronEngine] Shutdown complete\n";
+    std::cout << "[Threading] Game Thread finished\n";
 }
 
 void Engine::PrintMessage(const char* message) {
@@ -267,7 +283,13 @@ const char* Engine::GetVersion() const {
     return _version.c_str();
 }
 
-// ECS Functions
+// GETTERS 
+
+//InputManager
+//InputManager* Engine::GetInputManager() const {
+//    return _inputManager.get();
+//}
+// ECS
 World* Engine::GetWorld() const {
     return _world.get();
 }

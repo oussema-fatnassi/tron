@@ -27,7 +27,7 @@ DebugSystem::DebugSystem(float interval) : _printInterval(interval) {}
 void DebugSystem::Update(float deltaTime) {
     _printTimer += deltaTime;
 
-    if (_printTimer >= _printInterval) {
+    /*if (_printTimer >= _printInterval) {
         _printTimer -= _printInterval;
 
         std::cout << "\n=== Entity Debug Info ===" << std::endl;
@@ -50,7 +50,7 @@ void DebugSystem::Update(float deltaTime) {
 
             std::cout << std::endl;
         }
-    }
+    }*/
 }
 
 // <summary>

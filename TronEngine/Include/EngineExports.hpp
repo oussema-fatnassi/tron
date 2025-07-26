@@ -17,10 +17,17 @@ extern "C" {
     ENGINE_API bool CreateAndInitializeEngine();
     ENGINE_API void RunEngine();
     ENGINE_API void DestroyGlobalEngine();
+	ENGINE_API void QuitGame();
 
     // Test functions
     ENGINE_API void PrintEngineVersion();
     ENGINE_API const char* GetEngineInfo();
+
+    // Input API
+	ENGINE_API bool IsKeyDown(int keyCode);
+	ENGINE_API bool IsKeyPressed(int keyCode);
+	ENGINE_API bool IsKeyUp(int keyCode);
+
 
     // Direct ECS API
     // ECS Interface - Entity management

@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\ScriptAPI.hpp" />
+    <ClInclude Include="Source\Headers\Core\InputManager.hpp" />
     <ClInclude Include="Source\Headers\Game\ScriptComponent.hpp" />
     <ClInclude Include="Source\Headers\Game\ScriptSystem.hpp" />
     <ClInclude Include="Source\Headers\Rendering\D3D\CommandQueue.hpp" />
@@ -48,6 +49,7 @@
     <ClInclude Include="Source\Headers\Game\World.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Cpp\Core\InputManager.cpp" />
     <ClCompile Include="Source\Cpp\Game\ScriptSystem.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\D3D\CommandQueue.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\D3D\D3DContext.cpp" />
