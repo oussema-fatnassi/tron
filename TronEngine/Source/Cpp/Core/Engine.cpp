@@ -3,6 +3,8 @@
 #include "../Headers/Core/WindowUtils.hpp"
 #include <iostream>
 #include <chrono>
+#include <iomanip>
+#include <intrin.h>
 
 Engine::Engine()
     : _initialized(false)
@@ -34,6 +36,15 @@ bool Engine::Initialize() {
         std::cout << "[TronEngine] Failed to initialize subsystems\n";
         return false;
     }
+
+    // ADD: Debug the timing constants
+    std::cout << "[Debug] TRON_GAME_TARGET_FPS: " << TRON_GAME_TARGET_FPS << "\n";
+    std::cout << "[Debug] TRON_RENDER_TARGET_FPS: " << TRON_RENDER_TARGET_FPS << "\n";
+    std::cout << "[Debug] TRON_GAME_TARGET_DELTA: " << TRON_GAME_TARGET_DELTA << " ("
+        << (TRON_GAME_TARGET_DELTA * 1000) << "ms)\n";
+    std::cout << "[Debug] TRON_RENDER_TARGET_DELTA: " << TRON_RENDER_TARGET_DELTA << " ("
+        << (TRON_RENDER_TARGET_DELTA * 1000) << "ms)\n";
+
 
     _initialized = true;
     std::cout << "[TronEngine] Initialization successful!\n";
@@ -93,10 +104,9 @@ bool Engine::InitializeSubsystems() {
 
     // LOGS
     std::cout << "[TronEngine] RenderEngine initialized successfully\n";
-
     std::cout << "[Threading] Thread infrastructure: Ready\n";
-    std::cout << "[Threading] Render Thread target: 60 FPS (16ms per frame)\n";
-    std::cout << "[Threading] Game Thread target: 60 FPS (16ms per frame)\n";
+    std::cout << "[Threading] Render Thread target: " << TRON_RENDER_TARGET_FPS << " FPS (" << TRON_RENDER_TARGET_DELTA * 1000 << "ms per frame)\n";
+    std::cout << "[Threading] Game Thread target: " << TRON_GAME_TARGET_FPS << " FPS (" << TRON_GAME_TARGET_DELTA * 1000 << "ms per frame)\n";
 
     return true;
 }
@@ -147,17 +157,17 @@ void Engine::Run() {
         return;
     }
 
-    std::cout << "[TronEngine] Starting main engine loop...\n";
-    std::cout << "[TronEngine] Press Ctrl+C to stop (or will auto-stop after demo)\n";
+    std::cout << "[TronEngine] Starting engine with main thread rendering...\n";
+    std::cout << "[Threading] Game Thread target: " << TRON_GAME_TARGET_FPS << " FPS\n";
+    std::cout << "[Threading] Render Thread target: " << TRON_RENDER_TARGET_FPS << " FPS\n";
 
     _running = true;
-    _frameCount = 0;
 
     // Start the Game Thread
     _gameThread = std::make_unique<std::thread>(&Engine::GameLoop, this);
     
     // RenderLoop in the main Thread
-    RenderLoop();
+    MainRenderLoop();
 
     if (_gameThread && _gameThread->joinable()) {
         _gameThread->join();
@@ -166,112 +176,135 @@ void Engine::Run() {
     std::cout << "[TronEngine] Engine loops stopped\n";
 }
 
-void Engine::RenderLoop() {
-    std::cout << "[Threading] Main Thread -> Render Loop started\n";
+void Engine::MainRenderLoop() {
+    std::cout << "[Threading] Main Thread -> Render + Messages at " << TRON_RENDER_TARGET_FPS << " FPS\n";
 
-    //while (m_running && m_frameCount < 30) {   // Test: 20 frames
+    int frameCount = 0;
+    auto lastFPSTime = std::chrono::steady_clock::now();
+
+    // Use high_resolution_clock for best precision
+    using clock = std::chrono::high_resolution_clock;
+    const double targetFrameTime = 1.0 / TRON_RENDER_TARGET_FPS;  // 0.01667 for 60 FPS
+
     while (_running) {
-        auto frameStart = std::chrono::steady_clock::now();
+        auto frameStart = clock::now();
 
-        // TODO: Call the Rendering method that groups all the thing need do it everyframe
-        // TODO: Actual rendering calls here
-        // Present with VSync for 60 FPS cap
+        // TODO: Render calls will go here
+        // if (_renderEngine) {
+        //     _renderEngine->BeginFrame();
+        //     _renderEngine->RenderScene();
+        //     _renderEngine->Present();
+        // }
 
-        // Target 60 FPS (16.67ms per frame)
-        auto frameEnd = std::chrono::steady_clock::now();
-        auto frameTime = std::chrono::duration<float, std::milli>(frameEnd - frameStart).count();
+        frameCount++;
 
-        float targetFrameTime = 16.67f;  // 60 FPS
-        float sleepTime = targetFrameTime - frameTime;
+        // FPS counter every second
+        auto currentTime = clock::now();
+        if (std::chrono::duration<double>(currentTime - lastFPSTime).count() >= 1.0) {
+            std::cout << "[MainRender] Rendered " << frameCount << " frames in last second\n";
+            frameCount = 0;
+            lastFPSTime = currentTime;
+        }
 
-        if (sleepTime > 0) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(sleepTime)));
+        // PURE SPIN-WAIT SOLUTION - No sleep at all!
+        // Since Windows sleep is imprecise (15.6ms), we just busy-wait
+        while (true) {
+            auto now = clock::now();
+            double elapsed = std::chrono::duration<double>(now - frameStart).count();
+
+            if (elapsed >= targetFrameTime) {
+                break;
+            }
+
+            // IMPORTANT: Give CPU a break to prevent 100% usage
+            // This is a x86/x64 instruction that hints the CPU we're in a spin loop
+#if defined(_MSC_VER)
+            _mm_pause();  // Intrinsic available in MSVC
+#else
+            std::this_thread::yield();  // Fallback
+#endif
         }
     }
 
-    std::cout << "[Threading] Render Thread finished\n";
+    std::cout << "[Threading] Main Render Thread finished\n";
 }
 
 void Engine::GameLoop() {
-    std::cout << "[Threading] Game Thread started (120 FPS target)\n";
+    std::cout << "[Threading] Game Thread started - Target: " << TRON_GAME_TARGET_FPS << " FPS\n";
 
-    const float targetDeltaTime = 1.0f / 120.0f;
-    auto previousTime = std::chrono::steady_clock::now();
+    auto lastTime = std::chrono::steady_clock::now();
+    auto lastFPSTime = lastTime;  // For FPS calculation
+    double accumulator = 0.0;
+    const double maxFrameTime = 0.025; // Max 25ms to prevent spiral of death
 
-    // Test prints
-    std::cout << "[TronEngine] === Initial Entity States ===\n";
+    int gameFrameCount = 0;
+    int actualUpdates = 0;  // Count actual world updates
+
+    // Get initial entities for debugging
     auto allEntities = _world->GetAllEntities();
-   /* for (Entity entity : allEntities)
-    {
-        auto* transform = _world->GetComponent<Transform>(entity);
-        auto* velocity = _world->GetComponent<Velocity>(entity);
+    std::cout << "[TronEngine] === Initial Entity States ===\n";
 
-        std::cout << "[TronEngine] Entity " << entity;
-        if (transform)
-        {
-            std::cout << " - Pos(" << transform->x << ", " << transform->y << ", " << transform->z << ")";
-        }
-        if (velocity)
-        {
-            std::cout << " - Vel(" << velocity->vx << ", " << velocity->vy << ", " << velocity->vz << ")";
-        }
-        std::cout << "\n";
-    }*/
-    int gameFrame = 0;
     while (_running) {
         auto currentTime = std::chrono::steady_clock::now();
-        float realDeltaTime = std::chrono::duration<float>(currentTime - previousTime).count();
+        double frameTime = std::chrono::duration<double>(currentTime - lastTime).count();
+        lastTime = currentTime;
 
-        // Cap delta time to prevent spiral of death
-        float clampedDelta = (realDeltaTime < 0.033f) ? realDeltaTime : 0.033f;  // Max 33ms (30 FPS min)
+        // Prevent spiral of death
+        frameTime = min(frameTime, maxFrameTime);
+        accumulator += frameTime;
 
-        // Update ECS World - this handles all movement, systems, etc.
-        if (_world)
-        {
-            _world->Update(clampedDelta);
+        // Fixed timestep updates - INDUSTRY STANDARD
+        while (accumulator >= TRON_GAME_TARGET_DELTA) {
+            if (_world) {
+                _world->Update(static_cast<float>(TRON_GAME_TARGET_DELTA));
+            }
+            accumulator -= TRON_GAME_TARGET_DELTA;
+            actualUpdates++;  // Count actual updates
         }
 
-        previousTime = currentTime;
-        gameFrame++;
+        gameFrameCount++;
 
-        // Show progress every second TEST
-        if (gameFrame % 60 == 0 && gameFrame > 0)
-        {
-            float elapsedTime = gameFrame * targetDeltaTime;
-            std::cout << "[TronEngine] === After " << elapsedTime << " seconds ===\n";
+        // FIXED: Show FPS based on actual time, not frame count
+        auto timeSinceLastFPS = std::chrono::duration<double>(currentTime - lastFPSTime).count();
 
-            for (Entity entity : allEntities)
-            {
+        if (timeSinceLastFPS >= 1.0) {  // Every 1 second of real time
+            double actualGameFPS = actualUpdates / timeSinceLastFPS;
+            double loopFPS = gameFrameCount / timeSinceLastFPS;
+
+            std::cout << "[GameThread] Actual Game FPS: " << std::fixed << std::setprecision(1)
+                << actualGameFPS << " updates/sec (target: " << TRON_GAME_TARGET_FPS
+                << ") | Loop FPS: " << loopFPS << "\n";
+
+            // Show entity positions every second instead of every 120 frames
+            for (Entity entity : allEntities) {
                 if (!_world->IsValidEntity(entity))
-                    continue; // Skip destroyed entities
+                    continue;
 
                 auto* transform = _world->GetComponent<Transform>(entity);
-                if (transform)
-                {
+                if (transform) {
                     std::cout << "[TronEngine] Entity " << entity
-                              << " position: (" << transform->x << ", "
-                              << transform->y << ", " << transform->z << ")\n";
+                        << " position: (" << std::fixed << std::setprecision(2)
+                        << transform->x << ", " << transform->y << ", " << transform->z << ")\n";
                 }
             }
+
+            // Reset counters
+            gameFrameCount = 0;
+            actualUpdates = 0;
+            lastFPSTime = currentTime;
         }
 
-        // Target 120 FPS - sleep for remaining time
+        // Precise timing
         auto frameEnd = std::chrono::steady_clock::now();
-        auto actualFrameTime = std::chrono::duration<float>(frameEnd - currentTime).count();
+        auto actualFrameTime = std::chrono::duration<double>(frameEnd - currentTime).count();
+        double sleepTime = TRON_GAME_TARGET_DELTA - actualFrameTime;
 
-        float sleepTime = targetDeltaTime - actualFrameTime;
-        if (sleepTime > 0.001f) {  // Only sleep if we have at least 1ms to spare
-            std::this_thread::sleep_for(std::chrono::duration<float>(sleepTime));
+        if (sleepTime > 0.001) {
+            std::this_thread::sleep_for(std::chrono::duration<double>(sleepTime));
         }
-
-        // Optional: Log frame timing every second for debugging
-        /*if (gameFrame % 120 == 0) {
-            float fps = 1.0f / realDeltaTime;
-             std::cout << "[GameLoop] FPS: " << fps << ", DeltaTime: " << realDeltaTime * 1000 << "ms\n";
-        }*/
     }
 
-    _running = false;  // Signal render thread to stop
+    _running = false;  // Signal main thread to stop
     std::cout << "[Threading] Game Thread finished\n";
 }
 

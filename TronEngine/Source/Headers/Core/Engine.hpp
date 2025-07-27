@@ -55,14 +55,9 @@ private:
     std::unique_ptr<RenderEngine> _renderEngine;
     //std::unique_ptr<InputManager> _inputManager;
 
-    void RenderLoop();
+    void MainRenderLoop();
     void GameLoop();
 
     bool InitializeSubsystems();
     void ShutdownSubsystems();
-
-    // Frame timing
-    // TODO : Make the user can set this and add the realDeltaTime not only the target
-    float _deltaTime = 0.016f;  // Target 60 FPS
-    int _frameCount = 0;
 };

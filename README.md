@@ -15,6 +15,9 @@ tron/
 
 
 TODO : 
+-Make the update functions of the scripts in separates threads
+-The system shutdown itself after the run method called
+-At the end of the game loop destroy the window
 -Memory leak problem in TestConsole due to the method of adding scripts
     Option A: Engine takes ownership and deletes user scripts
     Option B: User manages memory (current approach)
@@ -36,8 +39,7 @@ TODO :
 
 -Add to the CustomScripting functions Start et OnDestroy()
 - ✅ Add the possibility to Destry the entity from a customScript
--Correct and improve the deltaTime and the time system
--Add more than Update to the custom scripts
+- ✅ Correct and improve the deltaTime and the time system
 -Do the system like entity->GetPosition.x or similar
 -Add rotations
 -InputSystem and close management
