@@ -11,8 +11,16 @@ void D3DRenderer::Initialize(D3DContext* ctx, SwapChain* sc, CommandQueue* queue
 }
 
 void D3DRenderer::Render() {
+    if (!context || !swapChain) {
+        return; // Safety check
+    }
+
     ID3D11DeviceContext* ctx = context->GetContext();
     ID3D11RenderTargetView* rtv = swapChain->GetBackBufferRTV();
+
+    if (!ctx || !rtv) {
+        return; // Safety check
+    }
 
     float clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
     ctx->ClearRenderTargetView(rtv, clearColor);
