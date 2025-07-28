@@ -158,5 +158,11 @@ extern "C" {
         return g_engineInstance->GetWorld()->GetEntityCount();
     }
 
+    ENGINE_API void RequestEngineShutdown() {
+        if (g_engineInstance) {
+            g_engineInstance->RequestShutdown();
+        }
+    }
+
     //TODO ADD UPDATE COMPONENTS
 }

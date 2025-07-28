@@ -18,6 +18,7 @@ extern "C" {
     ENGINE_API void RunEngine();
     ENGINE_API void DestroyGlobalEngine();
 	ENGINE_API void QuitGame();
+    ENGINE_API void RequestEngineShutdown();
 
     // Test functions
     ENGINE_API void PrintEngineVersion();
