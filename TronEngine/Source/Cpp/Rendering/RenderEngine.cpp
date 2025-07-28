@@ -1,12 +1,11 @@
 ﻿#include "../../Headers/Rendering/RenderEngine.hpp"
 #include "../../Headers/Rendering/Resources/ShaderManager.hpp"
-#include "../../Headers/Rendering/FullscreenQuad.hpp"
 
 RenderEngine::RenderEngine(HWND hwnd, int width, int height)
     : hwnd(hwnd), width(width), height(height),
     context(nullptr), swapChain(nullptr), renderer(nullptr),
     commandQueue(nullptr), shaderManager(nullptr),
-    fullscreenQuad(nullptr), colorConstantBuffer(nullptr) {
+    colorConstantBuffer(nullptr) {
 }
 
 RenderEngine::~RenderEngine() {
@@ -21,7 +20,7 @@ void RenderEngine::Initialize() {
         return;
     }
 
-    // Initialize Swap Chain (now includes depth-stencil buffer)
+    // Initialize Swap Chain (includes depth-stencil buffer)
     swapChain = new SwapChain();
     if (!swapChain->Initialize(context, hwnd, width, height)) {
         std::cout << "[RenderEngine] Failed to initialize swap chain\n";
@@ -31,48 +30,31 @@ void RenderEngine::Initialize() {
     // Initialize Command Queue
     commandQueue = new CommandQueue();
 
-    // Initialize Shader Manager and load shaders
+    // Initialize Shader Manager
     shaderManager = new ShaderManager();
-    if (!shaderManager->LoadShader(context->GetDevice(), "default", L"VertexShader.hlsl", L"PixelShader.hlsl")) {
-        std::cout << "[RenderEngine] Failed to load shaders\n";
-    }
 
     // Initialize Renderer
     renderer = new D3DRenderer();
     renderer->Initialize(context, swapChain, commandQueue);
 
-    // Create constant buffer
+    // Create default constant buffer for testing
     CreateConstantBuffer();
-
-    // Initialize fullscreen quad
-    fullscreenQuad = new FullscreenQuad();
-    if (!fullscreenQuad->Initialize(context->GetDevice())) {
-        std::cout << "[RenderEngine] Failed to initialize fullscreen quad\n";
-        delete fullscreenQuad;
-        fullscreenQuad = nullptr;
-    }
 }
 
-void RenderEngine::CreateConstantBuffer() {
-    D3D11_BUFFER_DESC bufferDesc = {};
-    bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    bufferDesc.ByteWidth = sizeof(float) * 4; // float4 color
-    bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    bufferDesc.CPUAccessFlags = 0;
-
-    float colorData[4] = { 0.0f, 1.0f, 0.0f, 1.0f }; // Green
-
-    D3D11_SUBRESOURCE_DATA initData = {};
-    initData.pSysMem = colorData;
-
-    HRESULT hr = context->GetDevice()->CreateBuffer(&bufferDesc, &initData, &colorConstantBuffer);
-    if (FAILED(hr)) {
-        std::cout << "[RenderEngine] Failed to create constant buffer: " << std::hex << hr << std::dec << "\n";
-        colorConstantBuffer = nullptr;
+bool RenderEngine::LoadShader(const std::string& name, const std::wstring& vsFile, const std::wstring& psFile) {
+    if (!shaderManager) {
+        std::cout << "[RenderEngine] Shader manager not initialized\n";
+        return false;
     }
+
+    return shaderManager->LoadShader(context->GetDevice(), name, vsFile, psFile);
 }
 
-void RenderEngine::RenderFrame() {
+Shader* RenderEngine::GetShader(const std::string& name) {
+    return shaderManager ? shaderManager->GetShader(name) : nullptr;
+}
+
+void RenderEngine::BeginFrame() {
     ID3D11DeviceContext* ctx = context->GetContext();
     ID3D11RenderTargetView* rtv = swapChain->GetBackBufferRTV();
     ID3D11DepthStencilView* dsv = swapChain->GetDepthStencilView();
@@ -96,40 +78,44 @@ void RenderEngine::RenderFrame() {
     viewport.MinDepth = 0.0f;
     viewport.MaxDepth = 1.0f;
     ctx->RSSetViewports(1, &viewport);
+}
 
-    // Get shader and render
-    Shader* shader = shaderManager ? shaderManager->GetShader("default") : nullptr;
-
-    if (!shader) {
-        // Fallback: clear to magenta if shader loading failed
-        float clearColor[] = { 0.8f, 0.2f, 0.8f, 1.0f };
-        ctx->ClearRenderTargetView(rtv, clearColor);
-    }
-    else {
-        // Set up shaders and render fullscreen quad
-        ctx->IASetInputLayout(shader->inputLayout);
-        ctx->VSSetShader(shader->vertexShader, nullptr, 0);
-        ctx->PSSetShader(shader->pixelShader, nullptr, 0);
-
-        if (fullscreenQuad) {
-            fullscreenQuad->Render(ctx, colorConstantBuffer);
-        }
-        else {
-            // Fallback: clear to yellow if quad failed
-            float clearColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
-            ctx->ClearRenderTargetView(rtv, clearColor);
-        }
-    }
-
+void RenderEngine::EndFrame() {
     swapChain->Present();
 }
 
-void RenderEngine::Shutdown() {
-    if (fullscreenQuad) {
-        delete fullscreenQuad;
-        fullscreenQuad = nullptr;
-    }
+ID3D11DeviceContext* RenderEngine::GetDeviceContext() const {
+    return context ? context->GetContext() : nullptr;
+}
 
+ID3D11Device* RenderEngine::GetDevice() const {
+    return context ? context->GetDevice() : nullptr;
+}
+
+ID3D11Buffer* RenderEngine::GetColorConstantBuffer() const {
+    return colorConstantBuffer;
+}
+
+void RenderEngine::CreateConstantBuffer() {
+    D3D11_BUFFER_DESC bufferDesc = {};
+    bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+    bufferDesc.ByteWidth = sizeof(float) * 4; // float4 color
+    bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    bufferDesc.CPUAccessFlags = 0;
+
+    float colorData[4] = { 0.0f, 1.0f, 0.0f, 1.0f }; // Green
+
+    D3D11_SUBRESOURCE_DATA initData = {};
+    initData.pSysMem = colorData;
+
+    HRESULT hr = context->GetDevice()->CreateBuffer(&bufferDesc, &initData, &colorConstantBuffer);
+    if (FAILED(hr)) {
+        std::cout << "[RenderEngine] Failed to create constant buffer: " << std::hex << hr << std::dec << "\n";
+        colorConstantBuffer = nullptr;
+    }
+}
+
+void RenderEngine::Shutdown() {
     if (colorConstantBuffer) {
         colorConstantBuffer->Release();
         colorConstantBuffer = nullptr;

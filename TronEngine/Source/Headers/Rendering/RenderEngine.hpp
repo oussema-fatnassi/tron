@@ -6,9 +6,7 @@
 #include "D3D/CommandQueue.hpp"
 #include "Resources/ShaderManager.hpp"
 #include <iostream>
-
-// Forward declaration
-class FullscreenQuad;
+#include <string>
 
 class RenderEngine {
 public:
@@ -16,8 +14,20 @@ public:
     ~RenderEngine();
 
     void Initialize();
-    void RenderFrame();
     void Shutdown();
+
+    // Shader management
+    bool LoadShader(const std::string& name, const std::wstring& vsFile, const std::wstring& psFile);
+    Shader* GetShader(const std::string& name);
+
+    // Frame rendering
+    void BeginFrame();
+    void EndFrame();
+
+    // Resource access
+    ID3D11DeviceContext* GetDeviceContext() const;
+    ID3D11Device* GetDevice() const;
+    ID3D11Buffer* GetColorConstantBuffer() const;
 
 private:
     HWND hwnd;
@@ -29,12 +39,8 @@ private:
     CommandQueue* commandQueue;
     ShaderManager* shaderManager;
 
-    // Fullscreen quad for shader testing
-    FullscreenQuad* fullscreenQuad;
-
-    // Constant buffer for shader
+    // Default constant buffer for testing
     ID3D11Buffer* colorConstantBuffer;
 
     void CreateConstantBuffer();
-    std::pair<std::wstring, std::wstring> FindShaderFiles();
 };

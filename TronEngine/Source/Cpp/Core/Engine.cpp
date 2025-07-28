@@ -1,6 +1,7 @@
 #include "../Headers/Core/Engine.hpp" 
 #include "../../Include/TronEngine.hpp"
 #include "../Headers/Core/WindowUtils.hpp"
+#include "../Headers/Rendering/FullscreenQuad.hpp"
 #include <iostream>
 #include <chrono>
 #include <iomanip>
@@ -11,7 +12,8 @@ Engine::Engine()
     , _running(false)
     , _version("1.0.0")
     , _world(nullptr)
-	, _renderEngine(nullptr)
+    , _renderEngine(nullptr)
+    , _testQuad(nullptr)
 {
     std::cout << "[TronEngine] Constructor - Engine object created\n";
 }
@@ -45,7 +47,6 @@ bool Engine::Initialize() {
     std::cout << "[Debug] TRON_RENDER_TARGET_DELTA: " << TRON_RENDER_TARGET_DELTA << " ("
         << (TRON_RENDER_TARGET_DELTA * 1000) << "ms)\n";
 
-
     _initialized = true;
     std::cout << "[TronEngine] Initialization successful!\n";
     return true;
@@ -58,35 +59,35 @@ bool Engine::InitializeSubsystems() {
     //_inputManager = std::make_unique<InputManager>();
     //std::cout << "[TronEngine] InputManager initialized\n";
 
-	// Initialize ECS World
+    // Initialize ECS World
     _world = std::make_unique<World>();
 
-	//TODO: Make the registration of components in World a single function call
+    //TODO: Make the registration of components in World a single function call
     _world->RegisterComponent<Transform>();
     _world->RegisterComponent<Velocity>();
-	_world->RegisterComponent<Script>();
+    _world->RegisterComponent<Script>();
 
     // Register systems
     auto* debugSystem = _world->RegisterSystem<DebugSystem>();
     auto* movementSystem = _world->RegisterSystem<MovementSystem>();
-	auto* scriptSystem = _world->RegisterSystem<ScriptSystem>();
+    auto* scriptSystem = _world->RegisterSystem<ScriptSystem>();
 
     // Set system signatures
     _world->SetSystemSignature<Transform>(debugSystem);
     _world->SetSystemSignature<Transform, Velocity>(movementSystem);
-	_world->SetSystemSignature<Script>(scriptSystem);
+    _world->SetSystemSignature<Script>(scriptSystem);
 
     std::cout << "[TronEngine] ECS World initialized with components registered\n";
 
     // Render Engine 
- 
-	// WINDOW INITIALIZATION
+
+    // WINDOW INITIALIZATION
     // TODO: Initialize the RenderEngine with a single function in Window and other from the RenderEngine
     int width = 1280;
     int height = 720;
 
     // Creates Win32 window
-	//TODO: LET SOMEWHERE THE USER CHOSE THE WINDOW SIZE
+    //TODO: LET SOMEWHERE THE USER CHOSE THE WINDOW SIZE
     //TODO: Maybe add a variable to ref the window 
     HINSTANCE hInstance = GetModuleHandle(nullptr);
     HWND hwnd = CreateSimpleWindow(hInstance, width, height, L"TronEngine");
@@ -97,10 +98,21 @@ bool Engine::InitializeSubsystems() {
     }
     ShowWindow(hwnd, SW_SHOW);
 
-	//Direct3D Initialization
+    //Direct3D Initialization
     _renderEngine = std::make_unique<RenderEngine>(hwnd, width, height);
-
     _renderEngine->Initialize();
+
+    // Load test shader
+    if (!_renderEngine->LoadShader("default", L"VertexShader.hlsl", L"PixelShader.hlsl")) {
+        std::cout << "[TronEngine] Failed to load test shader\n";
+    }
+
+    // Create test quad for shader testing (MOVED FROM RENDERENGINE)
+    _testQuad = std::make_unique<FullscreenQuad>();
+    if (!_testQuad->Initialize(_renderEngine->GetDevice())) {
+        std::cout << "[TronEngine] Failed to create test quad\n";
+        _testQuad.reset();
+    }
 
     // LOGS
     std::cout << "[TronEngine] RenderEngine initialized successfully\n";
@@ -110,6 +122,7 @@ bool Engine::InitializeSubsystems() {
 
     return true;
 }
+
 void Engine::Shutdown() {
     if (!_initialized) {
         return;
@@ -140,6 +153,9 @@ void Engine::RequestShutdown() {
 void Engine::ShutdownSubsystems() {
     std::cout << "[TronEngine] Shutting down subsystems...\n";
 
+    // Clean up test quad
+    _testQuad.reset();
+
     // TODO: Shutdown in reverse order when implemented
     // Shutdown ECS World
     if (_world) {
@@ -147,6 +163,9 @@ void Engine::ShutdownSubsystems() {
         _world.reset();
         std::cout << "[TronEngine] ECS World shut down\n";
     }
+
+    // Shutdown render engine
+    _renderEngine.reset();
 
     std::cout << "[TronEngine] All subsystems shut down\n";
 }
@@ -165,7 +184,7 @@ void Engine::Run() {
 
     // Start the Game Thread
     _gameThread = std::make_unique<std::thread>(&Engine::GameLoop, this);
-    
+
     // RenderLoop in the main Thread
     MainRenderLoop();
 
@@ -189,13 +208,6 @@ void Engine::MainRenderLoop() {
     while (_running) {
         auto frameStart = clock::now();
 
-        // TODO: Render calls will go here
-        // if (_renderEngine) {
-        //     _renderEngine->BeginFrame();
-        //     _renderEngine->RenderScene();
-        //     _renderEngine->Present();
-        // }
-
         MSG msg = {};
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
             if (msg.message == WM_QUIT) {
@@ -209,9 +221,14 @@ void Engine::MainRenderLoop() {
         // Exit if we received WM_QUIT
         if (!_running) break;
 
-        // Render calls
+        // Render calls using new API
         if (_renderEngine) {
-            _renderEngine->RenderFrame();
+            _renderEngine->BeginFrame();
+
+            // TEST: Render fullscreen quad with shader (MOVED FROM RENDERENGINE)
+            RenderTestQuad();
+
+            _renderEngine->EndFrame();
         }
 
         frameCount++;
@@ -245,6 +262,27 @@ void Engine::MainRenderLoop() {
     }
 
     std::cout << "[Threading] Main Render Thread finished\n";
+}
+
+void Engine::RenderTestQuad() {
+    if (!_testQuad || !_renderEngine) {
+        return;
+    }
+
+    ID3D11DeviceContext* ctx = _renderEngine->GetDeviceContext();
+    Shader* shader = _renderEngine->GetShader("default");
+
+    if (!ctx || !shader) {
+        return;
+    }
+
+    // Set up shader pipeline
+    ctx->IASetInputLayout(shader->inputLayout);
+    ctx->VSSetShader(shader->vertexShader, nullptr, 0);
+    ctx->PSSetShader(shader->pixelShader, nullptr, 0);
+
+    // Render the test quad
+    _testQuad->Render(ctx, _renderEngine->GetColorConstantBuffer());
 }
 
 void Engine::GameLoop() {

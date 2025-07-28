@@ -22,6 +22,9 @@
 // TronEngine - Rendering imports
 #include "../Rendering/RenderEngine.hpp"
 
+// Forward declaration for test quad
+class FullscreenQuad;
+
 class Engine {
 public:
     Engine();
@@ -38,25 +41,25 @@ public:
 
     // Subsystem access
     World* GetWorld() const;
-    // RenderEngine* GetRenderEngine() const { return m_renderEngine.get(); }
 
 private:
     bool _initialized;
     std::atomic<bool> _running{ false };
     std::string _version;
 
-    // Threading infrastructure (YOUR WORK)
+    // Threading infrastructure
     std::unique_ptr<std::thread> _gameThread;
 
-    // Subsystems (commented out until implemented)
-    // std::unique_ptr<RenderEngine> m_renderEngine;
-    // ECS World
+    // Subsystems
     std::unique_ptr<World> _world;
     std::unique_ptr<RenderEngine> _renderEngine;
-    //std::unique_ptr<InputManager> _inputManager;
+
+    // Test rendering (remove when no longer needed for shader testing)
+    std::unique_ptr<FullscreenQuad> _testQuad;
 
     void MainRenderLoop();
     void GameLoop();
+    void RenderTestQuad(); // Test method - remove when no longer needed
 
     bool InitializeSubsystems();
     void ShutdownSubsystems();
