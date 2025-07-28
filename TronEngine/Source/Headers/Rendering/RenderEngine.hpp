@@ -5,6 +5,10 @@
 #include "D3D/SwapChain.hpp"
 #include "D3D/CommandQueue.hpp"
 #include "Resources/ShaderManager.hpp"
+#include <iostream>
+
+// Forward declaration
+class FullscreenQuad;
 
 class RenderEngine {
 public:
@@ -24,4 +28,13 @@ private:
     D3DRenderer* renderer;
     CommandQueue* commandQueue;
     ShaderManager* shaderManager;
+
+    // Fullscreen quad for shader testing
+    FullscreenQuad* fullscreenQuad;
+
+    // Constant buffer for shader
+    ID3D11Buffer* colorConstantBuffer;
+
+    void CreateConstantBuffer();
+    std::pair<std::wstring, std::wstring> FindShaderFiles();
 };
