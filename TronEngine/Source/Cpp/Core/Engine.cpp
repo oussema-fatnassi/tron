@@ -196,6 +196,24 @@ void Engine::MainRenderLoop() {
         //     _renderEngine->Present();
         // }
 
+        MSG msg = {};
+        while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+            if (msg.message == WM_QUIT) {
+                _running = false;
+                break;
+            }
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+
+        // Exit if we received WM_QUIT
+        if (!_running) break;
+
+        // Render calls
+        if (_renderEngine) {
+            _renderEngine->RenderFrame();
+        }
+
         frameCount++;
 
         // FPS counter every second
