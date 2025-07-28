@@ -1,28 +1,38 @@
-#include "../../../Headers/Rendering/Resources/ShaderManager.hpp"
+﻿#include "../../../Headers/Rendering/Resources/ShaderManager.hpp"
 #include <d3dcompiler.h>
 #include <wrl/client.h>
-#include <fstream>
+#include <iostream>
 
 using Microsoft::WRL::ComPtr;
 
 bool ShaderManager::LoadShader(ID3D11Device* device, const std::string& name, const std::wstring& vsFile, const std::wstring& psFile) {
+    if (!device) {
+        std::cout << "[ShaderManager] Error: Device is null\n";
+        return false;
+    }
+
     Shader shader = {};
 
     // === Vertex Shader ===
     ComPtr<ID3DBlob> vsBlob;
     ComPtr<ID3DBlob> errorBlob;
+    
     HRESULT hr = D3DCompileFromFile(
         vsFile.c_str(),
-        nullptr, nullptr,
-        "main", "vs_5_0",
-        0, 0,
+        nullptr, 
+        D3D_COMPILE_STANDARD_FILE_INCLUDE,
+        "main", 
+        "vs_5_0",
+        D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+        0,
         vsBlob.GetAddressOf(),
         errorBlob.GetAddressOf()
     );
 
     if (FAILED(hr)) {
+        std::cout << "[ShaderManager] Failed to compile vertex shader: " << std::hex << hr << std::dec << "\n";
         if (errorBlob) {
-            OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+            std::cout << "[ShaderManager] Vertex shader error: " << (char*)errorBlob->GetBufferPointer() << "\n";
         }
         return false;
     }
@@ -33,9 +43,12 @@ bool ShaderManager::LoadShader(ID3D11Device* device, const std::string& name, co
         nullptr,
         &shader.vertexShader
     );
-    if (FAILED(hr)) return false;
+    if (FAILED(hr)) {
+        std::cout << "[ShaderManager] Failed to create vertex shader object: " << std::hex << hr << std::dec << "\n";
+        return false;
+    }
 
-    // === Input Layout (exemple simple pos + color) ===
+    // === Input Layout ===
     D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,   D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "COLOR",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -48,22 +61,29 @@ bool ShaderManager::LoadShader(ID3D11Device* device, const std::string& name, co
         vsBlob->GetBufferSize(),
         &shader.inputLayout
     );
-    if (FAILED(hr)) return false;
+    if (FAILED(hr)) {
+        std::cout << "[ShaderManager] Failed to create input layout: " << std::hex << hr << std::dec << "\n";
+        return false;
+    }
 
     // === Pixel Shader ===
     ComPtr<ID3DBlob> psBlob;
     hr = D3DCompileFromFile(
         psFile.c_str(),
-        nullptr, nullptr,
-        "main", "ps_5_0",
-        0, 0,
+        nullptr, 
+        D3D_COMPILE_STANDARD_FILE_INCLUDE,
+        "main", 
+        "ps_5_0",
+        D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+        0,
         psBlob.GetAddressOf(),
         errorBlob.ReleaseAndGetAddressOf()
     );
 
     if (FAILED(hr)) {
+        std::cout << "[ShaderManager] Failed to compile pixel shader: " << std::hex << hr << std::dec << "\n";
         if (errorBlob) {
-            OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+            std::cout << "[ShaderManager] Pixel shader error: " << (char*)errorBlob->GetBufferPointer() << "\n";
         }
         return false;
     }
@@ -74,26 +94,27 @@ bool ShaderManager::LoadShader(ID3D11Device* device, const std::string& name, co
         nullptr,
         &shader.pixelShader
     );
-    if (FAILED(hr)) return false;
+    if (FAILED(hr)) {
+        std::cout << "[ShaderManager] Failed to create pixel shader object: " << std::hex << hr << std::dec << "\n";
+        return false;
+    }
 
+    // Store the shader
     shaders[name] = shader;
+    std::cout << "[ShaderManager] Shader '" << name << "' loaded successfully\n";
     return true;
 }
 
 Shader* ShaderManager::GetShader(const std::string& name) {
     auto it = shaders.find(name);
-    if (it != shaders.end()) {
-        return &it->second;
-    }
-    return nullptr;
+    return (it != shaders.end()) ? &it->second : nullptr;
 }
 
 void ShaderManager::Clear() {
     for (auto& [name, shader] : shaders) {
-        if (shader.vertexShader)  shader.vertexShader->Release();
-        if (shader.pixelShader)   shader.pixelShader->Release();
-        if (shader.inputLayout)   shader.inputLayout->Release();
+        if (shader.vertexShader) shader.vertexShader->Release();
+        if (shader.pixelShader) shader.pixelShader->Release();
+        if (shader.inputLayout) shader.inputLayout->Release();
     }
     shaders.clear();
 }
-
