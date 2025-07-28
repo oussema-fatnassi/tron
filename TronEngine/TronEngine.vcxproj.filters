@@ -64,6 +64,9 @@
     <ClCompile Include="Source\Cpp\Core\InputManager.cpp">
       <Filter>Source\Cpp\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Cpp\Rendering\FullscreenQuad.cpp">
+      <Filter>Source\Cpp\Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\EngineExports.hpp">
@@ -150,6 +153,9 @@
     <ClInclude Include="Source\Headers\Core\InputManager.hpp">
       <Filter>Source\Headers\Core</Filter>
     </ClInclude>
+    <ClInclude Include="FullscreenQuad.hpp">
+      <Filter>Source\Headers\Rendering\D3D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Include">
@@ -199,8 +205,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Source\Shaders\PixelShader.hlsl">
+    <None Include="Source\Shaders\PixelShader.hlsl">
       <Filter>Source\Shaders</Filter>
-    </FxCompile>
+    </None>
+    <None Include="Source\shaders\VertexShader.hlsl">
+      <Filter>Source\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

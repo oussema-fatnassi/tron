@@ -128,7 +128,8 @@
       <AdditionalDependencies>TronEngine.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(SolutionDir)bin\$(Configuration)\TronEngine.dll" "$(TargetDir)"</Command>
+      <Command>copy "$(SolutionDir)bin\$(Configuration)\TronEngine.dll" "$(TargetDir)"
+copy "$(SolutionDir)TronEngine\Source\shaders\*.hlsl" "$(SolutionDir)TestConsole\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
