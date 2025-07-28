@@ -26,5 +26,8 @@
     <ClInclude Include="PlayerScript.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SecondScript.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

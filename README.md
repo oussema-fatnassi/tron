@@ -16,6 +16,8 @@ tron/
 
 TODO : 
 -Make the update functions of the scripts in separates threads
+-Make possible to an entity have more than one script attached and iterate for each script
+-If DestroyEntity is used on a custom script in an update function, it will crash if funcs are called after.
 -The system shutdown itself after the run method called
 -At the end of the game loop destroy the window
 -Memory leak problem in TestConsole due to the method of adding scripts

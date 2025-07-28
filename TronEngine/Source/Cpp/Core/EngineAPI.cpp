@@ -85,6 +85,11 @@ extern "C" {
         return g_engineInstance->GetWorld()->IsValidEntity(entity);
     }
 
+    ENGINE_API uint32_t GetEntityCount() {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return 0;
+        return g_engineInstance->GetWorld()->GetEntityCount();
+    }
+
     ENGINE_API bool AddTransformComponent(uint32_t entity, float x, float y, float z) {
         if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
         Transform* component = g_engineInstance->GetWorld()->AddComponent<Transform>(entity, x, y, z);
@@ -153,15 +158,24 @@ extern "C" {
         }
     }
 
-    ENGINE_API uint32_t GetEntityCount() {
-        if (!g_engineInstance || !g_engineInstance->GetWorld()) return 0;
-        return g_engineInstance->GetWorld()->GetEntityCount();
-    }
-
-    ENGINE_API void RequestEngineShutdown() {
-        if (g_engineInstance) {
-            g_engineInstance->RequestShutdown();
+    ENGINE_API bool RemoveScript(uint32_t entity) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) {
+            return false;
         }
+
+        auto* script = g_engineInstance->GetWorld()->GetComponent<Script>(entity);
+        if (!script) {
+            std::cout << "[EngineAPI] Warning: Entity " << entity << " has no script to remove\n";
+            return false;
+        }
+
+        std::cout << "[EngineAPI] Removing script from entity " << entity << std::endl;
+
+        // Remove Script component - OnDestroy() called automatically
+        g_engineInstance->GetWorld()->RemoveComponent<Script>(entity);
+
+        std::cout << "[EngineAPI] Script removed from entity " << entity << std::endl;
+        return true;
     }
 
     //TODO ADD UPDATE COMPONENTS

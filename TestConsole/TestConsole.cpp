@@ -32,12 +32,12 @@ int main() {
     if (AddVelocityComponent(player, 10.0f, 0.0f, 0.0f)) {
         std::cout << "Added velocity component to player\n";
     }
-
+	uint32_t player2 = CreateEntity();
     // Create custom script instance
 	// TODO: Use a factory or script manager in the engine to handle this properly
-    PlayerScript* playerScript1 = new PlayerScript("Hero");
-    PlayerScript* playerScript2 = new PlayerScript("Enemy");
-    PlayerScript* playerScript3 = new PlayerScript("NPC");
+    PlayerScript* playerScript1 = new PlayerScript(&player2,"Hero");
+    /*PlayerScript* playerScript2 = new PlayerScript("Enemy");
+    PlayerScript* playerScript3 = new PlayerScript("NPC");*/
 
     // Add it to entity
     if (AddCustomScript(player, playerScript1)) {

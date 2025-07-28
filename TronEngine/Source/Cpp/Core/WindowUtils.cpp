@@ -7,7 +7,7 @@ LRESULT CALLBACK TronWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
     switch (uMsg) {
     case WM_CLOSE:
         std::cout << "[Window] Close button clicked\n";
-        RequestEngineShutdown(); // Signal engine to stop
+        QuitGame(); // Signal engine to stop
         return 0;
 
     case WM_DESTROY:

@@ -18,7 +18,6 @@ extern "C" {
     ENGINE_API void RunEngine();
     ENGINE_API void DestroyGlobalEngine();
 	ENGINE_API void QuitGame();
-    ENGINE_API void RequestEngineShutdown();
 
     // Test functions
     ENGINE_API void PrintEngineVersion();
@@ -35,6 +34,7 @@ extern "C" {
     ENGINE_API uint32_t CreateEntity();
     ENGINE_API void DestroyEntity(uint32_t entity);
     ENGINE_API bool IsValidEntity(uint32_t entity);
+	ENGINE_API uint32_t GetEntityCount();
 
     // ECS Interface - Component management
     ENGINE_API bool AddTransformComponent(uint32_t entity, float x, float y, float z);
@@ -46,6 +46,7 @@ extern "C" {
 
     ENGINE_API void RemoveTransformComponent(uint32_t entity);
     ENGINE_API void RemoveVelocityComponent(uint32_t entity);
+    ENGINE_API bool RemoveScript(uint32_t entity);
 
     // ECS Interface - World management
     ENGINE_API uint32_t GetEntityCount();
