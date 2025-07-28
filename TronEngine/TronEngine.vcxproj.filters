@@ -205,11 +205,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\Shaders\PixelShader.hlsl">
+    <FxCompile Include="Source\Shaders\PixelShader.hlsl">
       <Filter>Source\Shaders</Filter>
-    </None>
-    <None Include="Source\shaders\VertexShader.hlsl">
+    </FxCompile>
+    <FxCompile Include="Source\shaders\VertexShader.hlsl">
       <Filter>Source\Shaders</Filter>
-    </None>
+    </FxCompile>
   </ItemGroup>
 </Project>

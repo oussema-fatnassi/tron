@@ -67,13 +67,14 @@
     <ClCompile Include="Source\Cpp\Core\WindowUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\Shaders\PixelShader.hlsl">
+    <FxCompile Include="Source\Shaders\PixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <FileType>Document</FileType>
-    </None>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
     <ClCompile Include="Source\Cpp\Game\ComponentManager.cpp" />
     <ClCompile Include="Source\Cpp\Game\DebugSystem.cpp" />
     <ClCompile Include="Source\Cpp\Game\EntityManager.cpp" />
@@ -83,9 +84,11 @@
     <ClCompile Include="Source\Cpp\Game\World.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\shaders\VertexShader.hlsl">
+    <FxCompile Include="Source\shaders\VertexShader.hlsl">
       <FileType>Document</FileType>
-    </None>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -218,7 +221,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration);$(SolutionDir)lib\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib
 
 ;d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
