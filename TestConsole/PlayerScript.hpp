@@ -56,8 +56,12 @@ public:
         {
 			std::cout << "[" << playerName << "] Z key pressed" << entity << std::endl;
         }*/
+        if (IsKeyUp(90))
+        {
+            std::cout << "[" << playerName << "] Z key released" << entity << std::endl;
+        }
 
-        float x, y, z;
+        /*float x, y, z;
         if (GetTransformComponent(entity, &x, &y, &z)) {
             if (x >= targetX) {
                 std::cout << "[" << playerName << "] TARGET REACHED at x="
@@ -75,7 +79,7 @@ public:
 				RemoveScript(*secondEntity);
 				DestroyEntity(entity);
             }
-        }
+        }*/
     }
 
     void OnDestroy() override {

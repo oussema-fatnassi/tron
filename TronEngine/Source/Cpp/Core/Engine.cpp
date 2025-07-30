@@ -257,11 +257,11 @@ void Engine::MainRenderLoop() {
             switch (msg.message) {
             case WM_KEYDOWN:
                 _inputManager->OnKeyEvent(msg.wParam, true);
-                std::cout << "[Input] Key Down: " << static_cast<int>(msg.wParam) << "\n";
+                //std::cout << "[Input] Key Down: " << static_cast<int>(msg.wParam) << "\n";
                 break;
             case WM_KEYUP:
                 _inputManager->OnKeyEvent(msg.wParam, false);
-                std::cout << "[Input] Key Up: " << static_cast<int>(msg.wParam) << "\n";
+                //std::cout << "[Input] Key Up: " << static_cast<int>(msg.wParam) << "\n";
                 break;
             case WM_LBUTTONDOWN:
                 _inputManager->OnMouseButtonEvent(VK_LBUTTON, true);
@@ -294,6 +294,10 @@ void Engine::MainRenderLoop() {
         // Exit if we received WM_QUIT
         if (!_running) break;
 
+		if (_inputManager) {
+			// Process input events
+			_inputManager->Update();
+		}
         // Render calls using new API
         if (_renderEngine && _renderExecutor && _renderCommandQueue) {
             _renderEngine->BeginFrame();
