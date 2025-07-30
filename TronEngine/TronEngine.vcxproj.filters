@@ -159,9 +159,6 @@
     <ClInclude Include="Source\Headers\Core\InputManager.hpp">
       <Filter>Source\Headers\Core</Filter>
     </ClInclude>
-    <ClInclude Include="FullscreenQuad.hpp">
-      <Filter>Source\Headers\Rendering\D3D</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Headers\Game\MeshRendererComponent.hpp">
       <Filter>Source\Headers\Game</Filter>
     </ClInclude>
@@ -171,7 +168,9 @@
     <ClInclude Include="Source\Headers\Game\MeshRenderSystem.hpp">
       <Filter>Source\Headers\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Cpp\Headers\Core\Engine.hpp" />
+    <ClInclude Include="Source\Headers\Rendering\FullscreenQuad.hpp">
+      <Filter>Source\Headers\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Include">
