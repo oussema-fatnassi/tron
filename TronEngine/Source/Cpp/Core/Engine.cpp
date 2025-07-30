@@ -99,6 +99,19 @@ bool Engine::InitializeSubsystems() {
     _meshManager = std::make_unique<MeshManager>();
     _materialManager = std::make_unique<MaterialManager>();
 
+    // === NEW: Clean Architecture Setup ===
+    // Initialize command queue for thread communication
+    _renderCommandQueue = std::make_unique<CommandQueue>();
+    std::cout << "[TronEngine] Command queue initialized for clean thread communication\n";
+
+    _renderExecutor = std::make_unique<RenderExecutor>(
+        _renderEngine.get(),
+        _meshManager.get(),
+        _materialManager.get()
+    );
+    std::cout << "[TronEngine] RenderExecutor initialized (clean separation, no ECS dependencies)\n";
+
+
     // Generate all primitive meshes - Must be done AFTER MeshManager
     if (!PrimitiveMeshGenerator::GenerateAllPrimitives(_renderEngine->GetDevice(), _meshManager.get())) {
         std::cout << "[TronEngine] Warning: Failed to generate some primitive meshes\n";
@@ -117,8 +130,7 @@ bool Engine::InitializeSubsystems() {
     auto* debugSystem = _world->RegisterSystem<DebugSystem>();
     auto* movementSystem = _world->RegisterSystem<MovementSystem>();
     auto* scriptSystem = _world->RegisterSystem<ScriptSystem>();
-    auto* meshRenderSystem = _world->RegisterSystem<MeshRenderSystem>(
-        _renderEngine.get(), _meshManager.get(), _materialManager.get());
+    auto* meshRenderSystem = _world->RegisterSystem<MeshRenderSystem>(_renderCommandQueue.get());
 
     // Set system signatures
     _world->SetSystemSignature<Transform>(debugSystem);
@@ -179,6 +191,13 @@ void Engine::ShutdownSubsystems() {
 
     // Clean up test quad
     _testQuad.reset();
+
+    // === NEW: Clean up clean architecture components ===
+    _renderExecutor.reset();
+    std::cout << "[TronEngine] RenderExecutor shut down\n";
+
+    _renderCommandQueue.reset();
+    std::cout << "[TronEngine] Command queue shut down\n";
 
     // TODO: Shutdown in reverse order when implemented
     // Shutdown ECS World first (it references the managers)
@@ -276,14 +295,17 @@ void Engine::MainRenderLoop() {
         if (!_running) break;
 
         // Render calls using new API
-        if (_renderEngine) {
+        if (_renderEngine && _renderExecutor && _renderCommandQueue) {
             _renderEngine->BeginFrame();
 
-            // Render all entities with MeshRenderer components
-            auto* meshRenderSystem = _world->GetSystem<MeshRenderSystem>();
-            if (meshRenderSystem) {
-                meshRenderSystem->Render();
+            // Get all render commands from game thread
+            auto renderCommands = _renderCommandQueue->PopAllCommands();
+
+            // Execute commands through RenderExecutor (no ECS knowledge!)
+            if (!renderCommands.empty()) {
+                _renderExecutor->ExecuteRenderCommands(renderCommands);
             }
+
             _renderEngine->EndFrame();
         }
 
@@ -370,6 +392,13 @@ void Engine::GameLoop() {
             if (_world) {
                 _world->Update(static_cast<float>(TRON_GAME_TARGET_DELTA));
             }
+
+            // === NEW: Generate Render Commands (Clean Architecture) ===
+            auto* meshRenderSystem = _world->GetSystem<MeshRenderSystem>();
+            if (meshRenderSystem) {
+                meshRenderSystem->GenerateRenderCommands();  // Pure ECS -> Commands
+            }
+
             accumulator -= TRON_GAME_TARGET_DELTA;
             actualUpdates++;  // Count actual updates
         }

@@ -14,17 +14,19 @@
 #include "../Game/MovementSystem.hpp"
 #include "../Game/DebugSystem.hpp"
 #include "../Game/ScriptSystem.hpp"
+#include "../Game/MeshRenderSystem.hpp"
     // Components
 #include "../Game/VelocityComponent.hpp"
 #include "../Game/TransformComponent.hpp"
 #include "../Game/ScriptComponent.hpp"
+#include "../Game/MeshRendererComponent.hpp"
 
 // TronEngine - Rendering imports
 #include "../Rendering/RenderEngine.hpp"
-
-#include "../Game/MeshRendererComponent.hpp"
-#include "../Game/MeshRenderSystem.hpp"
 #include "../Rendering/PrimitiveMeshGenerator.hpp"
+#include "../Communication/RenderCommand.hpp"
+#include "../Rendering/RenderExecutor.hpp" 
+
 
 // Forward declaration for test quad
 class FullscreenQuad;
@@ -58,6 +60,12 @@ private:
     std::unique_ptr<World> _world;
     std::unique_ptr<RenderEngine> _renderEngine;
     std::unique_ptr<InputManager> _inputManager;
+    std::unique_ptr<CommandQueue> _renderCommandQueue;
+   
+    // Resource managers
+    std::unique_ptr<MeshManager> _meshManager;
+    std::unique_ptr<MaterialManager> _materialManager;
+    std::unique_ptr<RenderExecutor> _renderExecutor;
 
     // Test rendering (remove when no longer needed for shader testing)
     std::unique_ptr<FullscreenQuad> _testQuad;
@@ -69,6 +77,4 @@ private:
     bool InitializeSubsystems();
     void ShutdownSubsystems();
 
-    std::unique_ptr<MeshManager> _meshManager;
-    std::unique_ptr<MaterialManager> _materialManager;
 };

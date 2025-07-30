@@ -73,6 +73,9 @@
     <ClCompile Include="Source\Cpp\Game\MeshRenderSystem.cpp">
       <Filter>Source\Cpp\Game</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Cpp\Rendering\RenderExecutor.cpp">
+      <Filter>Source\Cpp\Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\EngineExports.hpp">
@@ -171,6 +174,12 @@
     <ClInclude Include="Source\Headers\Rendering\FullscreenQuad.hpp">
       <Filter>Source\Headers\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Headers\Communication\RenderCommand.hpp">
+      <Filter>Source\Headers\Communication</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Rendering\RenderExecutor.hpp">
+      <Filter>Source\Headers\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Include">
@@ -217,6 +226,9 @@
     </Filter>
     <Filter Include="Source\Headers\Rendering\Resources">
       <UniqueIdentifier>{c05838eb-14d8-4f24-bed8-ae5031ca9353}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Headers\Communication">
+      <UniqueIdentifier>{76cf8b1c-99f8-4dfc-9c76-ee155b949a00}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

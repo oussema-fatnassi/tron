@@ -2,97 +2,167 @@
 #include "../../Headers/Game/World.hpp"
 #include "../../Headers/Game/TransformComponent.hpp"
 #include "../../Headers/Game/MeshRendererComponent.hpp"
+#include "../../Headers/Communication/RenderCommand.hpp"
+#include "../../Headers/Rendering/D3D/CommandQueue.hpp"
 #include <iostream>
 
+// Constructor now only takes CommandQueue - no direct rendering dependencies
+MeshRenderSystem::MeshRenderSystem(CommandQueue* cmdQueue)
+    : commandQueue(cmdQueue)
+    , entitiesProcessed(0) {
+
+    std::cout << "[MeshRenderSystem] Clean ECS rendering system initialized (NO D3D dependencies)\n";
+}
+
 void MeshRenderSystem::Update(float deltaTime) {
-    // MeshRenderSystem doesn't do per-frame updates
-    // All rendering happens in the Render() method called from the render thread
+    // MeshRenderSystem focuses on ECS logic
+    // The main work happens in GenerateRenderCommands()
+
+    // Optional: Update any rendering-related logic here
+    // (e.g., animation, visibility culling based on distance, etc.)
     (void)deltaTime; // Suppress unused parameter warning
 }
 
-void MeshRenderSystem::Render() {
-    if (!renderEngine || !meshManager) {
+void MeshRenderSystem::GenerateRenderCommands() {
+    if (!commandQueue) {
+        std::cout << "[MeshRenderSystem] Error: No command queue available\n";
         return;
     }
 
-    ID3D11DeviceContext* context = renderEngine->GetDeviceContext();
-    if (!context) {
-        return;
-    }
+    std::vector<RenderCommand> renderCommands;
+    entitiesProcessed = 0;
 
-    // Iterate through all entities with MeshRenderer components
+    std::cout << "[MeshRenderSystem] Generating render commands for " << entities.size() << " entities\n";
+
+    // Iterate through all entities with MeshRenderer components - PURE ECS LOGIC
     for (Entity entity : entities) {
         auto* transform = world->GetComponent<Transform>(entity);
-        auto* meshRenderer = world->GetComponent<MeshRenderer>(entity);
+        auto* meshRenderer = world->GetComponent<MeshRenderer>(entity);  // This is the COMPONENT
 
-        if (!transform || !meshRenderer || !meshRenderer->isVisible) {
-            continue; // Skip invisible or incomplete entities
-        }
-
-        // Get mesh data
-        MeshData* meshData = meshManager->GetMesh(meshRenderer->GetMeshName());
-        if (!meshData || !meshData->vertexBuffer || !meshData->indexBuffer) {
-            // Mesh not found or not loaded properly
+        // Validate components
+        if (!transform || !meshRenderer) {
+            std::cout << "[MeshRenderSystem] Warning: Entity " << entity
+                << " missing required components\n";
             continue;
         }
 
-        // Set up shader pipeline
-        if (!SetupShaderPipeline(context, meshRenderer->shaderName)) {
-            continue; // Failed to set up shader
+        // Skip invisible entities
+        if (!meshRenderer->isVisible) {
+            continue;
         }
 
-        // Update entity-specific constants (transform, color, etc.)
-        UpdateEntityConstants(context, transform, meshRenderer);
+        // Convert ECS data to RenderCommand - NO D3D KNOWLEDGE!
+        RenderCommand command = CreateRenderCommandFromEntity(entity, transform, meshRenderer);
+        renderCommands.push_back(command);
 
-        // Set vertex and index buffers
-        UINT stride = sizeof(float) * 6; // pos(3) + color(3) - matches your vertex format
-        UINT offset = 0;
-        context->IASetVertexBuffers(0, 1, &meshData->vertexBuffer, &stride, &offset);
-        context->IASetIndexBuffer(meshData->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-        context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        entitiesProcessed++;
+    }
 
-        // Draw the mesh
-        context->DrawIndexed(meshData->indexCount, 0, 0);
+    // Send all commands to render thread at once (more efficient)
+    if (!renderCommands.empty()) {
+        commandQueue->PushCommands(renderCommands);
+        std::cout << "[MeshRenderSystem] Sent " << renderCommands.size()
+            << " render commands to render thread\n";
     }
 }
 
-bool MeshRenderSystem::SetupShaderPipeline(ID3D11DeviceContext* context, const std::string& shaderName) {
-    if (!renderEngine) {
-        return false;
-    }
-
-    // Get shader from render engine
-    Shader* shader = renderEngine->GetShader(shaderName);
-    if (!shader || !shader->vertexShader || !shader->pixelShader || !shader->inputLayout) {
-        std::cout << "[MeshRenderSystem] Warning: Shader '" << shaderName << "' not found or incomplete\n";
-        return false;
-    }
-
-    // Set shader pipeline
-    context->IASetInputLayout(shader->inputLayout);
-    context->VSSetShader(shader->vertexShader, nullptr, 0);
-    context->PSSetShader(shader->pixelShader, nullptr, 0);
-
-    return true;
-}
-
-void MeshRenderSystem::UpdateEntityConstants(ID3D11DeviceContext* context,
+RenderCommand MeshRenderSystem::CreateRenderCommandFromEntity(Entity entity,
     const Transform* transform,
     const MeshRenderer* meshRenderer) {
-    // TODO: In a full implementation, you would create and update constant buffers here
-    // For now, we'll use the existing color constant buffer from RenderEngine
+    // Convert ECS Transform to RenderTransform
+    RenderTransform renderTransform;
+    renderTransform.position[0] = transform->x;
+    renderTransform.position[1] = transform->y;
+    renderTransform.position[2] = transform->z;
 
-    // FIXED: Get the buffer pointer and pass it correctly
-    if (renderEngine) {
-        ID3D11Buffer* colorBuffer = renderEngine->GetColorConstantBuffer();
-        if (colorBuffer) {
-            context->PSSetConstantBuffers(1, 1, &colorBuffer);
+    // TODO: Add rotation and scale when Transform component supports it
+    renderTransform.rotation[0] = 0.0f;
+    renderTransform.rotation[1] = 0.0f;
+    renderTransform.rotation[2] = 0.0f;
+
+    renderTransform.scale[0] = 1.0f;
+    renderTransform.scale[1] = 1.0f;
+    renderTransform.scale[2] = 1.0f;
+
+    // Convert MeshRenderer color to RenderColor
+    RenderColor renderColor(
+        meshRenderer->color[0],
+        meshRenderer->color[1],
+        meshRenderer->color[2],
+        meshRenderer->color[3]
+    );
+
+    // Create render command with all necessary data
+    RenderCommand command = RenderCommand::CreateDrawMesh(
+        meshRenderer->GetMeshName(),
+        meshRenderer->shaderName,
+        renderTransform,
+        renderColor,
+        meshRenderer->materialName
+    );
+
+    // Set additional properties
+    command.visible = meshRenderer->isVisible;
+    command.alpha = meshRenderer->alpha;
+
+    return command;
+}
+
+void MeshRenderSystem::OnEntityAdded(Entity entity) {
+    std::cout << "[MeshRenderSystem] Entity " << entity << " added to render system\n";
+
+    // Optional: Validate that entity has required components
+    if (world) {
+        auto* transform = world->GetComponent<Transform>(entity);
+        auto* meshRenderer = world->GetComponent<MeshRenderer>(entity);
+
+        if (!transform) {
+            std::cout << "[MeshRenderSystem] Warning: Entity " << entity << " has no Transform component\n";
+        }
+        if (!meshRenderer) {
+            std::cout << "[MeshRenderSystem] Warning: Entity " << entity << " has no MeshRenderer component\n";
+        }
+    }
+}
+
+void MeshRenderSystem::OnEntityRemoved(Entity entity) {
+    std::cout << "[MeshRenderSystem] Entity " << entity << " removed from render system\n";
+
+    // Optional: Send command to remove any cached rendering data
+    // (not needed for current implementation)
+}
+
+// Utility methods for debugging and optimization
+uint32_t MeshRenderSystem::GetVisibleEntityCount() const {
+    uint32_t visibleCount = 0;
+
+    for (Entity entity : entities) {
+        auto* meshRenderer = world->GetComponent<MeshRenderer>(entity);
+        if (meshRenderer && meshRenderer->isVisible) {
+            visibleCount++;
         }
     }
 
-    // In a production system, you would:
-    // 1. Create a world transformation matrix from the Transform component
-    // 2. Update vertex shader constant buffer with the world matrix
-    // 3. Update pixel shader constant buffer with color and material properties
-    // 4. Handle transparency/alpha blending if needed
+    return visibleCount;
+}
+
+void MeshRenderSystem::SetAllEntitiesVisible(bool visible) {
+    std::cout << "[MeshRenderSystem] Setting visibility of all entities to " << visible << "\n";
+
+    for (Entity entity : entities) {
+        auto* meshRenderer = world->GetComponent<MeshRenderer>(entity);
+        if (meshRenderer) {
+            meshRenderer->isVisible = visible;
+        }
+    }
+}
+
+void MeshRenderSystem::PrintSystemStats() const {
+    uint32_t totalEntities = entities.size();
+    uint32_t visibleEntities = GetVisibleEntityCount();
+
+    std::cout << "[MeshRenderSystem] Stats:\n";
+    std::cout << "  Total entities: " << totalEntities << "\n";
+    std::cout << "  Visible entities: " << visibleEntities << "\n";
+    std::cout << "  Entities processed last frame: " << entitiesProcessed << "\n";
 }
