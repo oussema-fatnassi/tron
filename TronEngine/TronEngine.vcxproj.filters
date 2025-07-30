@@ -180,6 +180,7 @@
     <ClInclude Include="Source\Headers\Rendering\RenderExecutor.hpp">
       <Filter>Source\Headers\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Headers\Game\ConstantBuffers.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Include">

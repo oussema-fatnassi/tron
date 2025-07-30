@@ -76,7 +76,7 @@ int main() {
     //SetMeshRendererColor(triangleEntity, 0.0f, 0.0f, 1.0f, 1.0f); // Blue triangle
 
     uint32_t cube = CreateEntity();
-    AddTransformComponent(cube, 1.0f, 0.0f, 0.0f);
+    AddTransformComponent(cube, 10.0f, 10.0f, 10.0f);
     AddMeshRendererComponent(cube,PRIMITIVE_CUBE, "RainbowShader"); // Use rainbow shader
 
 
