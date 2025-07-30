@@ -48,14 +48,14 @@ public:
     void Update(float deltaTime) override {
         updateCount++;
 
-        if (IsKeyDown(90))
+       /* if (IsKeyDown(90))
         {
 			std::cout << "[" << playerName << "] Z key down" << entity << std::endl;
-        }
-        /*if (IsKeyPressed(90))
+        }*/
+        if (IsKeyPressed(90))
         {
 			std::cout << "[" << playerName << "] Z key pressed" << entity << std::endl;
-        }*/
+        }
         if (IsKeyUp(90))
         {
             std::cout << "[" << playerName << "] Z key released" << entity << std::endl;

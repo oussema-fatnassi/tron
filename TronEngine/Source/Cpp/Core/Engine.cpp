@@ -294,10 +294,6 @@ void Engine::MainRenderLoop() {
         // Exit if we received WM_QUIT
         if (!_running) break;
 
-		if (_inputManager) {
-			// Process input events
-			_inputManager->Update();
-		}
         // Render calls using new API
         if (_renderEngine && _renderExecutor && _renderCommandQueue) {
             _renderEngine->BeginFrame();
@@ -395,6 +391,11 @@ void Engine::GameLoop() {
         while (accumulator >= TRON_GAME_TARGET_DELTA) {
             if (_world) {
                 _world->Update(static_cast<float>(TRON_GAME_TARGET_DELTA));
+            }
+
+            if (_inputManager) {
+                // Process input events
+                _inputManager->Update();
             }
 
             // === NEW: Generate Render Commands (Clean Architecture) ===
