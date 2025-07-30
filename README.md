@@ -39,9 +39,11 @@ TODO :
     For typical games: This is actually acceptable behavior! The memory footprint stabilizes at your "peak usage."
     FOR THE FUTURE IMPLEMENT A MEMORY SHRINK SYSTEM????
 
--Add to the CustomScripting functions Start et OnDestroy()
+- ✅ Add to the CustomScripting functions Start et OnDestroy()
 - ✅ Add the possibility to Destry the entity from a customScript
 - ✅ Correct and improve the deltaTime and the time system
+
 -Do the system like entity->GetPosition.x or similar
 -Add rotations
+
 -InputSystem and close management
