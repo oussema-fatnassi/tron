@@ -29,7 +29,6 @@ extern "C" {
 	ENGINE_API bool IsKeyPressed(int keyCode);
 	ENGINE_API bool IsKeyUp(int keyCode);
 
-
     // Direct ECS API
     // ECS Interface - Entity management
     ENGINE_API uint32_t CreateEntity();
@@ -49,6 +48,24 @@ extern "C" {
 
     // ECS Interface - World management
     ENGINE_API uint32_t GetEntityCount();
+
+    // MeshRenderer Component API
+    ENGINE_API bool AddMeshRendererComponent(uint32_t entity, int primitiveType, const char* shaderName);
+    ENGINE_API bool AddCustomMeshRendererComponent(uint32_t entity, const char* customMeshName, const char* shaderName);
+    ENGINE_API bool SetMeshRendererColor(uint32_t entity, float r, float g, float b, float a);
+    ENGINE_API bool SetMeshRendererVisible(uint32_t entity, bool visible);
+    ENGINE_API bool SetMeshRendererShader(uint32_t entity, const char* shaderName);
+    ENGINE_API bool SetMeshRendererMaterial(uint32_t entity, const char* materialName);
+    ENGINE_API void RemoveMeshRendererComponent(uint32_t entity);
+
+    // Primitive mesh type constants for the API
+    #define PRIMITIVE_QUAD 0
+    #define PRIMITIVE_CUBE 1
+    #define PRIMITIVE_SPHERE 2
+    #define PRIMITIVE_CYLINDER 3
+    #define PRIMITIVE_PLANE 4
+    #define PRIMITIVE_TRIANGLE 5
+    #define PRIMITIVE_CUSTOM 6
 }
 
 // Note: The Engine class definition is in Engine.h (private implementation)
