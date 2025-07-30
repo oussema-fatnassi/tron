@@ -57,6 +57,29 @@ int main() {
     std::cout << "Created static object: " << staticObj << std::endl;
     AddTransformComponent(staticObj, 25.0f, 10.0f, 0.0f);
 
+    // Create a cube entity
+    //uint32_t cubeEntity = CreateEntity();
+    //AddTransformComponent(cubeEntity, 0.0f, 0.0f, 0.0f);
+    //AddMeshRendererComponent(cubeEntity, PRIMITIVE_CUBE, "blue");
+    //SetMeshRendererColor(cubeEntity, 1.0f, 0.0f, 0.0f, 1.0f); // Blue cube
+
+    // Create a sphere entity
+    //uint32_t sphereEntity = CreateEntity();
+    //AddTransformComponent(sphereEntity, 2.0f, 0.0f, 0.0f);
+    //AddMeshRendererComponent(sphereEntity, PRIMITIVE_SPHERE, "default");
+    //SetMeshRendererColor(sphereEntity, 0.0f, 1.0f, 0.0f, 1.0f); // Green sphere
+
+    // Create a triangle entity
+    //uint32_t triangleEntity = CreateEntity();
+    //AddTransformComponent(triangleEntity, -2.0f, 0.0f, 0.0f);
+    //AddMeshRendererComponent(triangleEntity, PRIMITIVE_TRIANGLE, "default");
+    //SetMeshRendererColor(triangleEntity, 0.0f, 0.0f, 1.0f, 1.0f); // Blue triangle
+
+    uint32_t cube = CreateEntity();
+    AddTransformComponent(cube, 0.1f, 0.0f, 0.0f);
+    AddMeshRendererComponent(cube,PRIMITIVE_CUBE, "RainbowShader"); // Use rainbow shader
+
+
     // Check entity count
     std::cout << "Total entities: " << GetEntityCount() << std::endl;
 
