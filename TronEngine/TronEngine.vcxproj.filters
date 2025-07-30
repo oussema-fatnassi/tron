@@ -171,6 +171,7 @@
     <ClInclude Include="Source\Headers\Game\MeshRenderSystem.hpp">
       <Filter>Source\Headers\Game</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Cpp\Headers\Core\Engine.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Include">
