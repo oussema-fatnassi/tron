@@ -22,6 +22,8 @@
     <ClInclude Include="FullscreenQuad.hpp" />
     <ClInclude Include="Include\ScriptAPI.hpp" />
     <ClInclude Include="Source\Headers\Core\InputManager.hpp" />
+    <ClInclude Include="Source\Headers\Game\MeshRendererComponent.hpp" />
+    <ClInclude Include="Source\Headers\Game\MeshRenderSystem.hpp" />
     <ClInclude Include="Source\Headers\Game\ScriptComponent.hpp" />
     <ClInclude Include="Source\Headers\Game\ScriptSystem.hpp" />
     <ClInclude Include="Source\Headers\Rendering\D3D\CommandQueue.hpp" />
@@ -29,6 +31,7 @@
     <ClInclude Include="Include\EngineExports.hpp" />
     <ClInclude Include="Include\TronEngine.hpp" />
     <ClInclude Include="Source\Headers\Rendering\D3D\D3DRenderer.hpp" />
+    <ClInclude Include="Source\Headers\Rendering\PrimitiveMeshGenerator.hpp" />
     <ClInclude Include="Source\Headers\Rendering\RenderEngine.hpp" />
     <ClInclude Include="Source\Headers\Core\Engine.hpp" />
     <ClInclude Include="Source\Headers\Rendering\D3D\SwapChain.hpp" />
@@ -51,11 +54,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Cpp\Core\InputManager.cpp" />
+    <ClCompile Include="Source\Cpp\Game\MeshRenderSystem.cpp" />
     <ClCompile Include="Source\Cpp\Game\ScriptSystem.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\D3D\CommandQueue.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\D3D\D3DContext.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\D3D\D3DRenderer.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\FullscreenQuad.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\PrimitiveMeshGenerator.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\RenderEngine.cpp" />
     <ClCompile Include="Source\Cpp\Core\Engine.cpp" />
     <ClCompile Include="Source\Cpp\Core\EngineAPI.cpp" />
@@ -67,13 +72,14 @@
     <ClCompile Include="Source\Cpp\Core\WindowUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\Shaders\PixelShader.hlsl">
+    <FxCompile Include="Source\Shaders\PixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <FileType>Document</FileType>
-    </None>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
     <ClCompile Include="Source\Cpp\Game\ComponentManager.cpp" />
     <ClCompile Include="Source\Cpp\Game\DebugSystem.cpp" />
     <ClCompile Include="Source\Cpp\Game\EntityManager.cpp" />
@@ -83,9 +89,17 @@
     <ClCompile Include="Source\Cpp\Game\World.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\shaders\VertexShader.hlsl">
+    <FxCompile Include="Source\shaders\PixelShaderBlue.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Source\shaders\PixelShaderRainbow.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Source\shaders\VertexShader.hlsl">
       <FileType>Document</FileType>
-    </None>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -218,7 +232,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration);$(SolutionDir)lib\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib
 
 ;d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
@@ -226,6 +240,9 @@
     <PostBuildEvent>
       <Command>xcopy "$(TargetPath)" "$(SolutionDir)TestConsole\" /D /Y</Command>
     </PostBuildEvent>
+    <FxCompile>
+      <ShaderModel>5.0</ShaderModel>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

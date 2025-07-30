@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <string>
+#include <vector>
 #include <d3d11.h>
 
 struct Shader {
@@ -17,4 +18,10 @@ public:
 
 private:
     std::unordered_map<std::string, Shader> shaders;
+
+    // Helper methods for different loading strategies
+    bool LoadShaderFromBytecode(ID3D11Device* device, const std::string& name,
+        const std::vector<char>& vsData, const std::vector<char>& psData);
+    bool LoadShaderFromSource(ID3D11Device* device, const std::string& name,
+        const std::wstring& vsFile, const std::wstring& psFile);
 };

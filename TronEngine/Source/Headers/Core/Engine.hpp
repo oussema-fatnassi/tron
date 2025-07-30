@@ -22,6 +22,10 @@
 // TronEngine - Rendering imports
 #include "../Rendering/RenderEngine.hpp"
 
+#include "../Game/MeshRendererComponent.hpp"
+#include "../Game/MeshRenderSystem.hpp"
+#include "../Rendering/PrimitiveMeshGenerator.hpp"
+
 // Forward declaration for test quad
 class FullscreenQuad;
 
@@ -63,4 +67,7 @@ private:
 
     bool InitializeSubsystems();
     void ShutdownSubsystems();
+
+    std::unique_ptr<MeshManager> _meshManager;
+    std::unique_ptr<MaterialManager> _materialManager;
 };

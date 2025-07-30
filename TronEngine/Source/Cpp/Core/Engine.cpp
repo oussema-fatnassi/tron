@@ -2,6 +2,9 @@
 #include "../../Include/TronEngine.hpp"
 #include "../Headers/Core/WindowUtils.hpp"
 #include "../Headers/Rendering/FullscreenQuad.hpp"
+#include "../Headers/Game/MeshRendererComponent.hpp"
+#include "../Headers/Game/MeshRenderSystem.hpp"
+#include "../Headers/Rendering/PrimitiveMeshGenerator.hpp"
 #include <iostream>
 #include <chrono>
 #include <iomanip>
@@ -14,6 +17,8 @@ Engine::Engine()
     , _world(nullptr)
     , _renderEngine(nullptr)
     , _testQuad(nullptr)
+    , _meshManager(nullptr)
+    , _materialManager(nullptr)
 {
     std::cout << "[TronEngine] Constructor - Engine object created\n";
 }
@@ -59,30 +64,7 @@ bool Engine::InitializeSubsystems() {
     //_inputManager = std::make_unique<InputManager>();
     //std::cout << "[TronEngine] InputManager initialized\n";
 
-    // Initialize ECS World
-    _world = std::make_unique<World>();
-
-    //TODO: Make the registration of components in World a single function call
-    _world->RegisterComponent<Transform>();
-    _world->RegisterComponent<Velocity>();
-    _world->RegisterComponent<Script>();
-
-    // Register systems
-    auto* debugSystem = _world->RegisterSystem<DebugSystem>();
-    auto* movementSystem = _world->RegisterSystem<MovementSystem>();
-    auto* scriptSystem = _world->RegisterSystem<ScriptSystem>();
-
-    // Set system signatures
-    _world->SetSystemSignature<Transform>(debugSystem);
-    _world->SetSystemSignature<Transform, Velocity>(movementSystem);
-    _world->SetSystemSignature<Script>(scriptSystem);
-
-    std::cout << "[TronEngine] ECS World initialized with components registered\n";
-
-    // Render Engine 
-
-    // WINDOW INITIALIZATION
-    // TODO: Initialize the RenderEngine with a single function in Window and other from the RenderEngine
+    // WINDOW INITIALIZATION - Must be done BEFORE render engine and mesh managers
     int width = 1280;
     int height = 720;
 
@@ -98,16 +80,55 @@ bool Engine::InitializeSubsystems() {
     }
     ShowWindow(hwnd, SW_SHOW);
 
-    //Direct3D Initialization
+    //Direct3D Initialization - Must be done BEFORE mesh managers
     _renderEngine = std::make_unique<RenderEngine>(hwnd, width, height);
     _renderEngine->Initialize();
 
-    // Load test shader
+    // Load default shader
     if (!_renderEngine->LoadShader("default", L"VertexShader.hlsl", L"PixelShader.hlsl")) {
-        std::cout << "[TronEngine] Failed to load test shader\n";
+        std::cout << "[TronEngine] Failed to load default shader\n";
+    }
+    if (!_renderEngine->LoadShader("blue", L"VertexShader.hlsl", L"PixelShaderBlue.hlsl")) {
+        std::cout << "[TronEngine] Failed to load blue shader\n";
+    }
+    if (!_renderEngine->LoadShader("RainbowShader", L"VertexShader.hlsl", L"PixelShaderRainbow.hlsl")) {
+        std::cout << "[TronEngine] Failed to load rainbow shader\n";
     }
 
-    // Create test quad for shader testing (MOVED FROM RENDERENGINE)
+    // Initialize Mesh and Material Managers - Must be done AFTER RenderEngine
+    _meshManager = std::make_unique<MeshManager>();
+    _materialManager = std::make_unique<MaterialManager>();
+
+    // Generate all primitive meshes - Must be done AFTER MeshManager
+    if (!PrimitiveMeshGenerator::GenerateAllPrimitives(_renderEngine->GetDevice(), _meshManager.get())) {
+        std::cout << "[TronEngine] Warning: Failed to generate some primitive meshes\n";
+    }
+
+    // Initialize ECS World - Must be done AFTER all managers are created
+    _world = std::make_unique<World>();
+
+    //TODO: Make the registration of components in World a single function call
+    _world->RegisterComponent<Transform>();
+    _world->RegisterComponent<Velocity>();
+    _world->RegisterComponent<Script>();
+    _world->RegisterComponent<MeshRenderer>();
+
+    // Register systems - Must be done AFTER all managers are created
+    auto* debugSystem = _world->RegisterSystem<DebugSystem>();
+    auto* movementSystem = _world->RegisterSystem<MovementSystem>();
+    auto* scriptSystem = _world->RegisterSystem<ScriptSystem>();
+    auto* meshRenderSystem = _world->RegisterSystem<MeshRenderSystem>(
+        _renderEngine.get(), _meshManager.get(), _materialManager.get());
+
+    // Set system signatures
+    _world->SetSystemSignature<Transform>(debugSystem);
+    _world->SetSystemSignature<Transform, Velocity>(movementSystem);
+    _world->SetSystemSignature<Script>(scriptSystem);
+    _world->SetSystemSignature<Transform, MeshRenderer>(meshRenderSystem);
+
+    std::cout << "[TronEngine] ECS World initialized with all components and systems\n";
+
+    // Create test quad for shader testing (MOVED FROM RENDERENGINE) - Optional, can be removed
     _testQuad = std::make_unique<FullscreenQuad>();
     if (!_testQuad->Initialize(_renderEngine->GetDevice())) {
         std::cout << "[TronEngine] Failed to create test quad\n";
@@ -157,14 +178,15 @@ void Engine::ShutdownSubsystems() {
     _testQuad.reset();
 
     // TODO: Shutdown in reverse order when implemented
-    // Shutdown ECS World
+    // Shutdown ECS World first (it references the managers)
     if (_world) {
         _world->Shutdown();
         _world.reset();
         std::cout << "[TronEngine] ECS World shut down\n";
     }
 
-    // Shutdown render engine
+    _materialManager.reset();
+    _meshManager.reset();
     _renderEngine.reset();
 
     std::cout << "[TronEngine] All subsystems shut down\n";
@@ -225,9 +247,11 @@ void Engine::MainRenderLoop() {
         if (_renderEngine) {
             _renderEngine->BeginFrame();
 
-            // TEST: Render fullscreen quad with shader (MOVED FROM RENDERENGINE)
-            RenderTestQuad();
-
+            // Render all entities with MeshRenderer components
+            auto* meshRenderSystem = _world->GetSystem<MeshRenderSystem>();
+            if (meshRenderSystem) {
+                meshRenderSystem->Render();
+            }
             _renderEngine->EndFrame();
         }
 
@@ -378,6 +402,7 @@ const char* Engine::GetVersion() const {
 //InputManager* Engine::GetInputManager() const {
 //    return _inputManager.get();
 //}
+
 // ECS
 World* Engine::GetWorld() const {
     return _world.get();

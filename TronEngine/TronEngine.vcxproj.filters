@@ -67,6 +67,12 @@
     <ClCompile Include="Source\Cpp\Rendering\FullscreenQuad.cpp">
       <Filter>Source\Cpp\Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Cpp\Rendering\PrimitiveMeshGenerator.cpp">
+      <Filter>Source\Cpp\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Cpp\Game\MeshRenderSystem.cpp">
+      <Filter>Source\Cpp\Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\EngineExports.hpp">
@@ -156,6 +162,15 @@
     <ClInclude Include="FullscreenQuad.hpp">
       <Filter>Source\Headers\Rendering\D3D</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Headers\Game\MeshRendererComponent.hpp">
+      <Filter>Source\Headers\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Rendering\PrimitiveMeshGenerator.hpp">
+      <Filter>Source\Headers\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Game\MeshRenderSystem.hpp">
+      <Filter>Source\Headers\Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Include">
@@ -205,11 +220,17 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\Shaders\PixelShader.hlsl">
+    <FxCompile Include="Source\Shaders\PixelShader.hlsl">
       <Filter>Source\Shaders</Filter>
-    </None>
-    <None Include="Source\shaders\VertexShader.hlsl">
+    </FxCompile>
+    <FxCompile Include="Source\shaders\VertexShader.hlsl">
       <Filter>Source\Shaders</Filter>
-    </None>
+    </FxCompile>
+    <FxCompile Include="Source\shaders\PixelShaderBlue.hlsl">
+      <Filter>Source\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\shaders\PixelShaderRainbow.hlsl">
+      <Filter>Source\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
