@@ -114,6 +114,9 @@ bool Engine::InitializeSubsystems() {
         _testQuad.reset();
     }
 
+    _inputManager = std::make_unique<InputManager>();
+    std::cout << "[TronEngine] InputManager initialized\n";
+
     // LOGS
     std::cout << "[TronEngine] RenderEngine initialized successfully\n";
     std::cout << "[Threading] Thread infrastructure: Ready\n";
@@ -210,13 +213,42 @@ void Engine::MainRenderLoop() {
 
         MSG msg = {};
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
-            if (msg.message == WM_QUIT) {
+            switch (msg.message) {
+            case WM_KEYDOWN:
+                _inputManager->OnKeyEvent(msg.wParam, true);
+                std::cout << "[Input] Key Down: " << static_cast<int>(msg.wParam) << "\n";
+                break;
+            case WM_KEYUP:
+                _inputManager->OnKeyEvent(msg.wParam, false);
+                std::cout << "[Input] Key Up: " << static_cast<int>(msg.wParam) << "\n";
+                break;
+            case WM_LBUTTONDOWN:
+                _inputManager->OnMouseButtonEvent(VK_LBUTTON, true);
+                std::cout << "[Input] Left Mouse Button Down\n";
+                break;
+            case WM_LBUTTONUP:
+                _inputManager->OnMouseButtonEvent(VK_LBUTTON, false);
+                std::cout << "[Input] Left Mouse Button Up\n";
+                break;
+            case WM_MOUSEMOVE:
+                _inputManager->OnMouseMove(msg.lParam);
+                std::cout << "[Input] Mouse Move: X=" << _inputManager->GetMousePosition().x
+                    << " Y=" << _inputManager->GetMousePosition().y << "\n";
+                break;
+            case WM_MOUSEWHEEL:
+                _inputManager->OnMouseWheel(msg.wParam);
+                std::cout << "[Input] Mouse Wheel: Delta=" << _inputManager->GetMouseWheelDelta() << "\n";
+                break;
+            case WM_QUIT:
                 _running = false;
                 break;
+            default:
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+                break;
             }
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
         }
+
 
         // Exit if we received WM_QUIT
         if (!_running) break;

@@ -53,6 +53,7 @@ private:
     // Subsystems
     std::unique_ptr<World> _world;
     std::unique_ptr<RenderEngine> _renderEngine;
+    std::unique_ptr<InputManager> _inputManager;
 
     // Test rendering (remove when no longer needed for shader testing)
     std::unique_ptr<FullscreenQuad> _testQuad;

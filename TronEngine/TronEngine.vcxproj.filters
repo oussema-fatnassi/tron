@@ -156,6 +156,7 @@
     <ClInclude Include="FullscreenQuad.hpp">
       <Filter>Source\Headers\Rendering\D3D</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Cpp\Headers\Core\Engine.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Include">
