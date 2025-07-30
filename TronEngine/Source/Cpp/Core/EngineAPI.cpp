@@ -164,5 +164,77 @@ extern "C" {
         }
     }
 
+    ENGINE_API bool AddMeshRendererComponent(uint32_t entity, int primitiveType, const char* shaderName) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+
+        // Convert int to enum
+        PrimitiveMeshType meshType = static_cast<PrimitiveMeshType>(primitiveType);
+
+        std::string shader = shaderName ? shaderName : "default";
+
+        MeshRenderer* component = g_engineInstance->GetWorld()->AddComponent<MeshRenderer>(entity, meshType, shader);
+        return component != nullptr;
+    }
+
+    ENGINE_API bool AddCustomMeshRendererComponent(uint32_t entity, const char* customMeshName, const char* shaderName) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld() || !customMeshName) return false;
+
+        std::string meshName = customMeshName;
+        std::string shader = shaderName ? shaderName : "default";
+
+        MeshRenderer* component = g_engineInstance->GetWorld()->AddComponent<MeshRenderer>(entity, meshName, shader);
+        return component != nullptr;
+    }
+
+    ENGINE_API bool SetMeshRendererColor(uint32_t entity, float r, float g, float b, float a) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+
+        MeshRenderer* component = g_engineInstance->GetWorld()->GetComponent<MeshRenderer>(entity);
+        if (component) {
+            component->SetColor(r, g, b, a);
+            return true;
+        }
+        return false;
+    }
+
+    ENGINE_API bool SetMeshRendererVisible(uint32_t entity, bool visible) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+
+        MeshRenderer* component = g_engineInstance->GetWorld()->GetComponent<MeshRenderer>(entity);
+        if (component) {
+            component->isVisible = visible;
+            return true;
+        }
+        return false;
+    }
+
+    ENGINE_API bool SetMeshRendererShader(uint32_t entity, const char* shaderName) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld() || !shaderName) return false;
+
+        MeshRenderer* component = g_engineInstance->GetWorld()->GetComponent<MeshRenderer>(entity);
+        if (component) {
+            component->SetShader(shaderName);
+            return true;
+        }
+        return false;
+    }
+
+    ENGINE_API bool SetMeshRendererMaterial(uint32_t entity, const char* materialName) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld() || !materialName) return false;
+
+        MeshRenderer* component = g_engineInstance->GetWorld()->GetComponent<MeshRenderer>(entity);
+        if (component) {
+            component->SetMaterial(materialName);
+            return true;
+        }
+        return false;
+    }
+
+    ENGINE_API void RemoveMeshRendererComponent(uint32_t entity) {
+        if (g_engineInstance && g_engineInstance->GetWorld()) {
+            g_engineInstance->GetWorld()->RemoveComponent<MeshRenderer>(entity);
+        }
+    }
+
     //TODO ADD UPDATE COMPONENTS
 }
