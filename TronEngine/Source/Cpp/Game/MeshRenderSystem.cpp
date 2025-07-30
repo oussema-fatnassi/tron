@@ -32,7 +32,7 @@ void MeshRenderSystem::GenerateRenderCommands() {
     std::vector<RenderCommand> renderCommands;
     entitiesProcessed = 0;
 
-    std::cout << "[MeshRenderSystem] Generating render commands for " << entities.size() << " entities\n";
+    //std::cout << "[MeshRenderSystem] Generating render commands for " << entities.size() << " entities\n";
 
     // Iterate through all entities with MeshRenderer components - PURE ECS LOGIC
     for (Entity entity : entities) {
@@ -61,8 +61,8 @@ void MeshRenderSystem::GenerateRenderCommands() {
     // Send all commands to render thread at once (more efficient)
     if (!renderCommands.empty()) {
         commandQueue->PushCommands(renderCommands);
-        std::cout << "[MeshRenderSystem] Sent " << renderCommands.size()
-            << " render commands to render thread\n";
+        /*std::cout << "[MeshRenderSystem] Sent " << renderCommands.size()
+            << " render commands to render thread\n";*/
     }
 }
 
@@ -157,12 +157,12 @@ void MeshRenderSystem::SetAllEntitiesVisible(bool visible) {
     }
 }
 
-void MeshRenderSystem::PrintSystemStats() const {
-    uint32_t totalEntities = entities.size();
-    uint32_t visibleEntities = GetVisibleEntityCount();
-
-    std::cout << "[MeshRenderSystem] Stats:\n";
-    std::cout << "  Total entities: " << totalEntities << "\n";
-    std::cout << "  Visible entities: " << visibleEntities << "\n";
-    std::cout << "  Entities processed last frame: " << entitiesProcessed << "\n";
-}
+//void MeshRenderSystem::PrintSystemStats() const {
+//    uint32_t totalEntities = entities.size();
+//    uint32_t visibleEntities = GetVisibleEntityCount();
+//
+//    std::cout << "[MeshRenderSystem] Stats:\n";
+//    std::cout << "  Total entities: " << totalEntities << "\n";
+//    std::cout << "  Visible entities: " << visibleEntities << "\n";
+//    std::cout << "  Entities processed last frame: " << entitiesProcessed << "\n";
+//}

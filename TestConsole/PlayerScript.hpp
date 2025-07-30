@@ -48,26 +48,34 @@ public:
     void Update(float deltaTime) override {
         updateCount++;
 
-        // Your existing logic - UNCHANGED
-            float x, y, z;
-            if (GetTransformComponent(entity, &x, &y, &z)) {
-                if (x >= targetX) {
-                    std::cout << "[" << playerName << "] TARGET REACHED at x="
-                        << x << " after " << updateCount << " updates!" << std::endl;
+        if (IsKeyDown(90))
+        {
+			std::cout << "[" << playerName << "] Z key down" << entity << std::endl;
+        }
+        /*if (IsKeyPressed(90))
+        {
+			std::cout << "[" << playerName << "] Z key pressed" << entity << std::endl;
+        }*/
 
-                    RemoveVelocityComponent(entity);
-                    AddVelocityComponent(entity, -100.0f, 0.0f, 0.0f);
-					AddCustomScript(*secondEntity, secondScript);
-                    hasStoppedAtTarget = true;
+        float x, y, z;
+        if (GetTransformComponent(entity, &x, &y, &z)) {
+            if (x >= targetX) {
+                std::cout << "[" << playerName << "] TARGET REACHED at x="
+                    << x << " after " << updateCount << " updates!" << std::endl;
 
-                    std::cout << "[" << playerName << "] Movement stopped!" << std::endl;
-                }
-                if (x < 0)
-                {
-					RemoveScript(*secondEntity);
-					DestroyEntity(entity);
-                }
+                RemoveVelocityComponent(entity);
+                AddVelocityComponent(entity, -100.0f, 0.0f, 0.0f);
+				AddCustomScript(*secondEntity, secondScript);
+                hasStoppedAtTarget = true;
+
+                std::cout << "[" << playerName << "] Movement stopped!" << std::endl;
             }
+            if (x < 0)
+            {
+				RemoveScript(*secondEntity);
+				DestroyEntity(entity);
+            }
+        }
     }
 
     void OnDestroy() override {

@@ -56,15 +56,18 @@ extern "C" {
 
 	// Input API
     ENGINE_API bool IsKeyDown(int keyCode) {
-        return false;
+        if (!g_engineInstance || !g_engineInstance->GetInputManager()) return false;
+        return g_engineInstance->GetInputManager()->IsKeyDown(keyCode);
     }
 
     ENGINE_API bool IsKeyPressed(int keyCode) {
-        return false;
+        if (!g_engineInstance || !g_engineInstance->GetInputManager()) return false;
+        return g_engineInstance->GetInputManager()->IsKeyPressed(keyCode);
     }
 
     ENGINE_API bool IsKeyUp(int keyCode) {
-		return false;
+        if (!g_engineInstance || !g_engineInstance->GetInputManager()) return false;
+        return g_engineInstance->GetInputManager()->IsKeyReleased(keyCode);
     }
 
     // ECS C-style API with Engine prefix

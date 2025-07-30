@@ -47,6 +47,7 @@ public:
 
     // Subsystem access
     World* GetWorld() const;
+	InputManager* GetInputManager() const;
 
 private:
     bool _initialized;

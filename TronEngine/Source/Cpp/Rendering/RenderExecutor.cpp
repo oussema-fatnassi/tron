@@ -25,7 +25,7 @@ void RenderExecutor::ExecuteRenderCommands(const std::vector<RenderCommand>& com
     // Reset frame statistics
     ResetFrameStats();
 
-    std::cout << "[RenderExecutor] Executing " << commands.size() << " render commands (batch)\n";
+    //std::cout << "[RenderExecutor] Executing " << commands.size() << " render commands (batch)\n";
 
     // Separate commands by type for optimization
     std::vector<RenderCommand> meshCommands;
@@ -55,8 +55,8 @@ void RenderExecutor::ExecuteRenderCommands(const std::vector<RenderCommand>& com
         RenderMeshBatch(meshCommands);
     }
 
-    std::cout << "[RenderExecutor] Batch complete - " << drawCallsThisFrame
-        << " draw calls, " << verticesRenderedThisFrame << " vertices\n";
+    /*std::cout << "[RenderExecutor] Batch complete - " << drawCallsThisFrame
+        << " draw calls, " << verticesRenderedThisFrame << " vertices\n";*/
 }
 
 // SINGLE COMMAND PROCESSING - Handles one command immediately
@@ -65,17 +65,17 @@ void RenderExecutor::ExecuteRenderCommand(const RenderCommand& command) {
         return;
     }
 
-    std::cout << "[RenderExecutor] Executing single render command: ";
+    //std::cout << "[RenderExecutor] Executing single render command: ";
 
     // Handle single command immediately (no batching optimization)
     switch (command.type) {
     case RenderCommandType::CLEAR_SCREEN:
-        std::cout << "CLEAR_SCREEN\n";
+        //std::cout << "CLEAR_SCREEN\n";
         ClearScreen(command);
         break;
 
     case RenderCommandType::DRAW_MESH:
-        std::cout << "DRAW_MESH (" << command.meshName << ")\n";
+        //std::cout << "DRAW_MESH (" << command.meshName << ")\n";
         if (command.visible) {
             // Set up shader pipeline for single command
             ID3D11DeviceContext* context = renderEngine->GetDeviceContext();
@@ -86,13 +86,13 @@ void RenderExecutor::ExecuteRenderCommand(const RenderCommand& command) {
         break;
 
     case RenderCommandType::BEGIN_FRAME:
-        std::cout << "BEGIN_FRAME\n";
+        //std::cout << "BEGIN_FRAME\n";
         break;
     case RenderCommandType::END_FRAME:
-        std::cout << "END_FRAME\n";
+        //std::cout << "END_FRAME\n";
         break;
     case RenderCommandType::SET_VIEWPORT:
-        std::cout << "SET_VIEWPORT\n";
+        //std::cout << "SET_VIEWPORT\n";
         break;
     }
 }

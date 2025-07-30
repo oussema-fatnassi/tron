@@ -273,8 +273,8 @@ void Engine::MainRenderLoop() {
                 break;
             case WM_MOUSEMOVE:
                 _inputManager->OnMouseMove(msg.lParam);
-                std::cout << "[Input] Mouse Move: X=" << _inputManager->GetMousePosition().x
-                    << " Y=" << _inputManager->GetMousePosition().y << "\n";
+                /*std::cout << "[Input] Mouse Move: X=" << _inputManager->GetMousePosition().x
+                    << " Y=" << _inputManager->GetMousePosition().y << "\n";*/
                 break;
             case WM_MOUSEWHEEL:
                 _inputManager->OnMouseWheel(msg.wParam);
@@ -460,9 +460,9 @@ const char* Engine::GetVersion() const {
 // GETTERS 
 
 //InputManager
-//InputManager* Engine::GetInputManager() const {
-//    return _inputManager.get();
-//}
+InputManager* Engine::GetInputManager() const {
+    return _inputManager.get();
+}
 
 // ECS
 World* Engine::GetWorld() const {
