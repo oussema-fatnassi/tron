@@ -187,36 +187,56 @@ void RenderExecutor::UpdateRenderConstants(ID3D11DeviceContext* context, const R
     transformData.position[2] = command.transform.position[2];
     
     // Copy scale (default to 1.0 if not provided)
-    transformData.scale[0] = command.transform.scale[0];
-    transformData.scale[1] = command.transform.scale[1];
-    transformData.scale[2] = command.transform.scale[2];
+    transformData.scale[0] = (command.transform.scale[0] != 0.0f) ? command.transform.scale[0] : 1.0f;
+    transformData.scale[1] = (command.transform.scale[1] != 0.0f) ? command.transform.scale[1] : 1.0f;
+    transformData.scale[2] = (command.transform.scale[2] != 0.0f) ? command.transform.scale[2] : 1.0f;
     
     // Copy rotation (default to 0.0 if not provided)
     transformData.rotation[0] = command.transform.rotation[0];
     transformData.rotation[1] = command.transform.rotation[1];
     transformData.rotation[2] = command.transform.rotation[2];
     
-    std::cout << "[RenderExecutor] Uploading transform: pos(" 
+    std::cout << "[RenderExecutor] Transform data: pos(" 
               << transformData.position[0] << ", " << transformData.position[1] 
-              << ", " << transformData.position[2] << ")\n";
+              << ", " << transformData.position[2] << ") scale(" 
+              << transformData.scale[0] << ", " << transformData.scale[1] 
+              << ", " << transformData.scale[2] << ")\n";
     
-    // Create or update constant buffer with transform data
-    // For now, let's create a temporary constant buffer each frame (not optimal, but works)
-    D3D11_BUFFER_DESC bufferDesc = {};
-    bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-    bufferDesc.ByteWidth = sizeof(ObjectTransformBuffer);
-    bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    // Map the existing constant buffer instead of creating a new one each frame
+    D3D11_MAPPED_SUBRESOURCE mappedResource;
     
-    D3D11_SUBRESOURCE_DATA initData = {};
-    initData.pSysMem = &transformData;
+    // Get or create a persistent constant buffer
+    static ID3D11Buffer* s_transformBuffer = nullptr;
     
-    ID3D11Buffer* transformBuffer = nullptr;
-    HRESULT hr = renderEngine->GetDevice()->CreateBuffer(&bufferDesc, &initData, &transformBuffer);
+    if (!s_transformBuffer) {
+        // Create the constant buffer once
+        D3D11_BUFFER_DESC bufferDesc = {};
+        bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+        bufferDesc.ByteWidth = sizeof(ObjectTransformBuffer);
+        bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        
+        HRESULT hr = renderEngine->GetDevice()->CreateBuffer(&bufferDesc, nullptr, &s_transformBuffer);
+        
+        if (FAILED(hr)) {
+            std::cout << "[RenderExecutor] Failed to create transform constant buffer: " 
+                      << std::hex << hr << std::dec << "\n";
+            return;
+        }
+        
+        std::cout << "[RenderExecutor] Created persistent transform constant buffer\n";
+    }
+    
+    // Map and update the buffer
+    HRESULT hr = context->Map(s_transformBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
     
     if (SUCCEEDED(hr)) {
+        // Copy the transform data to the mapped buffer
+        memcpy(mappedResource.pData, &transformData, sizeof(ObjectTransformBuffer));
+        context->Unmap(s_transformBuffer, 0);
+        
         // Bind to vertex shader constant buffer slot 0
-        context->VSSetConstantBuffers(0, 1, &transformBuffer);
+        context->VSSetConstantBuffers(0, 1, &s_transformBuffer);
         
         // Also keep the existing color buffer for pixel shader
         ID3D11Buffer* colorBuffer = renderEngine->GetColorConstantBuffer();
@@ -224,12 +244,10 @@ void RenderExecutor::UpdateRenderConstants(ID3D11DeviceContext* context, const R
             context->PSSetConstantBuffers(1, 1, &colorBuffer);
         }
         
-        // Release the temporary buffer (GPU has the data now)
-        transformBuffer->Release();
-        
-        std::cout << "[RenderExecutor] Transform constant buffer uploaded successfully\n";
+        // Debug: Verify the constant buffer is bound
+        std::cout << "[RenderExecutor] Transform constant buffer updated and bound successfully\n";
     } else {
-        std::cout << "[RenderExecutor] Failed to create transform constant buffer: " 
+        std::cout << "[RenderExecutor] Failed to map transform constant buffer: " 
                   << std::hex << hr << std::dec << "\n";
     }
 }

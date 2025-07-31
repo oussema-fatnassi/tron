@@ -1,5 +1,5 @@
-// Transform-Aware Vertex Shader
-// This shader receives transform data from the CPU and applies it
+// Fixed Transform-Aware Vertex Shader
+// This shader receives transform data from the CPU and applies it properly
 
 // Constant buffer for object transform (register b0)
 cbuffer ObjectTransform : register(b0)
@@ -31,15 +31,22 @@ VertexOutput main(VertexInput input) {
     // Apply scale
     worldPos *= objectScale;
     
-    // TODO: Apply rotation (for now, skip rotation)
+    // TODO: Apply rotation (for now, skip rotation to avoid complexity)
     
     // Apply translation (position from Transform component)
     worldPos += objectPosition;
     
-    // Simple projection (scale down so objects are visible)
-    output.pos = float4(worldPos * 0.2f, 1.0f);
+    // IMPORTANT: Proper projection matrix
+    // Create a simple orthographic projection that maps world coordinates to screen
+    float4 projectedPos = float4(worldPos, 1.0f);
     
-    // Pass through color
+    // Scale down the world coordinates to fit the screen properly
+    // This creates a camera-like view where (0,0,0) is at center of screen
+    projectedPos.x *= 0.1f;  // Scale X
+    projectedPos.y *= 0.1f;  // Scale Y
+    projectedPos.z = 0.0f;   // Flatten Z for 2D-like view
+    
+    output.pos = projectedPos;
     output.color = input.color;
     
     return output;

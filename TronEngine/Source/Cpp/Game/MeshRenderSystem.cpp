@@ -75,14 +75,15 @@ RenderCommand MeshRenderSystem::CreateRenderCommandFromEntity(Entity entity,
     renderTransform.position[1] = transform->y;
     renderTransform.position[2] = transform->z;
 
-    // TODO: Add rotation and scale when Transform component supports it
-    renderTransform.rotation[0] = 0.0f;
-    renderTransform.rotation[1] = 0.0f;
-    renderTransform.rotation[2] = 0.0f;
+    // FIXED: Use proper rotation and scale from Transform component
+    renderTransform.rotation[0] = transform->rotationX;
+    renderTransform.rotation[1] = transform->rotationY;
+    renderTransform.rotation[2] = transform->rotationZ;
 
-    renderTransform.scale[0] = 1.0f;
-    renderTransform.scale[1] = 1.0f;
-    renderTransform.scale[2] = 1.0f;
+    // FIXED: Use proper scale values from Transform component
+    renderTransform.scale[0] = transform->scaleX;
+    renderTransform.scale[1] = transform->scaleY;
+    renderTransform.scale[2] = transform->scaleZ;
 
     // Convert MeshRenderer color to RenderColor
     RenderColor renderColor(
