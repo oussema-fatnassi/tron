@@ -178,30 +178,60 @@ bool RenderExecutor::SetupShaderPipeline(ID3D11DeviceContext* context, const std
 }
 
 void RenderExecutor::UpdateRenderConstants(ID3D11DeviceContext* context, const RenderCommand& command) {
-    // TODO: In a full implementation, you would:
-    // 1. Create world transformation matrix from command.transform
-    // 2. Update vertex shader constant buffer with world matrix
-    // 3. Update pixel shader constant buffer with color from command.color
-    // 4. Handle transparency/alpha blending if needed
-
-    // For now, use the existing color constant buffer from RenderEngine
-    ID3D11Buffer* colorBuffer = renderEngine->GetColorConstantBuffer();
-    if (colorBuffer) {
-        context->PSSetConstantBuffers(1, 1, &colorBuffer);
+    // Create transform data from the render command
+    ObjectTransformBuffer transformData = {};
+    
+    // Copy position from render command
+    transformData.position[0] = command.transform.position[0];
+    transformData.position[1] = command.transform.position[1]; 
+    transformData.position[2] = command.transform.position[2];
+    
+    // Copy scale (default to 1.0 if not provided)
+    transformData.scale[0] = command.transform.scale[0];
+    transformData.scale[1] = command.transform.scale[1];
+    transformData.scale[2] = command.transform.scale[2];
+    
+    // Copy rotation (default to 0.0 if not provided)
+    transformData.rotation[0] = command.transform.rotation[0];
+    transformData.rotation[1] = command.transform.rotation[1];
+    transformData.rotation[2] = command.transform.rotation[2];
+    
+    std::cout << "[RenderExecutor] Uploading transform: pos(" 
+              << transformData.position[0] << ", " << transformData.position[1] 
+              << ", " << transformData.position[2] << ")\n";
+    
+    // Create or update constant buffer with transform data
+    // For now, let's create a temporary constant buffer each frame (not optimal, but works)
+    D3D11_BUFFER_DESC bufferDesc = {};
+    bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+    bufferDesc.ByteWidth = sizeof(ObjectTransformBuffer);
+    bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    
+    D3D11_SUBRESOURCE_DATA initData = {};
+    initData.pSysMem = &transformData;
+    
+    ID3D11Buffer* transformBuffer = nullptr;
+    HRESULT hr = renderEngine->GetDevice()->CreateBuffer(&bufferDesc, &initData, &transformBuffer);
+    
+    if (SUCCEEDED(hr)) {
+        // Bind to vertex shader constant buffer slot 0
+        context->VSSetConstantBuffers(0, 1, &transformBuffer);
+        
+        // Also keep the existing color buffer for pixel shader
+        ID3D11Buffer* colorBuffer = renderEngine->GetColorConstantBuffer();
+        if (colorBuffer) {
+            context->PSSetConstantBuffers(1, 1, &colorBuffer);
+        }
+        
+        // Release the temporary buffer (GPU has the data now)
+        transformBuffer->Release();
+        
+        std::cout << "[RenderExecutor] Transform constant buffer uploaded successfully\n";
+    } else {
+        std::cout << "[RenderExecutor] Failed to create transform constant buffer: " 
+                  << std::hex << hr << std::dec << "\n";
     }
-
-    // TODO: Create proper constant buffer structure:
-    /*
-    struct VertexConstants {
-        float worldMatrix[16];
-        float viewProjMatrix[16];
-    };
-
-    struct PixelConstants {
-        float color[4];
-        float materialProperties[4];
-    };
-    */
 }
 
 bool RenderExecutor::ValidateRenderResources(const RenderCommand& command,

@@ -22,6 +22,7 @@
     <ClInclude Include="Include\ScriptAPI.hpp" />
     <ClInclude Include="Source\Headers\Communication\RenderCommand.hpp" />
     <ClInclude Include="Source\Headers\Core\InputManager.hpp" />
+    <ClInclude Include="Source\Headers\Game\CameraSystem.hpp" />
     <ClInclude Include="Source\Headers\Game\ConstantBuffers.hpp" />
     <ClInclude Include="Source\Headers\Game\MeshRendererComponent.hpp" />
     <ClInclude Include="Source\Headers\Game\MeshRenderSystem.hpp" />
@@ -59,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Cpp\Core\InputManager.cpp" />
+    <ClCompile Include="Source\Cpp\Game\CameraSystem.cpp" />
     <ClCompile Include="Source\Cpp\Game\MeshRenderSystem.cpp" />
     <ClCompile Include="Source\Cpp\Game\ScriptSystem.cpp" />
     <ClCompile Include="Source\Cpp\Math\Matrix.cpp" />

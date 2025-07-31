@@ -63,56 +63,50 @@ extern "C" {
 
 	// Input API
     ENGINE_API bool IsKeyDown(int keyCode) {
-        if (!g_engineInstance) return false;
-        // TODO: Implement when InputManager is integrated
-        return false;
+        if (!g_engineInstance || !g_engineInstance->GetInputManager()) return false;
+        return g_engineInstance->GetInputManager()->IsKeyDown(keyCode);
     }
 
     ENGINE_API bool IsKeyPressed(int keyCode) {
-        if (!g_engineInstance) return false;
-        // TODO: Implement when InputManager is integrated
-        return false;
+        if (!g_engineInstance || !g_engineInstance->GetInputManager()) return false;
+        return g_engineInstance->GetInputManager()->IsKeyPressed(keyCode);
     }
 
     ENGINE_API bool IsKeyReleased(int keyCode) {
-        if (!g_engineInstance) return false;
-        // TODO: Implement when InputManager is integrated
-        return false;
-    }
-
-    ENGINE_API bool IsKeyUp(int keyCode) {
-		return false;
+            if (!g_engineInstance || !g_engineInstance->GetInputManager()) return false;
+            return g_engineInstance->GetInputManager()->IsKeyReleased(keyCode);
     }
 
     ENGINE_API bool IsMouseButtonDown(int button) {
-        if (!g_engineInstance) return false;
-        // TODO: Implement when InputManager is integrated
-        return false;
+        if (!g_engineInstance || !g_engineInstance->GetInputManager()) return false;
+        return g_engineInstance->GetInputManager()->IsMouseButtonDown(button);
     }
 
     ENGINE_API bool IsMouseButtonPressed(int button) {
-        if (!g_engineInstance) return false;
-        // TODO: Implement when InputManager is integrated
-        return false;
+        if (!g_engineInstance || !g_engineInstance->GetInputManager()) return false;
+        return g_engineInstance->GetInputManager()->IsMouseButtonPressed(button);
     }
 
     ENGINE_API bool IsMouseButtonReleased(int button) {
-        if (!g_engineInstance) return false;
-        // TODO: Implement when InputManager is integrated
-        return false;
+        if (!g_engineInstance || !g_engineInstance->GetInputManager()) return false;
+        return g_engineInstance->GetInputManager()->IsMouseButtonReleased(button);
     }
 
     ENGINE_API void GetMousePosition(int* x, int* y) {
-        if (!x || !y || !g_engineInstance) return;
-        // TODO: Implement when InputManager is integrated
-        *x = 0;
-        *y = 0;
+        if (!x || !y || !g_engineInstance || !g_engineInstance->GetInputManager()) {
+            if (x) *x = 0;
+            if (y) *y = 0;
+            return;
+        }
+        
+        POINT pos = g_engineInstance->GetInputManager()->GetMousePosition();
+        *x = pos.x;
+        *y = pos.y;
     }
 
     ENGINE_API int GetMouseWheelDelta() {
-        if (!g_engineInstance) return 0;
-        // TODO: Implement when InputManager is integrated
-        return 0;
+        if (!g_engineInstance || !g_engineInstance->GetInputManager()) return 0;
+        return g_engineInstance->GetInputManager()->GetMouseWheelDelta();
     }
 
     ENGINE_API void SetMouseSensitivity(float sensitivity) {

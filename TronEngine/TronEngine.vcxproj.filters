@@ -82,6 +82,9 @@
     <ClCompile Include="Source\Cpp\Rendering\Camera.cpp">
       <Filter>Source\Cpp\Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Cpp\Game\CameraSystem.cpp">
+      <Filter>Source\Cpp\Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\EngineExports.hpp">
@@ -193,6 +196,9 @@
       <Filter>Source\Headers\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Source\Headers\Game\ConstantBuffers.hpp">
+      <Filter>Source\Headers\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Game\CameraSystem.hpp">
       <Filter>Source\Headers\Game</Filter>
     </ClInclude>
   </ItemGroup>

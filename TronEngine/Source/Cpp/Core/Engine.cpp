@@ -131,12 +131,14 @@ bool Engine::InitializeSubsystems() {
     auto* movementSystem = _world->RegisterSystem<MovementSystem>();
     auto* scriptSystem = _world->RegisterSystem<ScriptSystem>();
     auto* meshRenderSystem = _world->RegisterSystem<MeshRenderSystem>(_renderCommandQueue.get());
+    auto* cameraSystem = _world->RegisterSystem<CameraSystem>(_inputManager.get());
 
     // Set system signatures
     _world->SetSystemSignature<Transform>(debugSystem);
     _world->SetSystemSignature<Transform, Velocity>(movementSystem);
     _world->SetSystemSignature<Script>(scriptSystem);
     _world->SetSystemSignature<Transform, MeshRenderer>(meshRenderSystem);
+    _world->SetSystemSignature<Transform>(cameraSystem);
 
     std::cout << "[TronEngine] ECS World initialized with all components and systems\n";
 
@@ -252,33 +254,57 @@ void Engine::MainRenderLoop() {
     while (_running) {
         auto frameStart = clock::now();
 
+        // === INPUT HANDLING ===
         MSG msg = {};
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
             switch (msg.message) {
             case WM_KEYDOWN:
-                _inputManager->OnKeyEvent(msg.wParam, true);
-                std::cout << "[Input] Key Down: " << static_cast<int>(msg.wParam) << "\n";
+                if (_inputManager) {
+                    _inputManager->OnKeyEvent(msg.wParam, true);
+                    std::cout << "[Input] Key Down: " << static_cast<int>(msg.wParam) << "\n";
+                }
                 break;
             case WM_KEYUP:
-                _inputManager->OnKeyEvent(msg.wParam, false);
-                std::cout << "[Input] Key Up: " << static_cast<int>(msg.wParam) << "\n";
+                if (_inputManager) {
+                    _inputManager->OnKeyEvent(msg.wParam, false);
+                    std::cout << "[Input] Key Up: " << static_cast<int>(msg.wParam) << "\n";
+                }
                 break;
             case WM_LBUTTONDOWN:
-                _inputManager->OnMouseButtonEvent(VK_LBUTTON, true);
-                std::cout << "[Input] Left Mouse Button Down\n";
+                if (_inputManager) {
+                    _inputManager->OnMouseButtonEvent(0, true); // 0 = left button
+                    std::cout << "[Input] Left Mouse Button Down\n";
+                }
                 break;
             case WM_LBUTTONUP:
-                _inputManager->OnMouseButtonEvent(VK_LBUTTON, false);
-                std::cout << "[Input] Left Mouse Button Up\n";
+                if (_inputManager) {
+                    _inputManager->OnMouseButtonEvent(0, false);
+                    std::cout << "[Input] Left Mouse Button Up\n";
+                }
+                break;
+            case WM_RBUTTONDOWN:
+                if (_inputManager) {
+                    _inputManager->OnMouseButtonEvent(1, true); // 1 = right button
+                    std::cout << "[Input] Right Mouse Button Down\n";
+                }
+                break;
+            case WM_RBUTTONUP:
+                if (_inputManager) {
+                    _inputManager->OnMouseButtonEvent(1, false);
+                    std::cout << "[Input] Right Mouse Button Up\n";
+                }
                 break;
             case WM_MOUSEMOVE:
-                _inputManager->OnMouseMove(msg.lParam);
-                std::cout << "[Input] Mouse Move: X=" << _inputManager->GetMousePosition().x
-                    << " Y=" << _inputManager->GetMousePosition().y << "\n";
+                if (_inputManager) {
+                    _inputManager->OnMouseMove(msg.lParam);
+                    // Don't log mouse move every frame - too spammy
+                }
                 break;
             case WM_MOUSEWHEEL:
-                _inputManager->OnMouseWheel(msg.wParam);
-                std::cout << "[Input] Mouse Wheel: Delta=" << _inputManager->GetMouseWheelDelta() << "\n";
+                if (_inputManager) {
+                    _inputManager->OnMouseWheel(msg.wParam);
+                    std::cout << "[Input] Mouse Wheel: Delta=" << _inputManager->GetMouseWheelDelta() << "\n";
+                }
                 break;
             case WM_QUIT:
                 _running = false;
@@ -290,18 +316,22 @@ void Engine::MainRenderLoop() {
             }
         }
 
+        // Update input manager (transitions key states)
+        if (_inputManager) {
+            _inputManager->Update();
+        }
 
         // Exit if we received WM_QUIT
         if (!_running) break;
 
-        // Render calls using new API
+        // === RENDERING ===
         if (_renderEngine && _renderExecutor && _renderCommandQueue) {
             _renderEngine->BeginFrame();
 
             // Get all render commands from game thread
             auto renderCommands = _renderCommandQueue->PopAllCommands();
 
-            // Execute commands through RenderExecutor (no ECS knowledge!)
+            // Execute commands through RenderExecutor
             if (!renderCommands.empty()) {
                 _renderExecutor->ExecuteRenderCommands(renderCommands);
             }
@@ -319,8 +349,7 @@ void Engine::MainRenderLoop() {
             lastFPSTime = currentTime;
         }
 
-        // PURE SPIN-WAIT SOLUTION - No sleep at all!
-        // Since Windows sleep is imprecise (15.6ms), we just busy-wait
+        // Frame rate limiting
         while (true) {
             auto now = clock::now();
             double elapsed = std::chrono::duration<double>(now - frameStart).count();
@@ -329,12 +358,10 @@ void Engine::MainRenderLoop() {
                 break;
             }
 
-            // IMPORTANT: Give CPU a break to prevent 100% usage
-            // This is a x86/x64 instruction that hints the CPU we're in a spin loop
 #if defined(_MSC_VER)
-            _mm_pause();  // Intrinsic available in MSVC
+            _mm_pause();  // Prevent 100% CPU usage
 #else
-            std::this_thread::yield();  // Fallback
+            std::this_thread::yield();
 #endif
         }
     }
@@ -467,4 +494,8 @@ const char* Engine::GetVersion() const {
 // ECS
 World* Engine::GetWorld() const {
     return _world.get();
+}
+
+InputManager* Engine::GetInputManager() const {
+    return _inputManager.get();
 }

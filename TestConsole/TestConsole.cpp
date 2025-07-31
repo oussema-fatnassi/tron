@@ -1,13 +1,14 @@
 ﻿#include <iostream>
 #include <windows.h>
 #include "TronEngine.hpp"
+#include "PlayerScript.hpp"  // Include the working player script
 
 // Link the library
 #pragma comment(lib, "TronEngine.lib")
 
 int main() {
-    std::cout << "=== CAMERA POSITION FIX TEST ===\n";
-    
+    std::cout << "=== PLAYER SCRIPT INPUT TEST ===\n";
+
     // Create and initialize engine (singleton)
     if (!CreateAndInitializeEngine()) {
         std::cout << "Failed to create and initialize engine\n";
@@ -18,57 +19,84 @@ int main() {
     PrintEngineVersion();
     std::cout << GetEngineInfo() << std::endl;
 
-    std::cout << "\n=== Creating Test Cube IN FRONT of Camera ===\n";
+    std::cout << "\n=== Creating Test Scene with Player ===\n";
 
-    // Create cube positioned where camera can see it
-    uint32_t testCube = CreateEntity();
-    
-    // Position cube in front of default camera (assuming camera is at origin looking down -Z axis)
-    // Put cube at Z = -5 (in front of camera), slightly offset
-    if (AddTransformComponent(testCube, 0.0f, 0.0f, -5.0f)) {
-        std::cout << "✓ Transform: Cube positioned at (0, 0, -5) - should be visible\n";
-        
-        // Scale the cube up to make it more visible
-        if (SetTransformUniformScale(testCube, 2.0f)) {
-            std::cout << "✓ Cube scaled to 2x size\n";
-        }
+    // Create reference objects to see movement relative to
+    uint32_t centerCube = CreateEntity();
+    AddTransformComponent(centerCube, 0.0f, 0.0f, 0.0f);
+    AddMeshRendererComponent(centerCube, PRIMITIVE_CUBE, "RainbowShader");
+    SetMeshRendererColor(centerCube, 1.0f, 0.0f, 0.0f, 1.0f); // Red cube at origin
+    std::cout << "Created reference cube (RED) at origin\n";
+
+    // Create some other reference objects
+    uint32_t blueCube = CreateEntity();
+    AddTransformComponent(blueCube, 3.0f, 0.0f, 0.0f);
+    AddMeshRendererComponent(blueCube, PRIMITIVE_CUBE, "blue");
+    SetMeshRendererColor(blueCube, 0.0f, 0.0f, 1.0f, 1.0f); // Blue cube to the right
+    std::cout << "Created blue cube at (3, 0, 0)\n";
+
+    uint32_t greenSphere = CreateEntity();
+    AddTransformComponent(greenSphere, -3.0f, 0.0f, 0.0f);
+    AddMeshRendererComponent(greenSphere, PRIMITIVE_SPHERE, "default");
+    SetMeshRendererColor(greenSphere, 0.0f, 1.0f, 0.0f, 1.0f); // Green sphere to the left
+    std::cout << "Created green sphere at (-3, 0, 0)\n";
+
+    uint32_t yellowCube = CreateEntity();
+    AddTransformComponent(yellowCube, 0.0f, 0.0f, -3.0f);
+    AddMeshRendererComponent(yellowCube, PRIMITIVE_CUBE, "RainbowShader");
+    SetMeshRendererColor(yellowCube, 1.0f, 1.0f, 0.0f, 1.0f); // Yellow cube in front
+    std::cout << "Created yellow cube at (0, 0, -3)\n";
+
+    // Create the player entity with script
+    uint32_t player = CreateEntity();
+    std::cout << "Created player entity: " << player << std::endl;
+
+    // Add the player script
+    PlayerScript* playerScript = new PlayerScript("TestPlayer");
+    if (AddCustomScript(player, playerScript)) {
+        std::cout << " PlayerScript added successfully\n";
+
+        // Configure player settings
+        playerScript->SetMovementSpeed(3.0f);
+        playerScript->SetMouseSensitivity(0.001f);
+    }
+    else {
+        std::cout << " ERROR: Failed to add PlayerScript\n";
+        return -1;
     }
 
-    // Add mesh renderer with bright color
-    if (AddMeshRendererComponent(testCube, PRIMITIVE_CUBE, "RainbowShader")) {
-        std::cout << "✓ MeshRenderer added with RainbowShader\n";
-        SetMeshRendererColor(testCube, 1.0f, 0.0f, 0.0f, 1.0f); // Bright red
-    }
+    std::cout << "\n=== CONTROLS ===\n";
+    std::cout << "WASD     - Move around (watch console for movement messages)\n";
+    std::cout << "Mouse    - Look around (rotation logged to console)\n";
+    std::cout << "Space    - Move up\n";
+    std::cout << "Shift    - Move down\n";
+    std::cout << "P        - Print current position\n";
+    std::cout << "ESC      - Close window\n";
 
-    // Create a second cube to the right
-    uint32_t testCube2 = CreateEntity();
-    if (AddTransformComponent(testCube2, 3.0f, 0.0f, -5.0f)) {
-        std::cout << "✓ Second cube at (3, 0, -5)\n";
-    }
-    if (AddMeshRendererComponent(testCube2, PRIMITIVE_CUBE, "blue")) {
-        SetMeshRendererColor(testCube2, 0.0f, 0.0f, 1.0f, 1.0f); // Blue
-    }
+    std::cout << "\n=== Expected Behavior ===\n";
+    std::cout << "- Press WASD and see movement messages in console\n";
+    std::cout << "- Player cube (cyan) should move around the scene\n";
+    std::cout << "- Movement should be visible relative to other cubes\n";
+    std::cout << "- Position should be printed when you press P\n";
 
-    // Create a third cube to the left
-    uint32_t testCube3 = CreateEntity();
-    if (AddTransformComponent(testCube3, -3.0f, 0.0f, -5.0f)) {
-        std::cout << "✓ Third cube at (-3, 0, -5)\n";
-    }
-    if (AddMeshRendererComponent(testCube3, PRIMITIVE_SPHERE, "default")) {
-        SetMeshRendererColor(testCube3, 0.0f, 1.0f, 0.0f, 1.0f); // Green sphere
-    }
-
-    std::cout << "\n=== Camera Theory ===\n";
-    std::cout << "Default camera should be at (0,0,0) looking down -Z axis\n";
-    std::cout << "Cubes are positioned at Z=-5, so they should be visible\n";
-    std::cout << "If still black screen, it's a view/projection matrix issue\n";
-
+    std::cout << "\nTotal entities: " << GetEntityCount() << "\n";
     std::cout << "\n=== Starting Engine ===\n";
-    
+
     // Start the engine
     RunEngine();
 
+    // Note: PlayerScript destructor will be called automatically
+    // when the entity is destroyed during engine shutdown
+
     // Cleanup
+    std::cout << "\n=== Cleanup ===\n";
     DestroyGlobalEngine();
+    std::cout << "Engine cleanup: SUCCESS\n\n";
+
+    std::cout << "====================================\n";
+    std::cout << "   PLAYER INPUT TEST COMPLETED!    \n";
+    std::cout << "====================================\n";
+    std::cout << "\nPress Enter to exit...";
+    std::cin.get();
     return 0;
 }
