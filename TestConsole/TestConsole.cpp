@@ -1,14 +1,12 @@
 ﻿#include <iostream>
 #include <windows.h>
 #include "TronEngine.hpp"
-// Temporarily comment out the enhanced PlayerScript
-// #include "PlayerScript.hpp"
 
 // Link the library
 #pragma comment(lib, "TronEngine.lib")
 
 int main() {
-    std::cout << "=== SIMPLE RENDERING TEST ===\n";
+    std::cout << "=== CAMERA POSITION FIX TEST ===\n";
     
     // Create and initialize engine (singleton)
     if (!CreateAndInitializeEngine()) {
@@ -20,61 +18,50 @@ int main() {
     PrintEngineVersion();
     std::cout << GetEngineInfo() << std::endl;
 
-    std::cout << "\n=== Creating Simple Test Scene ===\n";
+    std::cout << "\n=== Creating Test Cube IN FRONT of Camera ===\n";
 
-    // Create just ONE cube to test basic rendering
+    // Create cube positioned where camera can see it
     uint32_t testCube = CreateEntity();
-    std::cout << "Created test cube entity: " << testCube << std::endl;
-
-    // Add transform component - using the old simple interface
-    if (AddTransformComponent(testCube, 0.0f, 0.0f, 0.0f)) {
-        std::cout << "✓ Transform component added successfully\n";
+    
+    // Position cube in front of default camera (assuming camera is at origin looking down -Z axis)
+    // Put cube at Z = -5 (in front of camera), slightly offset
+    if (AddTransformComponent(testCube, 0.0f, 0.0f, -5.0f)) {
+        std::cout << "✓ Transform: Cube positioned at (0, 0, -5) - should be visible\n";
         
-        // Verify we can read it back
-        float x, y, z;
-        if (GetTransformComponent(testCube, &x, &y, &z)) {
-            std::cout << "✓ Transform verified: (" << x << ", " << y << ", " << z << ")\n";
-        } else {
-            std::cout << "✗ ERROR: Cannot read transform component!\n";
+        // Scale the cube up to make it more visible
+        if (SetTransformUniformScale(testCube, 2.0f)) {
+            std::cout << "✓ Cube scaled to 2x size\n";
         }
-    } else {
-        std::cout << "✗ ERROR: Failed to add transform component!\n";
-        return -1;
     }
 
-    // Add mesh renderer with the rainbow shader (which was working before)
+    // Add mesh renderer with bright color
     if (AddMeshRendererComponent(testCube, PRIMITIVE_CUBE, "RainbowShader")) {
-        std::cout << "✓ MeshRenderer component added successfully\n";
-        
-        // Set a bright red color to make it visible
-        if (SetMeshRendererColor(testCube, 1.0f, 0.0f, 0.0f, 1.0f)) {
-            std::cout << "✓ Cube color set to red\n";
-        }
-    } else {
-        std::cout << "✗ ERROR: Failed to add mesh renderer component!\n";
-        return -1;
+        std::cout << "✓ MeshRenderer added with RainbowShader\n";
+        SetMeshRendererColor(testCube, 1.0f, 0.0f, 0.0f, 1.0f); // Bright red
     }
 
-    // Check total entity count
-    std::cout << "Total entities in world: " << GetEntityCount() << std::endl;
-
-    // Create a simple player entity WITHOUT the enhanced script for now
-    uint32_t player = CreateEntity();
-    std::cout << "Created player entity: " << player << std::endl;
-    
-    // Add basic transform and velocity (the old working setup)
-    if (AddTransformComponent(player, 0.0f, 2.0f, -5.0f)) { // Position camera behind the cube
-        std::cout << "✓ Player transform added\n";
+    // Create a second cube to the right
+    uint32_t testCube2 = CreateEntity();
+    if (AddTransformComponent(testCube2, 3.0f, 0.0f, -5.0f)) {
+        std::cout << "✓ Second cube at (3, 0, -5)\n";
     }
-    
-    if (AddVelocityComponent(player, 0.0f, 0.0f, 0.0f)) { // No initial movement
-        std::cout << "✓ Player velocity added\n";
+    if (AddMeshRendererComponent(testCube2, PRIMITIVE_CUBE, "blue")) {
+        SetMeshRendererColor(testCube2, 0.0f, 0.0f, 1.0f, 1.0f); // Blue
     }
 
-    std::cout << "\n=== Debug Information ===\n";
-    std::cout << "If you see a red cube, basic rendering is working\n";
-    std::cout << "If you see black screen, there's a rendering pipeline issue\n";
-    std::cout << "Close window to exit\n";
+    // Create a third cube to the left
+    uint32_t testCube3 = CreateEntity();
+    if (AddTransformComponent(testCube3, -3.0f, 0.0f, -5.0f)) {
+        std::cout << "✓ Third cube at (-3, 0, -5)\n";
+    }
+    if (AddMeshRendererComponent(testCube3, PRIMITIVE_SPHERE, "default")) {
+        SetMeshRendererColor(testCube3, 0.0f, 1.0f, 0.0f, 1.0f); // Green sphere
+    }
+
+    std::cout << "\n=== Camera Theory ===\n";
+    std::cout << "Default camera should be at (0,0,0) looking down -Z axis\n";
+    std::cout << "Cubes are positioned at Z=-5, so they should be visible\n";
+    std::cout << "If still black screen, it's a view/projection matrix issue\n";
 
     std::cout << "\n=== Starting Engine ===\n";
     
@@ -82,14 +69,6 @@ int main() {
     RunEngine();
 
     // Cleanup
-    std::cout << "\n=== Cleanup ===\n";
     DestroyGlobalEngine();
-    std::cout << "Engine cleanup: SUCCESS\n\n";
-
-    std::cout << "====================================\n";
-    std::cout << "      SIMPLE TEST COMPLETED!       \n";
-    std::cout << "====================================\n";
-    std::cout << "\nPress Enter to exit...";
-    std::cin.get();
     return 0;
 }
