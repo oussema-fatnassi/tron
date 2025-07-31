@@ -24,9 +24,16 @@ extern "C" {
     ENGINE_API const char* GetEngineInfo();
 
     // Input API
-	ENGINE_API bool IsKeyDown(int keyCode);
-	ENGINE_API bool IsKeyPressed(int keyCode);
 	ENGINE_API bool IsKeyUp(int keyCode);
+    ENGINE_API bool IsKeyDown(int keyCode);
+    ENGINE_API bool IsKeyPressed(int keyCode);
+    ENGINE_API bool IsKeyReleased(int keyCode);
+    ENGINE_API bool IsMouseButtonDown(int button);
+    ENGINE_API bool IsMouseButtonPressed(int button);
+    ENGINE_API bool IsMouseButtonReleased(int button);
+    ENGINE_API void GetMousePosition(int* x, int* y);
+    ENGINE_API int GetMouseWheelDelta();
+    ENGINE_API void SetMouseSensitivity(float sensitivity);
 
     // Direct ECS API
     // ECS Interface - Entity management
@@ -46,6 +53,20 @@ extern "C" {
     ENGINE_API void RemoveTransformComponent(uint32_t entity);
     ENGINE_API void RemoveVelocityComponent(uint32_t entity);
     ENGINE_API bool RemoveScript(uint32_t entity);
+
+    // Enhanced Transform Component API
+    ENGINE_API bool SetTransformPosition(uint32_t entity, float x, float y, float z);
+    ENGINE_API bool SetTransformRotation(uint32_t entity, float pitch, float yaw, float roll);
+    ENGINE_API bool SetTransformRotationDegrees(uint32_t entity, float pitchDeg, float yawDeg, float rollDeg);
+    ENGINE_API bool SetTransformScale(uint32_t entity, float scaleX, float scaleY, float scaleZ);
+    ENGINE_API bool SetTransformUniformScale(uint32_t entity, float scale);
+
+    ENGINE_API bool GetTransformRotation(uint32_t entity, float* pitch, float* yaw, float* roll);
+    ENGINE_API bool GetTransformScale(uint32_t entity, float* scaleX, float* scaleY, float* scaleZ);
+
+    ENGINE_API bool TranslateTransform(uint32_t entity, float deltaX, float deltaY, float deltaZ);
+    ENGINE_API bool RotateTransform(uint32_t entity, float deltaPitch, float deltaYaw, float deltaRoll);
+    ENGINE_API bool RotateTransformDegrees(uint32_t entity, float deltaPitchDeg, float deltaYawDeg, float deltaRollDeg);
 
     // ECS Interface - World management
     ENGINE_API uint32_t GetEntityCount();
@@ -67,6 +88,18 @@ extern "C" {
     #define PRIMITIVE_PLANE 4
     #define PRIMITIVE_TRIANGLE 5
     #define PRIMITIVE_CUSTOM 6
+
+    // Camera System API
+    ENGINE_API bool CreateCamera(const char* cameraName, float fovDegrees, float aspectRatio, float nearPlane, float farPlane);
+    ENGINE_API bool AttachCameraToEntity(const char* cameraName, uint32_t entity);
+    ENGINE_API bool DetachCamera(const char* cameraName);
+    ENGINE_API bool SetCameraProjection(const char* cameraName, float fovDegrees, float aspectRatio, float nearPlane, float farPlane);
+    ENGINE_API bool SetCameraMovementSpeed(const char* cameraName, float speed);
+    ENGINE_API bool SetCameraMouseSensitivity(const char* cameraName, float sensitivity);
+    ENGINE_API bool GetCameraPosition(const char* cameraName, float* x, float* y, float* z);
+    ENGINE_API bool GetCameraRotation(const char* cameraName, float* pitch, float* yaw, float* roll);
+    ENGINE_API bool SetActiveCamera(const char* cameraName);
+    ENGINE_API const char* GetActiveCameraName();
 }
 
 // Note: The Engine class definition is in Engine.h (private implementation)

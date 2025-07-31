@@ -13,7 +13,7 @@ RenderExecutor::RenderExecutor(RenderEngine* engine, MeshManager* meshMgr, Mater
     , drawCallsThisFrame(0)
     , verticesRenderedThisFrame(0) {
 
-    std::cout << "[RenderExecutor] Pure rendering layer initialized (NO ECS dependencies)\n";
+    //std::cout << "[RenderExecutor] Pure rendering layer initialized (NO ECS dependencies)\n";
 }
 
 // BATCH PROCESSING - Handles multiple commands efficiently
@@ -25,7 +25,7 @@ void RenderExecutor::ExecuteRenderCommands(const std::vector<RenderCommand>& com
     // Reset frame statistics
     ResetFrameStats();
 
-    std::cout << "[RenderExecutor] Executing " << commands.size() << " render commands (batch)\n";
+    //std::cout << "[RenderExecutor] Executing " << commands.size() << " render commands (batch)\n";
 
     // Separate commands by type for optimization
     std::vector<RenderCommand> meshCommands;
@@ -55,8 +55,8 @@ void RenderExecutor::ExecuteRenderCommands(const std::vector<RenderCommand>& com
         RenderMeshBatch(meshCommands);
     }
 
-    std::cout << "[RenderExecutor] Batch complete - " << drawCallsThisFrame
-        << " draw calls, " << verticesRenderedThisFrame << " vertices\n";
+    //std::cout << "[RenderExecutor] Batch complete - " << drawCallsThisFrame
+    //    << " draw calls, " << verticesRenderedThisFrame << " vertices\n";
 }
 
 // SINGLE COMMAND PROCESSING - Handles one command immediately
@@ -65,17 +65,17 @@ void RenderExecutor::ExecuteRenderCommand(const RenderCommand& command) {
         return;
     }
 
-    std::cout << "[RenderExecutor] Executing single render command: ";
+    //std::cout << "[RenderExecutor] Executing single render command: ";
 
     // Handle single command immediately (no batching optimization)
     switch (command.type) {
     case RenderCommandType::CLEAR_SCREEN:
-        std::cout << "CLEAR_SCREEN\n";
+        //std::cout << "CLEAR_SCREEN\n";
         ClearScreen(command);
         break;
 
     case RenderCommandType::DRAW_MESH:
-        std::cout << "DRAW_MESH (" << command.meshName << ")\n";
+        //std::cout << "DRAW_MESH (" << command.meshName << ")\n";
         if (command.visible) {
             // Set up shader pipeline for single command
             ID3D11DeviceContext* context = renderEngine->GetDeviceContext();
@@ -100,7 +100,7 @@ void RenderExecutor::ExecuteRenderCommand(const RenderCommand& command) {
 void RenderExecutor::RenderMeshBatch(const std::vector<RenderCommand>& meshCommands) {
     ID3D11DeviceContext* context = renderEngine->GetDeviceContext();
     if (!context) {
-        std::cout << "[RenderExecutor] Error: No D3D11 context available\n";
+        //std::cout << "[RenderExecutor] Error: No D3D11 context available\n";
         return;
     }
 
@@ -110,8 +110,8 @@ void RenderExecutor::RenderMeshBatch(const std::vector<RenderCommand>& meshComma
         // Optimization: Only change shader if different from current
         if (command.shaderName != currentShader) {
             if (!SetupShaderPipeline(context, command.shaderName)) {
-                std::cout << "[RenderExecutor] Warning: Failed to setup shader '"
-                    << command.shaderName << "' for mesh '" << command.meshName << "'\n";
+                //std::cout << "[RenderExecutor] Warning: Failed to setup shader '"
+                //    << command.shaderName << "' for mesh '" << command.meshName << "'\n";
                 continue;
             }
             currentShader = command.shaderName;
@@ -154,7 +154,7 @@ void RenderExecutor::RenderSingleMesh(const RenderCommand& command) {
 void RenderExecutor::ClearScreen(const RenderCommand& command) {
     // Note: In your architecture, screen clearing is handled by RenderEngine::BeginFrame()
     // This is here for completeness if you want command-based clearing
-    std::cout << "[RenderExecutor] Clear screen command (handled by RenderEngine)\n";
+   // std::cout << "[RenderExecutor] Clear screen command (handled by RenderEngine)\n";
 }
 
 bool RenderExecutor::SetupShaderPipeline(ID3D11DeviceContext* context, const std::string& shaderName) {
@@ -165,7 +165,7 @@ bool RenderExecutor::SetupShaderPipeline(ID3D11DeviceContext* context, const std
     // Get shader from render engine
     Shader* shader = renderEngine->GetShader(shaderName);
     if (!shader || !shader->vertexShader || !shader->pixelShader || !shader->inputLayout) {
-        std::cout << "[RenderExecutor] Error: Shader '" << shaderName << "' not found or incomplete\n";
+        //std::cout << "[RenderExecutor] Error: Shader '" << shaderName << "' not found or incomplete\n";
         return false;
     }
 
@@ -211,14 +211,14 @@ bool RenderExecutor::ValidateRenderResources(const RenderCommand& command,
     // Validate mesh
     outMesh = meshManager->GetMesh(command.meshName);
     if (!outMesh || !outMesh->vertexBuffer || !outMesh->indexBuffer) {
-        std::cout << "[RenderExecutor] Error: Mesh '" << command.meshName << "' not found or invalid\n";
+        //std::cout << "[RenderExecutor] Error: Mesh '" << command.meshName << "' not found or invalid\n";
         return false;
     }
 
     // Validate shader
     outShader = renderEngine->GetShader(command.shaderName);
     if (!outShader) {
-        std::cout << "[RenderExecutor] Error: Shader '" << command.shaderName << "' not found\n";
+        //std::cout << "[RenderExecutor] Error: Shader '" << command.shaderName << "' not found\n";
         return false;
     }
 

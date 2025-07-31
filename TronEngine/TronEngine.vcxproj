@@ -27,6 +27,8 @@
     <ClInclude Include="Source\Headers\Game\MeshRenderSystem.hpp" />
     <ClInclude Include="Source\Headers\Game\ScriptComponent.hpp" />
     <ClInclude Include="Source\Headers\Game\ScriptSystem.hpp" />
+    <ClInclude Include="Source\Headers\Math\Matrix.hpp" />
+    <ClInclude Include="Source\Headers\Rendering\Camera.hpp" />
     <ClInclude Include="Source\Headers\Rendering\D3D\CommandQueue.hpp" />
     <ClInclude Include="Source\Headers\Rendering\D3D\D3DContext.hpp" />
     <ClInclude Include="Include\EngineExports.hpp" />
@@ -59,6 +61,8 @@
     <ClCompile Include="Source\Cpp\Core\InputManager.cpp" />
     <ClCompile Include="Source\Cpp\Game\MeshRenderSystem.cpp" />
     <ClCompile Include="Source\Cpp\Game\ScriptSystem.cpp" />
+    <ClCompile Include="Source\Cpp\Math\Matrix.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\Camera.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\D3D\CommandQueue.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\D3D\D3DContext.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\D3D\D3DRenderer.cpp" />

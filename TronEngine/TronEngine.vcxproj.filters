@@ -76,6 +76,12 @@
     <ClCompile Include="Source\Cpp\Rendering\RenderExecutor.cpp">
       <Filter>Source\Cpp\Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Cpp\Math\Matrix.cpp">
+      <Filter>Source\Cpp\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Cpp\Rendering\Camera.cpp">
+      <Filter>Source\Cpp\Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\EngineExports.hpp">
@@ -180,7 +186,15 @@
     <ClInclude Include="Source\Headers\Rendering\RenderExecutor.hpp">
       <Filter>Source\Headers\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Headers\Game\ConstantBuffers.hpp" />
+    <ClInclude Include="Source\Headers\Math\Matrix.hpp">
+      <Filter>Source\Headers\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Rendering\Camera.hpp">
+      <Filter>Source\Headers\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Game\ConstantBuffers.hpp">
+      <Filter>Source\Headers\Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Include">
@@ -230,6 +244,12 @@
     </Filter>
     <Filter Include="Source\Headers\Communication">
       <UniqueIdentifier>{76cf8b1c-99f8-4dfc-9c76-ee155b949a00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Cpp\Math">
+      <UniqueIdentifier>{dc3195b2-2399-4b57-8274-9211b68df16a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Headers\Math">
+      <UniqueIdentifier>{030ce140-ab25-4f1c-8108-23d8e8190e16}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -11,7 +11,7 @@ MeshRenderSystem::MeshRenderSystem(CommandQueue* cmdQueue)
     : commandQueue(cmdQueue)
     , entitiesProcessed(0) {
 
-    std::cout << "[MeshRenderSystem] Clean ECS rendering system initialized (NO D3D dependencies)\n";
+    //std::cout << "[MeshRenderSystem] Clean ECS rendering system initialized (NO D3D dependencies)\n";
 }
 
 void MeshRenderSystem::Update(float deltaTime) {
@@ -25,14 +25,14 @@ void MeshRenderSystem::Update(float deltaTime) {
 
 void MeshRenderSystem::GenerateRenderCommands() {
     if (!commandQueue) {
-        std::cout << "[MeshRenderSystem] Error: No command queue available\n";
+        //std::cout << "[MeshRenderSystem] Error: No command queue available\n";
         return;
     }
 
     std::vector<RenderCommand> renderCommands;
     entitiesProcessed = 0;
 
-    std::cout << "[MeshRenderSystem] Generating render commands for " << entities.size() << " entities\n";
+    //std::cout << "[MeshRenderSystem] Generating render commands for " << entities.size() << " entities\n";
 
     // Iterate through all entities with MeshRenderer components - PURE ECS LOGIC
     for (Entity entity : entities) {
@@ -41,8 +41,8 @@ void MeshRenderSystem::GenerateRenderCommands() {
 
         // Validate components
         if (!transform || !meshRenderer) {
-            std::cout << "[MeshRenderSystem] Warning: Entity " << entity
-                << " missing required components\n";
+            //std::cout << "[MeshRenderSystem] Warning: Entity " << entity
+            //    << " missing required components\n";
             continue;
         }
 
@@ -61,8 +61,8 @@ void MeshRenderSystem::GenerateRenderCommands() {
     // Send all commands to render thread at once (more efficient)
     if (!renderCommands.empty()) {
         commandQueue->PushCommands(renderCommands);
-        std::cout << "[MeshRenderSystem] Sent " << renderCommands.size()
-            << " render commands to render thread\n";
+        //std::cout << "[MeshRenderSystem] Sent " << renderCommands.size()
+        //    << " render commands to render thread\n";
     }
 }
 
@@ -109,7 +109,7 @@ RenderCommand MeshRenderSystem::CreateRenderCommandFromEntity(Entity entity,
 }
 
 void MeshRenderSystem::OnEntityAdded(Entity entity) {
-    std::cout << "[MeshRenderSystem] Entity " << entity << " added to render system\n";
+    //std::cout << "[MeshRenderSystem] Entity " << entity << " added to render system\n";
 
     // Optional: Validate that entity has required components
     if (world) {
@@ -117,16 +117,16 @@ void MeshRenderSystem::OnEntityAdded(Entity entity) {
         auto* meshRenderer = world->GetComponent<MeshRenderer>(entity);
 
         if (!transform) {
-            std::cout << "[MeshRenderSystem] Warning: Entity " << entity << " has no Transform component\n";
+            //std::cout << "[MeshRenderSystem] Warning: Entity " << entity << " has no Transform component\n";
         }
         if (!meshRenderer) {
-            std::cout << "[MeshRenderSystem] Warning: Entity " << entity << " has no MeshRenderer component\n";
+            //std::cout << "[MeshRenderSystem] Warning: Entity " << entity << " has no MeshRenderer component\n";
         }
     }
 }
 
 void MeshRenderSystem::OnEntityRemoved(Entity entity) {
-    std::cout << "[MeshRenderSystem] Entity " << entity << " removed from render system\n";
+   //std::cout << "[MeshRenderSystem] Entity " << entity << " removed from render system\n";
 
     // Optional: Send command to remove any cached rendering data
     // (not needed for current implementation)
@@ -147,7 +147,7 @@ uint32_t MeshRenderSystem::GetVisibleEntityCount() const {
 }
 
 void MeshRenderSystem::SetAllEntitiesVisible(bool visible) {
-    std::cout << "[MeshRenderSystem] Setting visibility of all entities to " << visible << "\n";
+    //std::cout << "[MeshRenderSystem] Setting visibility of all entities to " << visible << "\n";
 
     for (Entity entity : entities) {
         auto* meshRenderer = world->GetComponent<MeshRenderer>(entity);
@@ -161,8 +161,8 @@ void MeshRenderSystem::PrintSystemStats() const {
     uint32_t totalEntities = entities.size();
     uint32_t visibleEntities = GetVisibleEntityCount();
 
-    std::cout << "[MeshRenderSystem] Stats:\n";
-    std::cout << "  Total entities: " << totalEntities << "\n";
-    std::cout << "  Visible entities: " << visibleEntities << "\n";
-    std::cout << "  Entities processed last frame: " << entitiesProcessed << "\n";
+    //std::cout << "[MeshRenderSystem] Stats:\n";
+    //std::cout << "  Total entities: " << totalEntities << "\n";
+    //std::cout << "  Visible entities: " << visibleEntities << "\n";
+    //std::cout << "  Entities processed last frame: " << entitiesProcessed << "\n";
 }
