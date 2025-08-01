@@ -85,7 +85,7 @@ int main() {
 		float x = static_cast<float>(rand() % 20 - 10); // Random position between -10 and 10
 		float y = static_cast<float>(rand() % 20 - 10); // Random position between -10 and 10
 		float z = static_cast<float>(rand() % 20 - 10); // Random position between -10 and 10
-		AddTransformComponent(randomCube, x, y, z);
+		AddTransformComponent(randomCube, x, y, 0.0f);
 		AddMeshRendererComponent(randomCube, PRIMITIVE_CUBE, "default");
 		AddCustomScript(randomCube, new SecondScript(player)); // Add a second script to the random cube
     }
