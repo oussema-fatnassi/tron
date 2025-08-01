@@ -389,15 +389,15 @@ void Engine::GameLoop() {
 
         // Fixed timestep updates - INDUSTRY STANDARD
         while (accumulator >= TRON_GAME_TARGET_DELTA) {
-            if (_inputManager) {
-                // Process input events
-                _inputManager->Update();
-            }
 
             if (_world) {
                 _world->Update(static_cast<float>(TRON_GAME_TARGET_DELTA));
             }
 
+            if (_inputManager) {
+                // Process input events
+                _inputManager->Update();
+            }
             // === NEW: Generate Render Commands (Clean Architecture) ===
             auto* meshRenderSystem = _world->GetSystem<MeshRenderSystem>();
             if (meshRenderSystem) {
