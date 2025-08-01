@@ -22,10 +22,12 @@
     <ClInclude Include="Include\ScriptAPI.hpp" />
     <ClInclude Include="Source\Headers\Communication\RenderCommand.hpp" />
     <ClInclude Include="Source\Headers\Core\InputManager.hpp" />
+    <ClInclude Include="Source\Headers\Game\BoxColliderComponent.hpp" />
     <ClInclude Include="Source\Headers\Game\CameraSystem.hpp" />
     <ClInclude Include="Source\Headers\Game\ConstantBuffers.hpp" />
     <ClInclude Include="Source\Headers\Game\MeshRendererComponent.hpp" />
     <ClInclude Include="Source\Headers\Game\MeshRenderSystem.hpp" />
+    <ClInclude Include="Source\Headers\Game\PhysicsSystem.hpp" />
     <ClInclude Include="Source\Headers\Game\ScriptComponent.hpp" />
     <ClInclude Include="Source\Headers\Game\ScriptSystem.hpp" />
     <ClInclude Include="Source\Headers\Math\Matrix.hpp" />
@@ -62,6 +64,7 @@
     <ClCompile Include="Source\Cpp\Core\InputManager.cpp" />
     <ClCompile Include="Source\Cpp\Game\CameraSystem.cpp" />
     <ClCompile Include="Source\Cpp\Game\MeshRenderSystem.cpp" />
+    <ClCompile Include="Source\Cpp\Game\PhysicsSystem.cpp" />
     <ClCompile Include="Source\Cpp\Game\ScriptSystem.cpp" />
     <ClCompile Include="Source\Cpp\Math\Matrix.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\Camera.cpp" />

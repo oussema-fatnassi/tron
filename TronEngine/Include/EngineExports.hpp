@@ -24,7 +24,6 @@ extern "C" {
     ENGINE_API const char* GetEngineInfo();
 
     // Input API
-	ENGINE_API bool IsKeyUp(int keyCode);
     ENGINE_API bool IsKeyDown(int keyCode);
     ENGINE_API bool IsKeyPressed(int keyCode);
     ENGINE_API bool IsKeyReleased(int keyCode);
@@ -100,7 +99,16 @@ extern "C" {
     ENGINE_API bool GetCameraRotation(const char* cameraName, float* pitch, float* yaw, float* roll);
     ENGINE_API bool SetActiveCamera(const char* cameraName);
     ENGINE_API const char* GetActiveCameraName();
-}
 
-// Note: The Engine class definition is in Engine.h (private implementation)
-// Clients only need the C-style API above
+	//Physics and Collision API
+    // BoxCollider Component
+    ENGINE_API bool AddBoxColliderComponent(uint32_t entity, float width, float height, float depth, bool isTrigger);
+	ENGINE_API bool SetBoxColliderSize(uint32_t entity, float width, float height, float depth);
+	ENGINE_API bool SetBoxColliderTrigger(uint32_t entity, bool isTrigger);
+	ENGINE_API bool SetBoxColliderEnabled(uint32_t entity, bool enabled);
+	ENGINE_API void RemoveBoxColliderComponent(uint32_t entity);
+
+    // Physics System Control
+    ENGINE_API void SetPhysicsDebugOutput(bool enabled);
+	ENGINE_API void GetPhysicsMetrics(uint32_t* collisionChecks, uint32_t* triggerEvents);
+}

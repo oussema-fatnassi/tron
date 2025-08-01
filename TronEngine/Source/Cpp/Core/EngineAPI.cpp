@@ -552,5 +552,90 @@ extern "C" {
         std::cout << "[EngineAPI] All cameras cleaned up\n";
     }
 
-    //TODO ADD UPDATE COMPONENTS
+	// Physics & Collisions System API
+    // NEW: Basic BoxCollider Component API
+        ENGINE_API bool AddBoxColliderComponent(uint32_t entity, float width, float height, float depth, bool isTrigger) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+
+        BoxCollider* component = g_engineInstance->GetWorld()->AddComponent<BoxCollider>(
+            entity, width, height, depth, isTrigger);
+
+        if (component) {
+            std::cout << "[EngineAPI] BoxCollider added to entity " << entity
+                << " (size: " << width << "x" << height << "x" << depth
+                << ", trigger: " << (isTrigger ? "true" : "false") << ")\n";
+            return true;
+        }
+        return false;
+    }
+
+    ENGINE_API bool SetBoxColliderSize(uint32_t entity, float width, float height, float depth) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+
+        BoxCollider* collider = g_engineInstance->GetWorld()->GetComponent<BoxCollider>(entity);
+        if (collider) {
+            collider->SetSize(width, height, depth);
+            std::cout << "[EngineAPI] BoxCollider size updated for entity " << entity << "\n";
+            return true;
+        }
+        return false;
+    }
+
+    ENGINE_API bool SetBoxColliderTrigger(uint32_t entity, bool isTrigger) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+
+        BoxCollider* collider = g_engineInstance->GetWorld()->GetComponent<BoxCollider>(entity);
+        if (collider) {
+            collider->SetTrigger(isTrigger);
+            std::cout << "[EngineAPI] BoxCollider trigger mode set to " << (isTrigger ? "true" : "false")
+                << " for entity " << entity << "\n";
+            return true;
+        }
+        return false;
+    }
+
+    ENGINE_API bool SetBoxColliderEnabled(uint32_t entity, bool enabled) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+
+        BoxCollider* collider = g_engineInstance->GetWorld()->GetComponent<BoxCollider>(entity);
+        if (collider) {
+            collider->SetEnabled(enabled);
+            std::cout << "[EngineAPI] BoxCollider " << (enabled ? "enabled" : "disabled")
+                << " for entity " << entity << "\n";
+            return true;
+        }
+        return false;
+    }
+
+    ENGINE_API void RemoveBoxColliderComponent(uint32_t entity) {
+        if (g_engineInstance && g_engineInstance->GetWorld()) {
+            g_engineInstance->GetWorld()->RemoveComponent<BoxCollider>(entity);
+            std::cout << "[EngineAPI] BoxCollider removed from entity " << entity << "\n";
+        }
+    }
+
+    // NEW: Physics System Control
+    ENGINE_API void SetPhysicsDebugOutput(bool enabled) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return;
+
+        auto* physicsSystem = g_engineInstance->GetWorld()->GetSystem<PhysicsSystem>();
+        if (physicsSystem) {
+            physicsSystem->SetDebugOutput(enabled);
+            std::cout << "[EngineAPI] Physics debug output " << (enabled ? "enabled" : "disabled") << "\n";
+        }
+    }
+
+    ENGINE_API void GetPhysicsMetrics(uint32_t* collisionChecks, uint32_t* triggerEvents) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld() || !collisionChecks || !triggerEvents) {
+            if (collisionChecks) *collisionChecks = 0;
+            if (triggerEvents) *triggerEvents = 0;
+            return;
+        }
+
+        auto* physicsSystem = g_engineInstance->GetWorld()->GetSystem<PhysicsSystem>();
+        if (physicsSystem) {
+            *collisionChecks = physicsSystem->GetCollisionChecksLastFrame();
+            *triggerEvents = physicsSystem->GetTriggerEventsLastFrame();
+        }
+    }
 }

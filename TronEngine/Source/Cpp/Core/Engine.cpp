@@ -125,6 +125,8 @@ bool Engine::InitializeSubsystems() {
     _world->RegisterComponent<Velocity>();
     _world->RegisterComponent<Script>();
     _world->RegisterComponent<MeshRenderer>();
+    _world->RegisterComponent<BoxCollider>();
+
 
     // Register systems - Must be done AFTER all managers are created
     auto* debugSystem = _world->RegisterSystem<DebugSystem>();
@@ -132,6 +134,7 @@ bool Engine::InitializeSubsystems() {
     auto* scriptSystem = _world->RegisterSystem<ScriptSystem>();
     auto* meshRenderSystem = _world->RegisterSystem<MeshRenderSystem>(_renderCommandQueue.get());
     auto* cameraSystem = _world->RegisterSystem<CameraSystem>(_inputManager.get());
+    auto* physicsSystem = _world->RegisterSystem<PhysicsSystem>();
 
     // Set system signatures
     _world->SetSystemSignature<Transform>(debugSystem);
@@ -139,6 +142,7 @@ bool Engine::InitializeSubsystems() {
     _world->SetSystemSignature<Script>(scriptSystem);
     _world->SetSystemSignature<Transform, MeshRenderer>(meshRenderSystem);
     _world->SetSystemSignature<Transform>(cameraSystem);
+    _world->SetSystemSignature<Transform, BoxCollider>(physicsSystem);
 
     std::cout << "[TronEngine] ECS World initialized with all components and systems\n";
 

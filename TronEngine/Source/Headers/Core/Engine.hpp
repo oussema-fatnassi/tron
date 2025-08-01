@@ -16,11 +16,13 @@
 #include "../Game/ScriptSystem.hpp"
 #include "../Game/MeshRenderSystem.hpp"
 #include "../Game/CameraSystem.hpp"
+#include "../Game/PhysicsSystem.hpp"
     // Components
 #include "../Game/VelocityComponent.hpp"
 #include "../Game/TransformComponent.hpp"
 #include "../Game/ScriptComponent.hpp"
 #include "../Game/MeshRendererComponent.hpp"
+#include "../Game/BoxColliderComponent.hpp"
 
 // TronEngine - Rendering imports
 #include "../Rendering/RenderEngine.hpp"
