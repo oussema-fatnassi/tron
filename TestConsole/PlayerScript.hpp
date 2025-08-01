@@ -58,28 +58,18 @@ public:
     void Update(float deltaTime) override
     {
         updateCount++;
-		if (IsKeyPressed(90))
-		{
-			std::cout << "[" << playerName << "] Escape key pressed - quitting game!" << std::endl;
-			return;
-		}
-        if (IsKeyReleased(90))
-		{
-			std::cout << "[" << playerName << "] Escape key released - quitting game!" << std::endl;
-			return;
-		}
 
         // Process movement controls
-        //ProcessMovement(deltaTime);
+        ProcessMovement(deltaTime);
 
-        //// Process mouse look (simple version)
-        //ProcessMouseLook();
+        // Process mouse look (simple version)
+        ProcessMouseLook();
 
-        //// Debug info every few seconds
-        //if (updateCount % 300 == 0)
-        //{ // Every ~2.5 seconds at 120fps
-        //    PrintPlayerStatus();
-        //}
+        // Debug info every few seconds
+        if (updateCount % 300 == 0)
+        { // Every ~2.5 seconds at 120fps
+            PrintPlayerStatus();
+        }
     }
 
     void OnDestroy() override
@@ -106,7 +96,7 @@ private:
         bool moved = false;
 
         // WASD movement (world-relative for now)
-        if (IsKeyDown('W') || IsKeyDown('w'))
+        if (IsKeyDown('z') || IsKeyDown('Z'))
         {
             moveZ -= speed; // Forward (negative Z)
             moved = true;
@@ -118,7 +108,7 @@ private:
             moved = true;
             std::cout << "[" << playerName << "] Moving backward\n";
         }
-        if (IsKeyDown('A') || IsKeyDown('a'))
+        if (IsKeyDown('q') || IsKeyDown('Q'))
         {
             moveX -= speed; // Left (negative X)
             moved = true;
