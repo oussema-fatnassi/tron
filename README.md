@@ -15,6 +15,7 @@ tron/
 
 
 TODO : 
+-Solve the flickering problem - BufferedRenderCommandQueue or thread
 -Make the update functions of the scripts in separates threads
 -Make possible to an entity have more than one script attached and iterate for each script
 -Same for BoxColliders
