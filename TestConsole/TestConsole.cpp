@@ -1,11 +1,14 @@
 ﻿#include <iostream>
 #include <windows.h>
 #include "TronEngine.hpp"
-#include "PlayerScript.hpp"
+#include "PlayerScript.hpp"  // Include the working player script
+
 // Link the library
 #pragma comment(lib, "TronEngine.lib")
 
 int main() {
+    std::cout << "=== PLAYER SCRIPT INPUT TEST ===\n";
+
     // Create and initialize engine (singleton)
     if (!CreateAndInitializeEngine()) {
         std::cout << "Failed to create and initialize engine\n";
@@ -16,96 +19,74 @@ int main() {
     PrintEngineVersion();
     std::cout << GetEngineInfo() << std::endl;
 
-    // Create entities and add components
-    std::cout << "\n=== Creating Entities ===\n";
+    std::cout << "\n=== Creating Test Scene with Player ===\n";
 
-    // Create a player entity
-    unsigned int player = CreateEntity();
+    // Create reference objects to see movement relative to
+    uint32_t centerCube = CreateEntity();
+    AddTransformComponent(centerCube, 0.0f, 0.0f, 0.0f);
+    AddMeshRendererComponent(centerCube, PRIMITIVE_CUBE, "RainbowShader");
+    SetMeshRendererColor(centerCube, 1.0f, 0.0f, 0.0f, 1.0f); // Red cube at origin
+    std::cout << "Created reference cube (RED) at origin\n";
+
+    // Create some other reference objects
+    uint32_t blueCube = CreateEntity();
+    AddTransformComponent(blueCube, 3.0f, 0.0f, 0.0f);
+    AddMeshRendererComponent(blueCube, PRIMITIVE_CUBE, "blue");
+    SetMeshRendererColor(blueCube, 0.0f, 0.0f, 1.0f, 1.0f); // Blue cube to the right
+    std::cout << "Created blue cube at (3, 0, 0)\n";
+
+    uint32_t greenSphere = CreateEntity();
+    AddTransformComponent(greenSphere, -3.0f, 0.0f, 0.0f);
+    AddMeshRendererComponent(greenSphere, PRIMITIVE_SPHERE, "default");
+    SetMeshRendererColor(greenSphere, 0.0f, 1.0f, 0.0f, 1.0f); // Green sphere to the left
+    std::cout << "Created green sphere at (-3, 0, 0)\n";
+
+    uint32_t yellowCube = CreateEntity();
+    AddTransformComponent(yellowCube, 0.0f, 0.0f, -3.0f);
+    AddMeshRendererComponent(yellowCube, PRIMITIVE_CUBE, "RainbowShader");
+    SetMeshRendererColor(yellowCube, 1.0f, 1.0f, 0.0f, 1.0f); // Yellow cube in front
+    std::cout << "Created yellow cube at (0, 0, -3)\n";
+
+    // Create the player entity with script
+    uint32_t player = CreateEntity();
     std::cout << "Created player entity: " << player << std::endl;
 
-    // Add transform component at origin
-    if (AddTransformComponent(player, 0.0f, 0.0f, 0.0f)) {
-        std::cout << "Added transform component to player\n";
+    // Add the player script
+    PlayerScript* playerScript = new PlayerScript("TestPlayer");
+    if (AddCustomScript(player, playerScript)) {
+        std::cout << " PlayerScript added successfully\n";
+
+        // Configure player settings
+        playerScript->SetMovementSpeed(3.0f);
+        playerScript->SetMouseSensitivity(0.001f);
+    }
+    else {
+        std::cout << " ERROR: Failed to add PlayerScript\n";
+        return -1;
     }
 
-    // Add velocity component moving right
-    if (AddVelocityComponent(player, 10.0f, 0.0f, 0.0f)) {
-        std::cout << "Added velocity component to player\n";
-    }
-	uint32_t player2 = CreateEntity();
-    // Create custom script instance
-	// TODO: Use a factory or script manager in the engine to handle this properly
-    PlayerScript* playerScript1 = new PlayerScript(&player2,"Hero");
-    /*PlayerScript* playerScript2 = new PlayerScript("Enemy");
-    PlayerScript* playerScript3 = new PlayerScript("NPC");*/
+    std::cout << "\n=== CONTROLS ===\n";
+    std::cout << "WASD     - Move around (watch console for movement messages)\n";
+    std::cout << "Mouse    - Look around (rotation logged to console)\n";
+    std::cout << "Space    - Move up\n";
+    std::cout << "Shift    - Move down\n";
+    std::cout << "P        - Print current position\n";
+    std::cout << "ESC      - Close window\n";
 
-    // Add it to entity
-    if (AddCustomScript(player, playerScript1)) {
-        std::cout << "Added custom player script\n";
-    }
+    std::cout << "\n=== Expected Behavior ===\n";
+    std::cout << "- Press WASD and see movement messages in console\n";
+    std::cout << "- Player cube (cyan) should move around the scene\n";
+    std::cout << "- Movement should be visible relative to other cubes\n";
+    std::cout << "- Position should be printed when you press P\n";
 
-    // Create an enemy entity
-    unsigned int enemy = CreateEntity();
-    std::cout << "Created enemy entity: " << enemy << std::endl;
+    std::cout << "\nTotal entities: " << GetEntityCount() << "\n";
+    std::cout << "\n=== Starting Engine ===\n";
 
-    // Add components to enemy
-    AddTransformComponent(enemy, 50.0f, 0.0f, 0.0f);
-    AddVelocityComponent(enemy, -5.0f, 0.0f, 0.0f);
-
-    // Create a static object (only transform, no velocity)
-    unsigned int staticObj = CreateEntity();
-    std::cout << "Created static object: " << staticObj << std::endl;
-    AddTransformComponent(staticObj, 25.0f, 10.0f, 0.0f);
-
-    // Create a cube entity
-    //uint32_t cubeEntity = CreateEntity();
-    //AddTransformComponent(cubeEntity, 0.0f, 0.0f, 0.0f);
-    //AddMeshRendererComponent(cubeEntity, PRIMITIVE_CUBE, "blue");
-    //SetMeshRendererColor(cubeEntity, 1.0f, 0.0f, 0.0f, 1.0f); // Blue cube
-
-    // Create a sphere entity
-    //uint32_t sphereEntity = CreateEntity();
-    //AddTransformComponent(sphereEntity, 2.0f, 0.0f, 0.0f);
-    //AddMeshRendererComponent(sphereEntity, PRIMITIVE_SPHERE, "default");
-    //SetMeshRendererColor(sphereEntity, 0.0f, 1.0f, 0.0f, 1.0f); // Green sphere
-
-    // Create a triangle entity
-    //uint32_t triangleEntity = CreateEntity();
-    //AddTransformComponent(triangleEntity, -2.0f, 0.0f, 0.0f);
-    //AddMeshRendererComponent(triangleEntity, PRIMITIVE_TRIANGLE, "default");
-    //SetMeshRendererColor(triangleEntity, 0.0f, 0.0f, 1.0f, 1.0f); // Blue triangle
-
-    uint32_t cube = CreateEntity();
-    AddTransformComponent(cube, 1.0f, 0.0f, 0.0f);
-    AddMeshRendererComponent(cube,PRIMITIVE_CUBE, "RainbowShader"); // Use rainbow shader
-
-
-    // Check entity count
-    std::cout << "Total entities: " << GetEntityCount() << std::endl;
-
-    // Read initial component data
-    std::cout << "\n=== Initial Component Data ===\n";
-    float x, y, z, vx, vy, vz;
-    if (GetTransformComponent(player, &x, &y, &z)) {
-        std::cout << "Player initial position: (" << x << ", " << y << ", " << z << ")\n";
-    }
-    if (GetVelocityComponent(player, &vx, &vy, &vz)) {
-        std::cout << "Player velocity: (" << vx << ", " << vy << ", " << vz << ")\n";
-    }
-
-    // Test component removal
-    std::cout << "\n=== Testing Component Operations ===\n";
-    RemoveVelocityComponent(enemy);
-    std::cout << "Removed velocity from enemy (should stop moving)\n";
-
-    // Destroy an entity
-    DestroyEntity(staticObj);
-    std::cout << "Destroyed static object\n";
-    std::cout << "Entities remaining: " << GetEntityCount() << std::endl;
-
-    // Now let the engine handle everything - all updates, timing, and game loop
-    std::cout << "\n=== Starting Engine - All updates handled internally ===\n";
+    // Start the engine
     RunEngine();
+
+    // Note: PlayerScript destructor will be called automatically
+    // when the entity is destroyed during engine shutdown
 
     // Cleanup
     std::cout << "\n=== Cleanup ===\n";
@@ -113,7 +94,7 @@ int main() {
     std::cout << "Engine cleanup: SUCCESS\n\n";
 
     std::cout << "====================================\n";
-    std::cout << "      ALL TESTS COMPLETED!         \n";
+    std::cout << "   PLAYER INPUT TEST COMPLETED!    \n";
     std::cout << "====================================\n";
     std::cout << "\nPress Enter to exit...";
     std::cin.get();

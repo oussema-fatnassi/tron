@@ -2,9 +2,16 @@
 #include "../Headers/Core/Engine.hpp" 
 #include "../../Include/TronEngine.hpp" 
 #include <iostream>
+#include "../Headers/Rendering/Camera.hpp"
+#include "../Headers/Math/Matrix.hpp"
+#include <unordered_map>
 
 // Global singleton instance
 static Engine* g_engineInstance = nullptr;
+
+// Global camera management
+static std::unordered_map<std::string, std::unique_ptr<Camera>> g_cameras;
+static std::string g_activeCameraName = "";
 
 // C-style API implementation
 extern "C" {
@@ -65,9 +72,46 @@ extern "C" {
         return g_engineInstance->GetInputManager()->IsKeyPressed(keyCode);
     }
 
-    ENGINE_API bool IsKeyUp(int keyCode) {
+    ENGINE_API bool IsKeyReleased(int keyCode) {
+            if (!g_engineInstance || !g_engineInstance->GetInputManager()) return false;
+            return g_engineInstance->GetInputManager()->IsKeyReleased(keyCode);
+    }
+
+    ENGINE_API bool IsMouseButtonDown(int button) {
         if (!g_engineInstance || !g_engineInstance->GetInputManager()) return false;
-        return g_engineInstance->GetInputManager()->IsKeyReleased(keyCode);
+        return g_engineInstance->GetInputManager()->IsMouseButtonDown(button);
+    }
+
+    ENGINE_API bool IsMouseButtonPressed(int button) {
+        if (!g_engineInstance || !g_engineInstance->GetInputManager()) return false;
+        return g_engineInstance->GetInputManager()->IsMouseButtonPressed(button);
+    }
+
+    ENGINE_API bool IsMouseButtonReleased(int button) {
+        if (!g_engineInstance || !g_engineInstance->GetInputManager()) return false;
+        return g_engineInstance->GetInputManager()->IsMouseButtonReleased(button);
+    }
+
+    ENGINE_API void GetMousePosition(int* x, int* y) {
+        if (!x || !y || !g_engineInstance || !g_engineInstance->GetInputManager()) {
+            if (x) *x = 0;
+            if (y) *y = 0;
+            return;
+        }
+        
+        POINT pos = g_engineInstance->GetInputManager()->GetMousePosition();
+        *x = pos.x;
+        *y = pos.y;
+    }
+
+    ENGINE_API int GetMouseWheelDelta() {
+        if (!g_engineInstance || !g_engineInstance->GetInputManager()) return 0;
+        return g_engineInstance->GetInputManager()->GetMouseWheelDelta();
+    }
+
+    ENGINE_API void SetMouseSensitivity(float sensitivity) {
+        // TODO: Implement global mouse sensitivity setting
+        std::cout << "[EngineAPI] TODO: SetMouseSensitivity(" << sensitivity << ")\n";
     }
 
     // ECS C-style API with Engine prefix
@@ -251,6 +295,261 @@ extern "C" {
         if (g_engineInstance && g_engineInstance->GetWorld()) {
             g_engineInstance->GetWorld()->RemoveComponent<MeshRenderer>(entity);
         }
+    }
+
+    // Enhanced Transform Component API Implementation
+    ENGINE_API bool SetTransformPosition(uint32_t entity, float x, float y, float z) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+
+        Transform* transform = g_engineInstance->GetWorld()->GetComponent<Transform>(entity);
+        if (transform) {
+            transform->SetPosition(x, y, z);
+            return true;
+        }
+        return false;
+    }
+
+    ENGINE_API bool SetTransformRotation(uint32_t entity, float pitch, float yaw, float roll) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+
+        Transform* transform = g_engineInstance->GetWorld()->GetComponent<Transform>(entity);
+        if (transform) {
+            transform->SetRotation(pitch, yaw, roll);
+            return true;
+        }
+        return false;
+    }
+
+    ENGINE_API bool SetTransformRotationDegrees(uint32_t entity, float pitchDeg, float yawDeg, float rollDeg) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+
+        Transform* transform = g_engineInstance->GetWorld()->GetComponent<Transform>(entity);
+        if (transform) {
+            transform->SetRotationDegrees(pitchDeg, yawDeg, rollDeg);
+            return true;
+        }
+        return false;
+    }
+
+    ENGINE_API bool SetTransformScale(uint32_t entity, float scaleX, float scaleY, float scaleZ) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+
+        Transform* transform = g_engineInstance->GetWorld()->GetComponent<Transform>(entity);
+        if (transform) {
+            transform->SetScale(scaleX, scaleY, scaleZ);
+            return true;
+        }
+        return false;
+    }
+
+    ENGINE_API bool SetTransformUniformScale(uint32_t entity, float scale) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+
+        Transform* transform = g_engineInstance->GetWorld()->GetComponent<Transform>(entity);
+        if (transform) {
+            transform->SetUniformScale(scale);
+            return true;
+        }
+        return false;
+    }
+
+    ENGINE_API bool GetTransformRotation(uint32_t entity, float* pitch, float* yaw, float* roll) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld() || !pitch || !yaw || !roll) return false;
+
+        Transform* transform = g_engineInstance->GetWorld()->GetComponent<Transform>(entity);
+        if (transform) {
+            *pitch = transform->pitch;
+            *yaw = transform->yaw;
+            *roll = transform->roll;
+            return true;
+        }
+        return false;
+    }
+
+    ENGINE_API bool GetTransformScale(uint32_t entity, float* scaleX, float* scaleY, float* scaleZ) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld() || !scaleX || !scaleY || !scaleZ) return false;
+
+        Transform* transform = g_engineInstance->GetWorld()->GetComponent<Transform>(entity);
+        if (transform) {
+            *scaleX = transform->scaleX;
+            *scaleY = transform->scaleY;
+            *scaleZ = transform->scaleZ;
+            return true;
+        }
+        return false;
+    }
+
+    ENGINE_API bool TranslateTransform(uint32_t entity, float deltaX, float deltaY, float deltaZ) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+
+        Transform* transform = g_engineInstance->GetWorld()->GetComponent<Transform>(entity);
+        if (transform) {
+            transform->Translate(deltaX, deltaY, deltaZ);
+            return true;
+        }
+        return false;
+    }
+
+    ENGINE_API bool RotateTransform(uint32_t entity, float deltaPitch, float deltaYaw, float deltaRoll) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+
+        Transform* transform = g_engineInstance->GetWorld()->GetComponent<Transform>(entity);
+        if (transform) {
+            transform->Rotate(deltaPitch, deltaYaw, deltaRoll);
+            return true;
+        }
+        return false;
+    }
+
+    ENGINE_API bool RotateTransformDegrees(uint32_t entity, float deltaPitchDeg, float deltaYawDeg, float deltaRollDeg) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+
+        Transform* transform = g_engineInstance->GetWorld()->GetComponent<Transform>(entity);
+        if (transform) {
+            transform->RotateDegrees(deltaPitchDeg, deltaYawDeg, deltaRollDeg);
+            return true;
+        }
+        return false;
+    }
+
+    // Camera System API Implementation
+    ENGINE_API bool CreateCamera(const char* cameraName, float fovDegrees, float aspectRatio, float nearPlane, float farPlane) {
+        if (!cameraName || !g_engineInstance) return false;
+
+        std::string name(cameraName);
+        if (g_cameras.find(name) != g_cameras.end()) {
+            std::cout << "[EngineAPI] Warning: Camera '" << name << "' already exists\n";
+            return false;
+        }
+
+        auto camera = std::make_unique<Camera>(fovDegrees, aspectRatio, nearPlane, farPlane);
+        g_cameras[name] = std::move(camera);
+
+        // Set as active camera if it's the first one
+        if (g_activeCameraName.empty()) {
+            g_activeCameraName = name;
+        }
+
+        std::cout << "[EngineAPI] Created camera '" << name << "'\n";
+        return true;
+    }
+
+    ENGINE_API bool AttachCameraToEntity(const char* cameraName, uint32_t entity) {
+        if (!cameraName || !g_engineInstance) return false;
+
+        std::string name(cameraName);
+        auto it = g_cameras.find(name);
+        if (it == g_cameras.end()) {
+            std::cout << "[EngineAPI] Error: Camera '" << name << "' not found\n";
+            return false;
+        }
+
+        it->second->AttachToEntity(g_engineInstance->GetWorld(), entity);
+        std::cout << "[EngineAPI] Attached camera '" << name << "' to entity " << entity << "\n";
+        return true;
+    }
+
+    ENGINE_API bool DetachCamera(const char* cameraName) {
+        if (!cameraName) return false;
+
+        std::string name(cameraName);
+        auto it = g_cameras.find(name);
+        if (it == g_cameras.end()) return false;
+
+        it->second->DetachFromEntity();
+        std::cout << "[EngineAPI] Detached camera '" << name << "'\n";
+        return true;
+    }
+
+    ENGINE_API bool SetCameraProjection(const char* cameraName, float fovDegrees, float aspectRatio, float nearPlane, float farPlane) {
+        if (!cameraName) return false;
+
+        std::string name(cameraName);
+        auto it = g_cameras.find(name);
+        if (it == g_cameras.end()) return false;
+
+        it->second->SetProjection(fovDegrees, aspectRatio, nearPlane, farPlane);
+        return true;
+    }
+
+    ENGINE_API bool SetCameraMovementSpeed(const char* cameraName, float speed) {
+        if (!cameraName) return false;
+
+        std::string name(cameraName);
+        auto it = g_cameras.find(name);
+        if (it == g_cameras.end()) return false;
+
+        it->second->movementSpeed = speed;
+        return true;
+    }
+
+    ENGINE_API bool SetCameraMouseSensitivity(const char* cameraName, float sensitivity) {
+        if (!cameraName) return false;
+
+        std::string name(cameraName);
+        auto it = g_cameras.find(name);
+        if (it == g_cameras.end()) return false;
+
+        it->second->mouseSensitivity = sensitivity;
+        return true;
+    }
+
+    ENGINE_API bool GetCameraPosition(const char* cameraName, float* x, float* y, float* z) {
+        if (!cameraName || !x || !y || !z) return false;
+
+        std::string name(cameraName);
+        auto it = g_cameras.find(name);
+        if (it == g_cameras.end()) return false;
+
+        it->second->GetPosition(*x, *y, *z);
+        return true;
+    }
+
+    ENGINE_API bool GetCameraRotation(const char* cameraName, float* pitch, float* yaw, float* roll) {
+        if (!cameraName || !pitch || !yaw || !roll) return false;
+
+        std::string name(cameraName);
+        auto it = g_cameras.find(name);
+        if (it == g_cameras.end()) return false;
+
+        it->second->GetRotation(*pitch, *yaw, *roll);
+        return true;
+    }
+
+    ENGINE_API bool SetActiveCamera(const char* cameraName) {
+        if (!cameraName) return false;
+
+        std::string name(cameraName);
+        auto it = g_cameras.find(name);
+        if (it == g_cameras.end()) {
+            std::cout << "[EngineAPI] Error: Camera '" << name << "' not found\n";
+            return false;
+        }
+
+        g_activeCameraName = name;
+        std::cout << "[EngineAPI] Set active camera to '" << name << "'\n";
+        return true;
+    }
+
+    ENGINE_API const char* GetActiveCameraName() {
+        return g_activeCameraName.c_str();
+    }
+
+    // Helper function to get active camera (for internal engine use)
+    Camera* GetActiveCamera() {
+        if (g_activeCameraName.empty()) return nullptr;
+
+        auto it = g_cameras.find(g_activeCameraName);
+        if (it == g_cameras.end()) return nullptr;
+
+        return it->second.get();
+    }
+
+    // Cleanup function (call in DestroyGlobalEngine)
+    void CleanupCameras() {
+        g_cameras.clear();
+        g_activeCameraName.clear();
+        std::cout << "[EngineAPI] All cameras cleaned up\n";
     }
 
     //TODO ADD UPDATE COMPONENTS

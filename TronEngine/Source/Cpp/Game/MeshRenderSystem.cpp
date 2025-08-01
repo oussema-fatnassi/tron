@@ -11,7 +11,7 @@ MeshRenderSystem::MeshRenderSystem(CommandQueue* cmdQueue)
     : commandQueue(cmdQueue)
     , entitiesProcessed(0) {
 
-    std::cout << "[MeshRenderSystem] Clean ECS rendering system initialized (NO D3D dependencies)\n";
+    //std::cout << "[MeshRenderSystem] Clean ECS rendering system initialized (NO D3D dependencies)\n";
 }
 
 void MeshRenderSystem::Update(float deltaTime) {
@@ -25,7 +25,7 @@ void MeshRenderSystem::Update(float deltaTime) {
 
 void MeshRenderSystem::GenerateRenderCommands() {
     if (!commandQueue) {
-        std::cout << "[MeshRenderSystem] Error: No command queue available\n";
+        //std::cout << "[MeshRenderSystem] Error: No command queue available\n";
         return;
     }
 
@@ -41,8 +41,8 @@ void MeshRenderSystem::GenerateRenderCommands() {
 
         // Validate components
         if (!transform || !meshRenderer) {
-            std::cout << "[MeshRenderSystem] Warning: Entity " << entity
-                << " missing required components\n";
+            //std::cout << "[MeshRenderSystem] Warning: Entity " << entity
+            //    << " missing required components\n";
             continue;
         }
 
@@ -61,8 +61,8 @@ void MeshRenderSystem::GenerateRenderCommands() {
     // Send all commands to render thread at once (more efficient)
     if (!renderCommands.empty()) {
         commandQueue->PushCommands(renderCommands);
-        /*std::cout << "[MeshRenderSystem] Sent " << renderCommands.size()
-            << " render commands to render thread\n";*/
+        //std::cout << "[MeshRenderSystem] Sent " << renderCommands.size()
+        //    << " render commands to render thread\n";
     }
 }
 
@@ -75,14 +75,15 @@ RenderCommand MeshRenderSystem::CreateRenderCommandFromEntity(Entity entity,
     renderTransform.position[1] = transform->y;
     renderTransform.position[2] = transform->z;
 
-    // TODO: Add rotation and scale when Transform component supports it
-    renderTransform.rotation[0] = 0.0f;
-    renderTransform.rotation[1] = 0.0f;
-    renderTransform.rotation[2] = 0.0f;
+    // FIXED: Use proper rotation and scale from Transform component
+    renderTransform.rotation[0] = transform->rotationX;
+    renderTransform.rotation[1] = transform->rotationY;
+    renderTransform.rotation[2] = transform->rotationZ;
 
-    renderTransform.scale[0] = 1.0f;
-    renderTransform.scale[1] = 1.0f;
-    renderTransform.scale[2] = 1.0f;
+    // FIXED: Use proper scale values from Transform component
+    renderTransform.scale[0] = transform->scaleX;
+    renderTransform.scale[1] = transform->scaleY;
+    renderTransform.scale[2] = transform->scaleZ;
 
     // Convert MeshRenderer color to RenderColor
     RenderColor renderColor(
@@ -109,7 +110,7 @@ RenderCommand MeshRenderSystem::CreateRenderCommandFromEntity(Entity entity,
 }
 
 void MeshRenderSystem::OnEntityAdded(Entity entity) {
-    std::cout << "[MeshRenderSystem] Entity " << entity << " added to render system\n";
+    //std::cout << "[MeshRenderSystem] Entity " << entity << " added to render system\n";
 
     // Optional: Validate that entity has required components
     if (world) {
@@ -117,16 +118,16 @@ void MeshRenderSystem::OnEntityAdded(Entity entity) {
         auto* meshRenderer = world->GetComponent<MeshRenderer>(entity);
 
         if (!transform) {
-            std::cout << "[MeshRenderSystem] Warning: Entity " << entity << " has no Transform component\n";
+            //std::cout << "[MeshRenderSystem] Warning: Entity " << entity << " has no Transform component\n";
         }
         if (!meshRenderer) {
-            std::cout << "[MeshRenderSystem] Warning: Entity " << entity << " has no MeshRenderer component\n";
+            //std::cout << "[MeshRenderSystem] Warning: Entity " << entity << " has no MeshRenderer component\n";
         }
     }
 }
 
 void MeshRenderSystem::OnEntityRemoved(Entity entity) {
-    std::cout << "[MeshRenderSystem] Entity " << entity << " removed from render system\n";
+   //std::cout << "[MeshRenderSystem] Entity " << entity << " removed from render system\n";
 
     // Optional: Send command to remove any cached rendering data
     // (not needed for current implementation)
@@ -147,7 +148,7 @@ uint32_t MeshRenderSystem::GetVisibleEntityCount() const {
 }
 
 void MeshRenderSystem::SetAllEntitiesVisible(bool visible) {
-    std::cout << "[MeshRenderSystem] Setting visibility of all entities to " << visible << "\n";
+    //std::cout << "[MeshRenderSystem] Setting visibility of all entities to " << visible << "\n";
 
     for (Entity entity : entities) {
         auto* meshRenderer = world->GetComponent<MeshRenderer>(entity);

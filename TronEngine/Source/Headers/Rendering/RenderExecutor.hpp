@@ -24,6 +24,16 @@ struct Material;
 // KEY POINT: No naming collision with MeshRenderer component!
 // </remarks>
 class RenderExecutor {
+
+    struct ObjectTransformBuffer {
+    float position[3];    // x, y, z
+    float padding1;       // Padding for 16-byte alignment
+    float scale[3];       // scaleX, scaleY, scaleZ
+    float padding2;       // Padding for 16-byte alignment  
+    float rotation[3];    // pitch, yaw, roll
+    float padding3;       // Padding for 16-byte alignment
+};
+
 private:
     RenderEngine* renderEngine;
     MeshManager* meshManager;

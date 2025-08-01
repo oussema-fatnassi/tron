@@ -13,7 +13,7 @@ RenderExecutor::RenderExecutor(RenderEngine* engine, MeshManager* meshMgr, Mater
     , drawCallsThisFrame(0)
     , verticesRenderedThisFrame(0) {
 
-    std::cout << "[RenderExecutor] Pure rendering layer initialized (NO ECS dependencies)\n";
+    //std::cout << "[RenderExecutor] Pure rendering layer initialized (NO ECS dependencies)\n";
 }
 
 // BATCH PROCESSING - Handles multiple commands efficiently
@@ -55,8 +55,8 @@ void RenderExecutor::ExecuteRenderCommands(const std::vector<RenderCommand>& com
         RenderMeshBatch(meshCommands);
     }
 
-    /*std::cout << "[RenderExecutor] Batch complete - " << drawCallsThisFrame
-        << " draw calls, " << verticesRenderedThisFrame << " vertices\n";*/
+    //std::cout << "[RenderExecutor] Batch complete - " << drawCallsThisFrame
+    //    << " draw calls, " << verticesRenderedThisFrame << " vertices\n";
 }
 
 // SINGLE COMMAND PROCESSING - Handles one command immediately
@@ -100,7 +100,7 @@ void RenderExecutor::ExecuteRenderCommand(const RenderCommand& command) {
 void RenderExecutor::RenderMeshBatch(const std::vector<RenderCommand>& meshCommands) {
     ID3D11DeviceContext* context = renderEngine->GetDeviceContext();
     if (!context) {
-        std::cout << "[RenderExecutor] Error: No D3D11 context available\n";
+        //std::cout << "[RenderExecutor] Error: No D3D11 context available\n";
         return;
     }
 
@@ -110,8 +110,8 @@ void RenderExecutor::RenderMeshBatch(const std::vector<RenderCommand>& meshComma
         // Optimization: Only change shader if different from current
         if (command.shaderName != currentShader) {
             if (!SetupShaderPipeline(context, command.shaderName)) {
-                std::cout << "[RenderExecutor] Warning: Failed to setup shader '"
-                    << command.shaderName << "' for mesh '" << command.meshName << "'\n";
+                //std::cout << "[RenderExecutor] Warning: Failed to setup shader '"
+                //    << command.shaderName << "' for mesh '" << command.meshName << "'\n";
                 continue;
             }
             currentShader = command.shaderName;
@@ -154,7 +154,7 @@ void RenderExecutor::RenderSingleMesh(const RenderCommand& command) {
 void RenderExecutor::ClearScreen(const RenderCommand& command) {
     // Note: In your architecture, screen clearing is handled by RenderEngine::BeginFrame()
     // This is here for completeness if you want command-based clearing
-    std::cout << "[RenderExecutor] Clear screen command (handled by RenderEngine)\n";
+   // std::cout << "[RenderExecutor] Clear screen command (handled by RenderEngine)\n";
 }
 
 bool RenderExecutor::SetupShaderPipeline(ID3D11DeviceContext* context, const std::string& shaderName) {
@@ -165,7 +165,7 @@ bool RenderExecutor::SetupShaderPipeline(ID3D11DeviceContext* context, const std
     // Get shader from render engine
     Shader* shader = renderEngine->GetShader(shaderName);
     if (!shader || !shader->vertexShader || !shader->pixelShader || !shader->inputLayout) {
-        std::cout << "[RenderExecutor] Error: Shader '" << shaderName << "' not found or incomplete\n";
+        //std::cout << "[RenderExecutor] Error: Shader '" << shaderName << "' not found or incomplete\n";
         return false;
     }
 
@@ -178,30 +178,78 @@ bool RenderExecutor::SetupShaderPipeline(ID3D11DeviceContext* context, const std
 }
 
 void RenderExecutor::UpdateRenderConstants(ID3D11DeviceContext* context, const RenderCommand& command) {
-    // TODO: In a full implementation, you would:
-    // 1. Create world transformation matrix from command.transform
-    // 2. Update vertex shader constant buffer with world matrix
-    // 3. Update pixel shader constant buffer with color from command.color
-    // 4. Handle transparency/alpha blending if needed
-
-    // For now, use the existing color constant buffer from RenderEngine
-    ID3D11Buffer* colorBuffer = renderEngine->GetColorConstantBuffer();
-    if (colorBuffer) {
-        context->PSSetConstantBuffers(1, 1, &colorBuffer);
+    // Create transform data from the render command
+    ObjectTransformBuffer transformData = {};
+    
+    // Copy position from render command
+    transformData.position[0] = command.transform.position[0];
+    transformData.position[1] = command.transform.position[1]; 
+    transformData.position[2] = command.transform.position[2];
+    
+    // Copy scale (default to 1.0 if not provided)
+    transformData.scale[0] = (command.transform.scale[0] != 0.0f) ? command.transform.scale[0] : 1.0f;
+    transformData.scale[1] = (command.transform.scale[1] != 0.0f) ? command.transform.scale[1] : 1.0f;
+    transformData.scale[2] = (command.transform.scale[2] != 0.0f) ? command.transform.scale[2] : 1.0f;
+    
+    // Copy rotation (default to 0.0 if not provided)
+    transformData.rotation[0] = command.transform.rotation[0];
+    transformData.rotation[1] = command.transform.rotation[1];
+    transformData.rotation[2] = command.transform.rotation[2];
+    
+    std::cout << "[RenderExecutor] Transform data: pos(" 
+              << transformData.position[0] << ", " << transformData.position[1] 
+              << ", " << transformData.position[2] << ") scale(" 
+              << transformData.scale[0] << ", " << transformData.scale[1] 
+              << ", " << transformData.scale[2] << ")\n";
+    
+    // Map the existing constant buffer instead of creating a new one each frame
+    D3D11_MAPPED_SUBRESOURCE mappedResource;
+    
+    // Get or create a persistent constant buffer
+    static ID3D11Buffer* s_transformBuffer = nullptr;
+    
+    if (!s_transformBuffer) {
+        // Create the constant buffer once
+        D3D11_BUFFER_DESC bufferDesc = {};
+        bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+        bufferDesc.ByteWidth = sizeof(ObjectTransformBuffer);
+        bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        
+        HRESULT hr = renderEngine->GetDevice()->CreateBuffer(&bufferDesc, nullptr, &s_transformBuffer);
+        
+        if (FAILED(hr)) {
+            std::cout << "[RenderExecutor] Failed to create transform constant buffer: " 
+                      << std::hex << hr << std::dec << "\n";
+            return;
+        }
+        
+        std::cout << "[RenderExecutor] Created persistent transform constant buffer\n";
     }
-
-    // TODO: Create proper constant buffer structure:
-    /*
-    struct VertexConstants {
-        float worldMatrix[16];
-        float viewProjMatrix[16];
-    };
-
-    struct PixelConstants {
-        float color[4];
-        float materialProperties[4];
-    };
-    */
+    
+    // Map and update the buffer
+    HRESULT hr = context->Map(s_transformBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    
+    if (SUCCEEDED(hr)) {
+        // Copy the transform data to the mapped buffer
+        memcpy(mappedResource.pData, &transformData, sizeof(ObjectTransformBuffer));
+        context->Unmap(s_transformBuffer, 0);
+        
+        // Bind to vertex shader constant buffer slot 0
+        context->VSSetConstantBuffers(0, 1, &s_transformBuffer);
+        
+        // Also keep the existing color buffer for pixel shader
+        ID3D11Buffer* colorBuffer = renderEngine->GetColorConstantBuffer();
+        if (colorBuffer) {
+            context->PSSetConstantBuffers(1, 1, &colorBuffer);
+        }
+        
+        // Debug: Verify the constant buffer is bound
+        std::cout << "[RenderExecutor] Transform constant buffer updated and bound successfully\n";
+    } else {
+        std::cout << "[RenderExecutor] Failed to map transform constant buffer: " 
+                  << std::hex << hr << std::dec << "\n";
+    }
 }
 
 bool RenderExecutor::ValidateRenderResources(const RenderCommand& command,
@@ -211,14 +259,14 @@ bool RenderExecutor::ValidateRenderResources(const RenderCommand& command,
     // Validate mesh
     outMesh = meshManager->GetMesh(command.meshName);
     if (!outMesh || !outMesh->vertexBuffer || !outMesh->indexBuffer) {
-        std::cout << "[RenderExecutor] Error: Mesh '" << command.meshName << "' not found or invalid\n";
+        //std::cout << "[RenderExecutor] Error: Mesh '" << command.meshName << "' not found or invalid\n";
         return false;
     }
 
     // Validate shader
     outShader = renderEngine->GetShader(command.shaderName);
     if (!outShader) {
-        std::cout << "[RenderExecutor] Error: Shader '" << command.shaderName << "' not found\n";
+        //std::cout << "[RenderExecutor] Error: Shader '" << command.shaderName << "' not found\n";
         return false;
     }
 

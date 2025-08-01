@@ -15,6 +15,7 @@
 #include "../Game/DebugSystem.hpp"
 #include "../Game/ScriptSystem.hpp"
 #include "../Game/MeshRenderSystem.hpp"
+#include "../Game/CameraSystem.hpp"
     // Components
 #include "../Game/VelocityComponent.hpp"
 #include "../Game/TransformComponent.hpp"
@@ -48,6 +49,8 @@ public:
     // Subsystem access
     World* GetWorld() const;
 	InputManager* GetInputManager() const;
+
+    InputManager* GetInputManager() const;
 
 private:
     bool _initialized;
