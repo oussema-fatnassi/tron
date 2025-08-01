@@ -495,7 +495,3 @@ InputManager* Engine::GetInputManager() const {
 World* Engine::GetWorld() const {
     return _world.get();
 }
-
-InputManager* Engine::GetInputManager() const {
-    return _inputManager.get();
-}

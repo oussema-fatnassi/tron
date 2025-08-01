@@ -58,18 +58,28 @@ public:
     void Update(float deltaTime) override
     {
         updateCount++;
+		if (IsKeyPressed(90))
+		{
+			std::cout << "[" << playerName << "] Escape key pressed - quitting game!" << std::endl;
+			return;
+		}
+        if (IsKeyReleased(90))
+		{
+			std::cout << "[" << playerName << "] Escape key released - quitting game!" << std::endl;
+			return;
+		}
 
         // Process movement controls
-        ProcessMovement(deltaTime);
+        //ProcessMovement(deltaTime);
 
-        // Process mouse look (simple version)
-        ProcessMouseLook();
+        //// Process mouse look (simple version)
+        //ProcessMouseLook();
 
-        // Debug info every few seconds
-        if (updateCount % 300 == 0)
-        { // Every ~2.5 seconds at 120fps
-            PrintPlayerStatus();
-        }
+        //// Debug info every few seconds
+        //if (updateCount % 300 == 0)
+        //{ // Every ~2.5 seconds at 120fps
+        //    PrintPlayerStatus();
+        //}
     }
 
     void OnDestroy() override

@@ -50,8 +50,6 @@ public:
     World* GetWorld() const;
 	InputManager* GetInputManager() const;
 
-    InputManager* GetInputManager() const;
-
 private:
     bool _initialized;
     std::atomic<bool> _running{ false };

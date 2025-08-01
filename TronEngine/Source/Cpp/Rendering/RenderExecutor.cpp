@@ -196,11 +196,11 @@ void RenderExecutor::UpdateRenderConstants(ID3D11DeviceContext* context, const R
     transformData.rotation[1] = command.transform.rotation[1];
     transformData.rotation[2] = command.transform.rotation[2];
     
-    std::cout << "[RenderExecutor] Transform data: pos(" 
+  /*  std::cout << "[RenderExecutor] Transform data: pos(" 
               << transformData.position[0] << ", " << transformData.position[1] 
               << ", " << transformData.position[2] << ") scale(" 
               << transformData.scale[0] << ", " << transformData.scale[1] 
-              << ", " << transformData.scale[2] << ")\n";
+              << ", " << transformData.scale[2] << ")\n";*/
     
     // Map the existing constant buffer instead of creating a new one each frame
     D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -224,7 +224,7 @@ void RenderExecutor::UpdateRenderConstants(ID3D11DeviceContext* context, const R
             return;
         }
         
-        std::cout << "[RenderExecutor] Created persistent transform constant buffer\n";
+        //std::cout << "[RenderExecutor] Created persistent transform constant buffer\n";
     }
     
     // Map and update the buffer
@@ -245,7 +245,7 @@ void RenderExecutor::UpdateRenderConstants(ID3D11DeviceContext* context, const R
         }
         
         // Debug: Verify the constant buffer is bound
-        std::cout << "[RenderExecutor] Transform constant buffer updated and bound successfully\n";
+        //std::cout << "[RenderExecutor] Transform constant buffer updated and bound successfully\n";
     } else {
         std::cout << "[RenderExecutor] Failed to map transform constant buffer: " 
                   << std::hex << hr << std::dec << "\n";
