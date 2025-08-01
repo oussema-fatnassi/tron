@@ -78,6 +78,19 @@ int main() {
         return -1;
     }
 
+    for (int i = 0; i <= 100; i++)
+    {
+		// Create some random cubes around the player for testing
+		uint32_t randomCube = CreateEntity();
+		float x = static_cast<float>(rand() % 20 - 10); // Random position between -10 and 10
+		float y = static_cast<float>(rand() % 20 - 10); // Random position between -10 and 10
+		float z = static_cast<float>(rand() % 20 - 10); // Random position between -10 and 10
+		AddTransformComponent(randomCube, x, y, z);
+		AddMeshRendererComponent(randomCube, PRIMITIVE_CUBE, "default");
+		AddCustomScript(randomCube, new SecondScript(player)); // Add a second script to the random cube
+    }
+	SetPhysicsGridCellSize(3.0f);
+
     std::cout << "\n=== CONTROLS ===\n";
     std::cout << "WASD     - Move around (watch console for movement messages)\n";
     std::cout << "Mouse    - Look around (rotation logged to console)\n";

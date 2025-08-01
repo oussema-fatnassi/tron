@@ -112,4 +112,7 @@ extern "C" {
     // Physics System Control
     ENGINE_API void SetPhysicsDebugOutput(bool enabled);
 	ENGINE_API void GetPhysicsMetrics(uint32_t* collisionChecks, uint32_t* triggerEvents);
+    ENGINE_API void SetPhysicsGridCellSize(float cellSize);
+    ENGINE_API void GetPhysicsPerformanceStats(float* broadPhaseMs, float* narrowPhaseMs, float* totalMs);
+    ENGINE_API void PrintPhysicsSystemStats();
 }

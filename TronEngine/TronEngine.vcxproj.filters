@@ -88,6 +88,9 @@
     <ClCompile Include="Source\Cpp\Game\PhysicsSystem.cpp">
       <Filter>Source\Cpp\Game</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Headers\Game\SpatialGrid.cpp">
+      <Filter>Source\Cpp\Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\EngineExports.hpp">
@@ -208,6 +211,9 @@
       <Filter>Source\Headers\Game</Filter>
     </ClInclude>
     <ClInclude Include="Source\Headers\Game\PhysicsSystem.hpp">
+      <Filter>Source\Headers\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Game\SpatialGrid.hpp">
       <Filter>Source\Headers\Game</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,192 +1,246 @@
-// REPLACE YOUR EXISTING PhysicsSystem.cpp WITH THIS FIXED VERSION
-// TronEngine/Source/Cpp/Game/PhysicsSystem.cpp
-
+// TronEngine/Source/Cpp/Game/PhysicsSystem.cpp - UPDATED WITH SPATIAL GRID
 #include "../../Headers/Game/PhysicsSystem.hpp"
 #include "../../Headers/Game/World.hpp"
 #include "../../Headers/Game/TransformComponent.hpp"
 #include "../../Headers/Game/BoxColliderComponent.hpp"
 #include "../../Headers/Game/ScriptComponent.hpp"
-#include <iostream>
+#include <chrono>
+#include <algorithm>
 
-PhysicsSystem::PhysicsSystem() {
-    std::cout << "[PhysicsSystem] Single-threaded physics system initialized\n";
+PhysicsSystem::PhysicsSystem(float cellSize)
+    : gridCellSize(cellSize)
+    , debugOutput(false)
+    , collisionChecksLastFrame(0)
+    , triggerEventsLastFrame(0)
+    , totalEntitiesProcessed(0)
+    , broadPhaseTimeMs(0.0f)
+    , narrowPhaseTimeMs(0.0f)
+    , updateTimeMs(0.0f)
+{
+    // Initialize spatial grid for broad phase optimization
+    spatialGrid = std::make_unique<SpatialGrid>(cellSize);
+
+    if (debugOutput) {
+        std::cout << "[PhysicsSystem] Initialized with spatial grid (cell size: "
+            << cellSize << ")\n";
+    }
 }
 
 void PhysicsSystem::Update(float deltaTime) {
-    // Reset performance counters
-    collisionChecksThisFrame = 0;
-    triggerEventsThisFrame = 0;
+    auto updateStart = std::chrono::high_resolution_clock::now();
 
-    // IMPORTANT: Clear current triggers BEFORE collision detection
-    // This ensures we start fresh each frame
-    for (Entity entity : entities) {
-        auto* collider = world->GetComponent<BoxCollider>(entity);
-        if (collider && collider->isTrigger) {
-            collider->currentTriggers.clear();
-        }
-    }
+    // Reset frame statistics
+    collisionChecksLastFrame = 0;
+    triggerEventsLastFrame = 0;
+    totalEntitiesProcessed = entities.size();
 
-    // Simple O(n²) collision detection - check every entity against every other entity
-    for (size_t i = 0; i < entities.size(); ++i) {
-        Entity entityA = entities[i];
+    // Phase 1: Broad Phase - Update spatial grid
+    auto broadStart = std::chrono::high_resolution_clock::now();
+    BroadPhaseUpdate();
+    auto broadEnd = std::chrono::high_resolution_clock::now();
 
-        for (size_t j = i + 1; j < entities.size(); ++j) {
-            Entity entityB = entities[j];
+    // Phase 2: Narrow Phase - Precise collision detection
+    auto narrowStart = std::chrono::high_resolution_clock::now();
+    NarrowPhaseCollisionDetection();
+    auto narrowEnd = std::chrono::high_resolution_clock::now();
 
-            collisionChecksThisFrame++;
-
-            // Check if these two entities are colliding
-            if (CheckAABBCollision(entityA, entityB)) {
-                auto* colliderA = world->GetComponent<BoxCollider>(entityA);
-                auto* colliderB = world->GetComponent<BoxCollider>(entityB);
-
-                // FIXED: Track overlaps for BOTH entities if they have trigger colliders
-                if (colliderA && colliderA->isTrigger) {
-                    colliderA->currentTriggers.insert(entityB);
-                }
-                if (colliderB && colliderB->isTrigger) {
-                    colliderB->currentTriggers.insert(entityA);
-                }
-            }
-        }
-    }
-
-    // Process trigger enter/exit events AFTER all collision detection is complete
+    // Phase 3: Process trigger events (OnTriggerExit for entities no longer colliding)
     ProcessTriggerEvents();
 
-    // Debug output every 60 frames (roughly once per second at 60 FPS)
-    if (debugOutput && ++debugFrameCounter >= 60) {
-        std::cout << "[PhysicsSystem] Entities: " << entities.size()
-            << ", Collision checks: " << collisionChecksThisFrame
-            << ", Trigger events: " << triggerEventsThisFrame << "\n";
-        debugFrameCounter = 0;
+    auto updateEnd = std::chrono::high_resolution_clock::now();
+
+    // Update timing statistics
+    broadPhaseTimeMs = std::chrono::duration<float, std::milli>(broadEnd - broadStart).count();
+    narrowPhaseTimeMs = std::chrono::duration<float, std::milli>(narrowEnd - narrowStart).count();
+    updateTimeMs = std::chrono::duration<float, std::milli>(updateEnd - updateStart).count();
+
+    // Debug output every few seconds
+    static int frameCount = 0;
+    if (debugOutput && (++frameCount % 300 == 0)) { // Every ~2.5 seconds at 120fps
+        PrintPhysicsStats();
     }
 }
 
-bool PhysicsSystem::CheckAABBCollision(Entity entityA, Entity entityB) {
-    // Get components for both entities
-    auto* transformA = world->GetComponent<Transform>(entityA);
-    auto* transformB = world->GetComponent<Transform>(entityB);
-    auto* colliderA = world->GetComponent<BoxCollider>(entityA);
-    auto* colliderB = world->GetComponent<BoxCollider>(entityB);
-
-    // Validate that both entities have required components and are enabled
-    if (!transformA || !transformB || !colliderA || !colliderB ||
-        !colliderA->isEnabled || !colliderB->isEnabled) {
-        return false;
+void PhysicsSystem::BroadPhaseUpdate() {
+    // Update all entities in the spatial grid
+    for (Entity entity : entities) {
+        UpdateEntityInGrid(entity);
     }
-
-    // Get world-space AABB bounds for both entities
-    float minAX, minAY, minAZ, maxAX, maxAY, maxAZ;
-    float minBX, minBY, minBZ, maxBX, maxBY, maxBZ;
-
-    GetWorldAABB(entityA, minAX, minAY, minAZ, maxAX, maxAY, maxAZ);
-    GetWorldAABB(entityB, minBX, minBY, minBZ, maxBX, maxBY, maxBZ);
-
-    // AABB vs AABB collision test using Separating Axis Theorem
-    // If boxes are separated on ANY axis, they don't collide
-    bool separatedOnX = (maxAX < minBX) || (minAX > maxBX);
-    bool separatedOnY = (maxAY < minBY) || (minAY > maxBY);
-    bool separatedOnZ = (maxAZ < minBZ) || (minAZ > maxBZ);
-
-    // Collision occurs if NOT separated on any axis
-    return !(separatedOnX || separatedOnY || separatedOnZ);
 }
 
-void PhysicsSystem::GetWorldAABB(Entity entity, float& minX, float& minY, float& minZ,
-    float& maxX, float& maxY, float& maxZ) {
+void PhysicsSystem::UpdateEntityInGrid(Entity entity) {
+    if (!world) return;
+
     auto* transform = world->GetComponent<Transform>(entity);
     auto* collider = world->GetComponent<BoxCollider>(entity);
 
-    // Calculate world-space center
-    float centerX = transform->x;
-    float centerY = transform->y;
-    float centerZ = transform->z;
+    if (!transform || !collider || !collider->isEnabled) {
+        // Remove from grid if no longer has required components or disabled
+        RemoveEntityFromGrid(entity);
+        return;
+    }
 
-    // Calculate half-extents (affected by scale)
-    float halfWidth = (collider->width * 0.5f) * transform->scaleX;
-    float halfHeight = (collider->height * 0.5f) * transform->scaleY;
-    float halfDepth = (collider->depth * 0.5f) * transform->scaleZ;
+    // Calculate AABB for this entity
+    AABB aabb = CalculateAABB(transform, collider);
 
-    // Calculate world-space AABB bounds
-    minX = centerX - halfWidth;
-    minY = centerY - halfHeight;
-    minZ = centerZ - halfDepth;
-    maxX = centerX + halfWidth;
-    maxY = centerY + halfHeight;
-    maxZ = centerZ + halfDepth;
+    // Update entity position in spatial grid
+    spatialGrid->UpdateEntity(entity, aabb);
+}
+
+void PhysicsSystem::RemoveEntityFromGrid(Entity entity) {
+    spatialGrid->RemoveEntity(entity);
+}
+
+void PhysicsSystem::NarrowPhaseCollisionDetection() {
+    if (!world) return;
+
+    // Get potential collision pairs from broad phase
+    auto potentialPairs = spatialGrid->GetPotentialCollisions();
+    collisionChecksLastFrame = spatialGrid->GetBroadPhaseChecks();
+
+    // Process each potential collision pair
+    for (const auto& pair : potentialPairs) {
+        Entity entityA = pair.first;
+        Entity entityB = pair.second;
+
+        // Get components for both entities
+        auto* transformA = world->GetComponent<Transform>(entityA);
+        auto* colliderA = world->GetComponent<BoxCollider>(entityA);
+        auto* transformB = world->GetComponent<Transform>(entityB);
+        auto* colliderB = world->GetComponent<BoxCollider>(entityB);
+
+        // Validate components
+        if (!transformA || !colliderA || !transformB || !colliderB) {
+            continue;
+        }
+
+        if (!colliderA->isEnabled || !colliderB->isEnabled) {
+            continue;
+        }
+
+        // Calculate AABBs for precise collision detection
+        AABB aabbA = CalculateAABB(transformA, colliderA);
+        AABB aabbB = CalculateAABB(transformB, colliderB);
+
+        // Narrow Phase: Precise AABB collision test
+        bool isColliding = AABBOverlap(aabbA, aabbB);
+
+        if (isColliding) {
+            // Handle trigger events for trigger colliders
+            if (colliderA->isTrigger || colliderB->isTrigger) {
+                ProcessTriggerEnter(entityA, entityB, colliderA, colliderB);
+            }
+
+            // TODO: Handle solid collision response here
+            // For now, we only handle triggers
+        }
+    }
 }
 
 void PhysicsSystem::ProcessTriggerEvents() {
+    // Process OnTriggerExit for entities that are no longer colliding
     for (Entity entity : entities) {
         auto* collider = world->GetComponent<BoxCollider>(entity);
+        if (!collider || !collider->isTrigger) continue;
 
-        if (!collider || !collider->isTrigger) {
-            continue; // Skip non-trigger colliders
-        }
-
-        // Find new trigger enters (entities that are in current but not in previous)
-        for (Entity otherEntity : collider->currentTriggers) {
-            if (collider->previousTriggers.find(otherEntity) == collider->previousTriggers.end()) {
-                // This is a new trigger enter event
-                DispatchTriggerEnter(entity, otherEntity);
+        // Find entities that were in contact last frame but not this frame
+        for (Entity previousEntity : collider->previousTriggers) {
+            if (collider->currentTriggers.find(previousEntity) == collider->currentTriggers.end()) {
+                // Entity exited trigger
+                ProcessTriggerExit(entity, previousEntity, collider, nullptr);
             }
         }
 
-        // Find trigger exits (entities that were in previous but not in current)
-        for (Entity otherEntity : collider->previousTriggers) {
-            if (collider->currentTriggers.find(otherEntity) == collider->currentTriggers.end()) {
-                // This entity has left the trigger
-                DispatchTriggerExit(entity, otherEntity);
-            }
-        }
-
-        // CRITICAL: Update previous frame data for next frame's comparison
+        // Update previous triggers for next frame
         collider->previousTriggers = collider->currentTriggers;
-        // NOTE: We don't clear currentTriggers here - it's cleared at the start of Update()
+        collider->currentTriggers.clear();
     }
 }
 
-void PhysicsSystem::DispatchTriggerEnter(Entity triggerEntity, Entity otherEntity) {
-    auto* script = world->GetComponent<Script>(triggerEntity);
+void PhysicsSystem::ProcessTriggerEnter(Entity entityA, Entity entityB,
+    BoxCollider* colliderA, BoxCollider* colliderB) {
+    // Check if this is a new collision (not from previous frame)
+    bool newCollisionA = colliderA->isTrigger &&
+        colliderA->previousTriggers.find(entityB) == colliderA->previousTriggers.end();
+    bool newCollisionB = colliderB->isTrigger &&
+        colliderB->previousTriggers.find(entityA) == colliderB->previousTriggers.end();
 
-    if (script && script->userScript) {
-        try {
-            script->userScript->OnTriggerEnter(otherEntity);
-            triggerEventsThisFrame++;
-
-            std::cout << "[PhysicsSystem] TriggerEnter: Entity " << triggerEntity
-                << " <- Entity " << otherEntity << "\n";
+    if (colliderA->isTrigger) {
+        colliderA->currentTriggers.insert(entityB);
+        if (newCollisionA) {
+            SendTriggerEventToEntity(entityA, entityB, true); // OnTriggerEnter
+            triggerEventsLastFrame++;
         }
-        catch (const std::exception& e) {
-            std::cout << "[PhysicsSystem] ERROR in OnTriggerEnter for entity "
-                << triggerEntity << ": " << e.what() << "\n";
+    }
+
+    if (colliderB->isTrigger) {
+        colliderB->currentTriggers.insert(entityA);
+        if (newCollisionB) {
+            SendTriggerEventToEntity(entityB, entityA, true); // OnTriggerEnter
+            triggerEventsLastFrame++;
         }
     }
 }
 
-void PhysicsSystem::DispatchTriggerExit(Entity triggerEntity, Entity otherEntity) {
-    auto* script = world->GetComponent<Script>(triggerEntity);
+void PhysicsSystem::ProcessTriggerExit(Entity entityA, Entity entityB,
+    BoxCollider* colliderA, BoxCollider* colliderB) {
+    SendTriggerEventToEntity(entityA, entityB, false); // OnTriggerExit
+    triggerEventsLastFrame++;
 
+    if (debugOutput) {
+        std::cout << "[PhysicsSystem] OnTriggerExit: Entity " << entityA
+            << " and Entity " << entityB << "\n";
+    }
+}
+
+void PhysicsSystem::SendTriggerEventToEntity(Entity entity, Entity otherEntity, bool isEnter) {
+    if (!world) return;
+
+    // Get the script component to send trigger events
+    auto* script = world->GetComponent<Script>(entity);
     if (script && script->userScript) {
         try {
-            script->userScript->OnTriggerExit(otherEntity);
-            triggerEventsThisFrame++;
-
-            std::cout << "[PhysicsSystem] TriggerExit: Entity " << triggerEntity
-                << " <- Entity " << otherEntity << "\n";
+            if (isEnter) {
+                script->userScript->OnTriggerEnter(otherEntity);
+            }
+            else {
+                script->userScript->OnTriggerExit(otherEntity);
+            }
         }
         catch (const std::exception& e) {
-            std::cout << "[PhysicsSystem] ERROR in OnTriggerExit for entity "
-                << triggerEntity << ": " << e.what() << "\n";
+            std::cout << "[PhysicsSystem] Error in trigger event for entity "
+                << entity << ": " << e.what() << "\n";
         }
     }
+}
+
+AABB PhysicsSystem::CalculateAABB(const Transform* transform, const BoxCollider* collider) const {
+    // Calculate world-space AABB from transform and collider
+    float halfWidth = collider->width * transform->scaleX * 0.5f;
+    float halfHeight = collider->height * transform->scaleY * 0.5f;
+    float halfDepth = collider->depth * transform->scaleZ * 0.5f;
+
+    return AABB(
+        transform->x - halfWidth,  // minX
+        transform->y - halfHeight, // minY
+        transform->z - halfDepth,  // minZ
+        transform->x + halfWidth,  // maxX
+        transform->y + halfHeight, // maxY
+        transform->z + halfDepth   // maxZ
+    );
+}
+
+bool PhysicsSystem::AABBOverlap(const AABB& a, const AABB& b) const {
+    return a.Overlaps(b);
 }
 
 void PhysicsSystem::OnEntityAdded(Entity entity) {
     if (debugOutput) {
         std::cout << "[PhysicsSystem] Entity " << entity << " added to physics system\n";
     }
+
+    // Entity will be added to spatial grid on next update
+    UpdateEntityInGrid(entity);
 }
 
 void PhysicsSystem::OnEntityRemoved(Entity entity) {
@@ -194,14 +248,45 @@ void PhysicsSystem::OnEntityRemoved(Entity entity) {
         std::cout << "[PhysicsSystem] Entity " << entity << " removed from physics system\n";
     }
 
-    // Clean up any references to this entity in other colliders' trigger lists
-    for (Entity otherEntity : entities) {
-        if (otherEntity == entity) continue;
+    // Remove entity from spatial grid
+    RemoveEntityFromGrid(entity);
+}
 
-        auto* collider = world->GetComponent<BoxCollider>(otherEntity);
-        if (collider) {
-            collider->currentTriggers.erase(entity);
-            collider->previousTriggers.erase(entity);
-        }
+void PhysicsSystem::SetGridCellSize(float cellSize) {
+    if (cellSize <= 0.0f) {
+        std::cout << "[PhysicsSystem] Warning: Invalid cell size " << cellSize << "\n";
+        return;
     }
+
+    gridCellSize = cellSize;
+    spatialGrid->SetCellSize(cellSize);
+
+    std::cout << "[PhysicsSystem] Grid cell size updated to " << cellSize << "\n";
+
+    // Rebuild spatial grid with new cell size
+    BroadPhaseUpdate();
+}
+
+void PhysicsSystem::PrintPhysicsStats() const {
+    std::cout << "\n[PhysicsSystem] === Physics Performance Stats ===\n";
+    std::cout << "  Entities processed: " << totalEntitiesProcessed << "\n";
+    std::cout << "  Collision checks: " << collisionChecksLastFrame << "\n";
+    std::cout << "  Trigger events: " << triggerEventsLastFrame << "\n";
+    std::cout << "  Update time: " << updateTimeMs << "ms\n";
+    std::cout << "    Broad phase: " << broadPhaseTimeMs << "ms\n";
+    std::cout << "    Narrow phase: " << narrowPhaseTimeMs << "ms\n";
+
+    // Calculate efficiency
+    if (totalEntitiesProcessed > 1) {
+        uint32_t bruteForceChecks = (totalEntitiesProcessed * (totalEntitiesProcessed - 1)) / 2;
+        float efficiency = bruteForceChecks > 0 ?
+            (static_cast<float>(collisionChecksLastFrame) / bruteForceChecks) * 100.0f : 0.0f;
+
+        std::cout << "  Spatial grid efficiency: " << efficiency << "% of brute force\n";
+        std::cout << "  Brute force would be: " << bruteForceChecks << " checks\n";
+    }
+
+    // Print spatial grid statistics
+    spatialGrid->PrintGridStats();
+    std::cout << "================================================\n\n";
 }

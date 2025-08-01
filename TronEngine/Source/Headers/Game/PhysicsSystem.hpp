@@ -1,35 +1,54 @@
+// TronEngine/Source/Headers/Game/PhysicsSystem.hpp - UPDATED WITH SPATIAL GRID
 #pragma once
 #include "System.hpp"
+#include "SpatialGrid.hpp"
+#include <set>
+#include <iostream>
 
+// Forward declarations
 struct Transform;
 struct BoxCollider;
-struct Script;
+class World;
 
 // <summary>
-// PhysicsSystem - Simple single-threaded collision detection system
-// Handles AABB collision detection and trigger events for entities with BoxCollider components
+// PhysicsSystem - UPDATED with Broad Phase Optimization
+// Now uses SpatialGrid for efficient collision detection
+// Implements both Broad Phase (spatial partitioning) and Narrow Phase (precise collision)
 // </summary>
 // <remarks>
-// This system runs in the game thread alongside other ECS systems.
-// It performs O(n²) collision checks between all entities with BoxColliders.
-// When overlaps are detected between trigger colliders, it dispatches OnTriggerEnter/OnTriggerExit
-// events to the entities' Script components.
+// ARCHITECTURE:
+// 1. Broad Phase: SpatialGrid eliminates distant objects
+// 2. Narrow Phase: AABB-vs-AABB precise collision detection
+// 3. Trigger Events: OnTriggerEnter/OnTriggerExit for scripts
 // 
-// Performance: Suitable for up to ~50-100 entities before optimization is needed.
-// Future optimizations: Spatial partitioning, layer filtering, multi-threading.
+// PERFORMANCE:
+// - Without spatial grid: O(n²) collision checks
+// - With spatial grid: O(n) average case, much better for sparse worlds
+// 
+// INTEGRATION:
+// - Works seamlessly with existing BoxCollider components
+// - Maintains compatibility with trigger events
+// - Adds debugging and statistics
 // </remarks>
 class PhysicsSystem : public System {
 private:
-    // Performance tracking
-    uint32_t collisionChecksThisFrame = 0;
-    uint32_t triggerEventsThisFrame = 0;
+    // Broad Phase: Spatial partitioning for optimization
+    std::unique_ptr<SpatialGrid> spatialGrid;
+    float gridCellSize;
 
-    // Debug settings
-    bool debugOutput = false;
-    int debugFrameCounter = 0;
+    // Debugging and statistics
+    bool debugOutput;
+    uint32_t collisionChecksLastFrame;
+    uint32_t triggerEventsLastFrame;
+    uint32_t totalEntitiesProcessed;
+
+    // Performance tracking
+    float broadPhaseTimeMs;
+    float narrowPhaseTimeMs;
+    float updateTimeMs;
 
 public:
-    PhysicsSystem();
+    PhysicsSystem(float cellSize = 5.0f);
     ~PhysicsSystem() = default;
 
     // System interface
@@ -38,24 +57,33 @@ public:
     void OnEntityRemoved(Entity entity) override;
 
     // Configuration
+    void SetGridCellSize(float cellSize);
     void SetDebugOutput(bool enabled) { debugOutput = enabled; }
 
-    // Performance metrics
-    uint32_t GetCollisionChecksLastFrame() const { return collisionChecksThisFrame; }
-    uint32_t GetTriggerEventsLastFrame() const { return triggerEventsThisFrame; }
+    // Statistics and debugging
+    uint32_t GetCollisionChecksLastFrame() const { return collisionChecksLastFrame; }
+    uint32_t GetTriggerEventsLastFrame() const { return triggerEventsLastFrame; }
+    uint32_t GetTotalEntitiesProcessed() const { return totalEntitiesProcessed; }
+    float GetBroadPhaseTime() const { return broadPhaseTimeMs; }
+    float GetNarrowPhaseTime() const { return narrowPhaseTimeMs; }
+    void PrintPhysicsStats() const;
+
+    // Utility methods
+    AABB CalculateAABB(const Transform* transform, const BoxCollider* collider) const;
+    bool AABBOverlap(const AABB& a, const AABB& b) const;
 
 private:
-    // Core collision detection
-    bool CheckAABBCollision(Entity entityA, Entity entityB);
-
-    // Trigger event processing
+    // Core physics pipeline
+    void BroadPhaseUpdate();
+    void NarrowPhaseCollisionDetection();
     void ProcessTriggerEvents();
 
-    // Helper methods
-    void GetWorldAABB(Entity entity, float& minX, float& minY, float& minZ,
-        float& maxX, float& maxY, float& maxZ);
+    // Entity management
+    void UpdateEntityInGrid(Entity entity);
+    void RemoveEntityFromGrid(Entity entity);
 
-    // Event dispatch
-    void DispatchTriggerEnter(Entity triggerEntity, Entity otherEntity);
-    void DispatchTriggerExit(Entity triggerEntity, Entity otherEntity);
+    // Trigger event processing
+    void ProcessTriggerEnter(Entity entityA, Entity entityB, BoxCollider* colliderA, BoxCollider* colliderB);
+    void ProcessTriggerExit(Entity entityA, Entity entityB, BoxCollider* colliderA, BoxCollider* colliderB);
+    void SendTriggerEventToEntity(Entity entity, Entity otherEntity, bool isEnter);
 };

@@ -30,6 +30,7 @@
     <ClInclude Include="Source\Headers\Game\PhysicsSystem.hpp" />
     <ClInclude Include="Source\Headers\Game\ScriptComponent.hpp" />
     <ClInclude Include="Source\Headers\Game\ScriptSystem.hpp" />
+    <ClInclude Include="Source\Headers\Game\SpatialGrid.hpp" />
     <ClInclude Include="Source\Headers\Math\Matrix.hpp" />
     <ClInclude Include="Source\Headers\Rendering\Camera.hpp" />
     <ClInclude Include="Source\Headers\Rendering\D3D\CommandQueue.hpp" />
@@ -83,6 +84,7 @@
     <ClCompile Include="Source\Cpp\Rendering\Resources\ShaderManager.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\Resources\TextureManager.cpp" />
     <ClCompile Include="Source\Cpp\Core\WindowUtils.cpp" />
+    <ClCompile Include="Source\Headers\Game\SpatialGrid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\Shaders\PixelShader.hlsl">

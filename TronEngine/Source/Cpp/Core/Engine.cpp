@@ -136,6 +136,8 @@ bool Engine::InitializeSubsystems() {
     auto* cameraSystem = _world->RegisterSystem<CameraSystem>(_inputManager.get());
     auto* physicsSystem = _world->RegisterSystem<PhysicsSystem>();
 
+    physicsSystem->SetDebugOutput(true); // Enable debug output for testing
+
     // Set system signatures
     _world->SetSystemSignature<Transform>(debugSystem);
     _world->SetSystemSignature<Transform, Velocity>(movementSystem);

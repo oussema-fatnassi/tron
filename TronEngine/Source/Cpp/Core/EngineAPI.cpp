@@ -648,4 +648,45 @@ extern "C" {
             *triggerEvents = physicsSystem->GetTriggerEventsLastFrame();
         }
     }
+
+    ENGINE_API void SetPhysicsGridCellSize(float cellSize) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) {
+            std::cout << "[EngineAPI] Error: No engine or world available\n";
+            return;
+        }
+
+        auto* physicsSystem = g_engineInstance->GetWorld()->GetSystem<PhysicsSystem>();
+        if (physicsSystem) {
+            physicsSystem->SetGridCellSize(cellSize);
+            std::cout << "[EngineAPI] Physics grid cell size set to " << cellSize << "\n";
+        }
+    }
+
+    ENGINE_API void GetPhysicsPerformanceStats(float* broadPhaseMs, float* narrowPhaseMs, float* totalMs) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld() || !broadPhaseMs || !narrowPhaseMs || !totalMs) {
+            if (broadPhaseMs) *broadPhaseMs = 0.0f;
+            if (narrowPhaseMs) *narrowPhaseMs = 0.0f;
+            if (totalMs) *totalMs = 0.0f;
+            return;
+        }
+
+        auto* physicsSystem = g_engineInstance->GetWorld()->GetSystem<PhysicsSystem>();
+        if (physicsSystem) {
+            *broadPhaseMs = physicsSystem->GetBroadPhaseTime();
+            *narrowPhaseMs = physicsSystem->GetNarrowPhaseTime();
+            *totalMs = *broadPhaseMs + *narrowPhaseMs;
+        }
+    }
+
+    ENGINE_API void PrintPhysicsSystemStats() {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) {
+            std::cout << "[EngineAPI] Error: No engine or world available\n";
+            return;
+        }
+
+        auto* physicsSystem = g_engineInstance->GetWorld()->GetSystem<PhysicsSystem>();
+        if (physicsSystem) {
+            physicsSystem->PrintPhysicsStats();
+        }
+    }
 }

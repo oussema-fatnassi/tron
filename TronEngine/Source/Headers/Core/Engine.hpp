@@ -10,6 +10,7 @@
 
 // TronEngine - Game imports
 #include "../Game/World.hpp"
+#include "../Headers/Game/SpatialGrid.hpp"
     //Systems
 #include "../Game/MovementSystem.hpp"
 #include "../Game/DebugSystem.hpp"
