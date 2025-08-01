@@ -9,6 +9,7 @@ class PhysicsTestScript : public ScriptBase {
 private:
     std::string scriptName;
     bool isTriggerZone;
+    bool beDestroyed = false;
 
 public:
     PhysicsTestScript(const std::string& name, bool triggerZone = false)
@@ -47,16 +48,23 @@ public:
 
             SetTransformPosition(entity, newX, 0.0f, 0.0f);
         }
+		if (beDestroyed && isTriggerZone) {
+			std::cout << "[" << scriptName << "] Destroying entity " << entity << "\n";
+			DestroyEntity(entity);
+		}
     }
 
     void OnTriggerEnter(uint32_t otherEntity) override {
         std::cout << "[" << scriptName << "] TRIGGER ENTER! Entity " << entity
             << " detected entity " << otherEntity << " entering\n";
+        beDestroyed = true;
     }
 
     void OnTriggerExit(uint32_t otherEntity) override {
         std::cout << "[" << scriptName << "] TRIGGER EXIT! Entity " << entity
             << " detected entity " << otherEntity << " leaving\n";
+		
+		
     }
 
     void OnDestroy() override {
