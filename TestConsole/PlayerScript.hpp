@@ -51,6 +51,8 @@ public:
             std::cout << "[" << playerName << "] Visual representation added (cyan cube)" << std::endl;
         }
 
+        AddBoxColliderComponent(entity, 1.5f, 1.0, 1.0f, false);
+
         std::cout << "[" << playerName << "] Player initialization complete!" << std::endl;
         std::cout << "[" << playerName << "] Controls: WASD to move, P to print position" << std::endl;
     }
