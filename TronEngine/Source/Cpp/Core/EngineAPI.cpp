@@ -127,6 +127,16 @@ extern "C" {
         }
     }
 
+    ENGINE_API void SafeDestroyEntity(uint32_t entity) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) {
+            std::cout << "[EngineAPI] Error: No engine or world available\n";
+            return;
+        }
+
+        // Use the safe destruction method
+        g_engineInstance->GetWorld()->QueueEntityForDestruction(entity);
+    }
+
     ENGINE_API bool IsValidEntity(uint32_t entity) {
         if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
         return g_engineInstance->GetWorld()->IsValidEntity(entity);

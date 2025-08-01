@@ -54,6 +54,13 @@ Entity World::CreateEntity() {
 // been destroyed, and then calls the EntityManager to mark the entity as inactive and reset its component mask.
 // </remarks>
 void World::DestroyEntity(Entity entity) {
+    if (_isUpdating) {
+        // If we're in the middle of updating, queue for later
+        QueueEntityForDestruction(entity);
+        return;
+    }
+
+    // Safe to destroy immediately
     _componentManager.RemoveAllComponents(entity);
     _systemManager.EntityDestroyed(entity);
     _entityManager.DestroyEntity(entity);
@@ -73,6 +80,36 @@ bool World::IsValidEntity(Entity entity) const {
     return _entityManager.IsValidEntity(entity);
 }
 
+void World::QueueEntityForDestruction(Entity entity) {
+    if (!IsValidEntity(entity)) {
+        return;
+    }
+
+    // Avoid duplicate entries
+    if (std::find(_entitiesToDestroy.begin(), _entitiesToDestroy.end(), entity) == _entitiesToDestroy.end()) {
+        _entitiesToDestroy.push_back(entity);
+    }
+}
+
+void World::ProcessDestructionQueue() {
+    if (_entitiesToDestroy.empty()) {
+        return;
+    }
+
+    for (Entity entity : _entitiesToDestroy) {
+        if (IsValidEntity(entity)) {
+
+            // Call the original DestroyEntity (which is now safe)
+            _componentManager.RemoveAllComponents(entity);
+            _systemManager.EntityDestroyed(entity);
+            _entityManager.DestroyEntity(entity);
+        }
+    }
+
+    _entitiesToDestroy.clear();
+}
+
+
 // <summary>
 // Updates the world, calling all systems to process their logic.
 // </summary>
@@ -85,7 +122,15 @@ bool World::IsValidEntity(Entity entity) const {
 // <param name="deltaTime">The time elapsed since the last update, used for time-based logic.</param>
 // <remarks>
 void World::Update(float deltaTime) {
+    _isUpdating = true;  // Mark that we're updating
+
+    // Update all systems (this might queue entities for destruction)
     _systemManager.UpdateSystems(deltaTime);
+
+    _isUpdating = false;  // Update complete
+
+    // NOW it's safe to destroy entities
+    ProcessDestructionQueue();
 }
 
 // <summary>

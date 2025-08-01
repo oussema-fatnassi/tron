@@ -48,16 +48,12 @@ public:
 
             SetTransformPosition(entity, newX, 0.0f, 0.0f);
         }
-		if (beDestroyed && isTriggerZone) {
-			std::cout << "[" << scriptName << "] Destroying entity " << entity << "\n";
-			DestroyEntity(entity);
-		}
     }
 
     void OnTriggerEnter(uint32_t otherEntity) override {
         std::cout << "[" << scriptName << "] TRIGGER ENTER! Entity " << entity
             << " detected entity " << otherEntity << " entering\n";
-        beDestroyed = true;
+		SafeDestroyEntity(entity);
     }
 
     void OnTriggerExit(uint32_t otherEntity) override {

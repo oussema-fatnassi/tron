@@ -26,6 +26,10 @@ private:
     EntityManager _entityManager;
     ComponentManager _componentManager;
     SystemManager _systemManager;
+
+    // Safe destruction queue
+    std::vector<Entity> _entitiesToDestroy;
+    bool _isUpdating = false;
     
 public:
     World();
@@ -41,6 +45,10 @@ public:
     Entity CreateEntity();
     void DestroyEntity(Entity entity);
     bool IsValidEntity(Entity entity) const;
+
+    // Safe destruction methods
+    void QueueEntityForDestruction(Entity entity);
+    void ProcessDestructionQueue();
     
     // <summary>
     // Registers a component type T, ensuring it inherits from Component.

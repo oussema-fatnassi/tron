@@ -38,6 +38,7 @@ extern "C" {
     // ECS Interface - Entity management
     ENGINE_API uint32_t CreateEntity();
     ENGINE_API void DestroyEntity(uint32_t entity);
+    ENGINE_API void SafeDestroyEntity(uint32_t entity);
     ENGINE_API bool IsValidEntity(uint32_t entity);
 	ENGINE_API uint32_t GetEntityCount();
 
