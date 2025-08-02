@@ -3,11 +3,11 @@
 #include "../../Headers/Game/TransformComponent.hpp"
 #include "../../Headers/Game/MeshRendererComponent.hpp"
 #include "../../Headers/Communication/RenderCommand.hpp"
-#include "../../Headers/Rendering/D3D/CommandQueue.hpp"
+#include "../../Headers/Rendering/D3D/BufferedCommandQueue.hpp"
 #include <iostream>
 
 // Constructor now only takes CommandQueue - no direct rendering dependencies
-MeshRenderSystem::MeshRenderSystem(CommandQueue* cmdQueue)
+MeshRenderSystem::MeshRenderSystem(BufferedCommandQueue* cmdQueue)
     : commandQueue(cmdQueue)
     , entitiesProcessed(0) {
 
@@ -158,12 +158,12 @@ void MeshRenderSystem::SetAllEntitiesVisible(bool visible) {
     }
 }
 
-//void MeshRenderSystem::PrintSystemStats() const {
-//    uint32_t totalEntities = entities.size();
-//    uint32_t visibleEntities = GetVisibleEntityCount();
-//
-//    std::cout << "[MeshRenderSystem] Stats:\n";
-//    std::cout << "  Total entities: " << totalEntities << "\n";
-//    std::cout << "  Visible entities: " << visibleEntities << "\n";
-//    std::cout << "  Entities processed last frame: " << entitiesProcessed << "\n";
-//}
+void MeshRenderSystem::PrintSystemStats() const {
+    /*uint32_t totalEntities = entities.size();
+    uint32_t visibleEntities = GetVisibleEntityCount();
+
+    std::cout << "[MeshRenderSystem] Stats:\n";
+    std::cout << "  Total entities: " << totalEntities << "\n";
+    std::cout << "  Visible entities: " << visibleEntities << "\n";
+    std::cout << "  Entities processed last frame: " << entitiesProcessed << "\n";*/
+}

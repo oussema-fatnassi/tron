@@ -101,7 +101,7 @@ bool Engine::InitializeSubsystems() {
 
     // === NEW: Clean Architecture Setup ===
     // Initialize command queue for thread communication
-    _renderCommandQueue = std::make_unique<CommandQueue>();
+    _renderCommandQueue = std::make_unique<BufferedCommandQueue>();
     std::cout << "[TronEngine] Command queue initialized for clean thread communication\n";
 
     _renderExecutor = std::make_unique<RenderExecutor>(
@@ -136,7 +136,7 @@ bool Engine::InitializeSubsystems() {
     auto* cameraSystem = _world->RegisterSystem<CameraSystem>(_inputManager.get());
     auto* physicsSystem = _world->RegisterSystem<PhysicsSystem>();
 
-    physicsSystem->SetDebugOutput(true); // Enable debug output for testing
+    physicsSystem->SetDebugOutput(false); // Enable debug output for testing
 
     // Set system signatures
     _world->SetSystemSignature<Transform>(debugSystem);
@@ -330,7 +330,7 @@ void Engine::MainRenderLoop() {
             _renderEngine->BeginFrame();
 
             // Get all render commands from game thread
-            auto renderCommands = _renderCommandQueue->PopAllCommands();
+            auto renderCommands = _renderCommandQueue->GetRenderCommands();
 
             // Execute commands through RenderExecutor
             if (!renderCommands.empty()) {
@@ -450,18 +450,20 @@ void Engine::GameLoop() {
                 << ") | Loop FPS: " << loopFPS << "\n";
 
             // Show entity positions every second instead of every 120 frames
-            for (Entity entity : allEntities) {
-                if (!_world->IsValidEntity(entity))
-                    continue;
+            //for (Entity entity : allEntities) {
+            //    if (!_world->IsValidEntity(entity))
+            //        continue;
 
-                auto* transform = _world->GetComponent<Transform>(entity);
-                if (transform) {
-                    std::cout << "[TronEngine] Entity " << entity
-                        << " position: (" << std::fixed << std::setprecision(2)
-                        << transform->x << ", " << transform->y << ", " << transform->z << ")\n";
-                }
-            }
-
+            //    auto* transform = _world->GetComponent<Transform>(entity);
+            //    if (transform) {
+            //        std::cout << "[TronEngine] Entity " << entity
+            //            << " position: (" << std::fixed << std::setprecision(2)
+            //            << transform->x << ", " << transform->y << ", " << transform->z << ")\n";
+            //    }
+            //}
+           
+            //_renderCommandQueue->PrintBufferStats();
+       
             // Reset counters
             gameFrameCount = 0;
             actualUpdates = 0;

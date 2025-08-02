@@ -65,7 +65,7 @@ private:
     std::unique_ptr<World> _world;
     std::unique_ptr<RenderEngine> _renderEngine;
     std::unique_ptr<InputManager> _inputManager;
-    std::unique_ptr<CommandQueue> _renderCommandQueue;
+    std::unique_ptr<BufferedCommandQueue> _renderCommandQueue;
    
     // Resource managers
     std::unique_ptr<MeshManager> _meshManager;

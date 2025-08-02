@@ -3,7 +3,7 @@
 #include <iostream>
 
 // Forward declarations - NO rendering dependencies!
-class CommandQueue;
+class BufferedCommandQueue;
 struct Transform;
 struct MeshRenderer;  // This is the COMPONENT, not our rendering class
 struct RenderCommand;
@@ -28,13 +28,13 @@ struct RenderCommand;
 // by the RenderExecutor class in the rendering thread.
 // </remarks>
 class MeshRenderSystem : public System {
-private:
-    CommandQueue* commandQueue;          // Communication with render thread
+private:        // Communication with render thread
+    BufferedCommandQueue* commandQueue;
     uint32_t entitiesProcessed;          // Statistics for debugging
 
 public:
     // Constructor takes only CommandQueue - no rendering dependencies
-    MeshRenderSystem(CommandQueue* cmdQueue);
+    MeshRenderSystem(BufferedCommandQueue* cmdQueue);
     ~MeshRenderSystem() = default;
 
     // System interface

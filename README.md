@@ -15,7 +15,7 @@ tron/
 
 
 TODO : 
--Solve the flickering problem - BufferedRenderCommandQueue or thread
+-Add layer to the collision system in order to optimize
 -Make the update functions of the scripts in separates threads
 -Make possible to an entity have more than one script attached and iterate for each script
 -Same for BoxColliders
@@ -40,7 +40,7 @@ TODO :
     Option A: Engine takes ownership and deletes user scripts
     Option B: User manages memory (current approach)
     Option C: Use smart pointers in API
-
+- ✅ Solve the flickering problem - BufferedRenderCommandQueue or thread
 - ✅ Add to the CustomScripting functions Start et OnDestroy()
 - ✅ Add the possibility to Destry the entity from a customScript
 - ✅ Correct and improve the deltaTime and the time system

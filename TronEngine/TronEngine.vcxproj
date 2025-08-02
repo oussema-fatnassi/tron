@@ -33,6 +33,7 @@
     <ClInclude Include="Source\Headers\Game\SpatialGrid.hpp" />
     <ClInclude Include="Source\Headers\Math\Matrix.hpp" />
     <ClInclude Include="Source\Headers\Rendering\Camera.hpp" />
+    <ClInclude Include="Source\Headers\Rendering\D3D\BufferedCommandQueue.hpp" />
     <ClInclude Include="Source\Headers\Rendering\D3D\CommandQueue.hpp" />
     <ClInclude Include="Source\Headers\Rendering\D3D\D3DContext.hpp" />
     <ClInclude Include="Include\EngineExports.hpp" />
@@ -69,6 +70,7 @@
     <ClCompile Include="Source\Cpp\Game\ScriptSystem.cpp" />
     <ClCompile Include="Source\Cpp\Math\Matrix.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\Camera.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\D3D\BufferedCommandQueue.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\D3D\CommandQueue.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\D3D\D3DContext.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\D3D\D3DRenderer.cpp" />

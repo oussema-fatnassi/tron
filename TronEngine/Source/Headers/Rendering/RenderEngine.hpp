@@ -3,7 +3,7 @@
 #include "D3D/D3DContext.hpp"
 #include "D3D/D3DRenderer.hpp"
 #include "D3D/SwapChain.hpp"
-#include "D3D/CommandQueue.hpp"
+#include "../Rendering/D3D/BufferedCommandQueue.hpp"
 #include "Resources/ShaderManager.hpp"
 #include <iostream>
 #include <string>
