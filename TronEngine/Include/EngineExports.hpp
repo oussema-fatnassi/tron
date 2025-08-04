@@ -101,6 +101,15 @@ extern "C" {
     ENGINE_API bool SetActiveCamera(const char* cameraName);
     ENGINE_API const char* GetActiveCameraName();
 
+    // Player Camera API (Simplified)
+    ENGINE_API bool CreatePlayerCamera(float fovDegrees, float aspectRatio, float nearPlane, float farPlane);
+    ENGINE_API bool AttachPlayerCameraToEntity(uint32_t entity);
+    ENGINE_API bool SetPlayerCameraSettings(float movementSpeed, float mouseSensitivity);
+    ENGINE_API bool UpdatePlayerCamera(float deltaTime);
+    ENGINE_API bool GetPlayerCameraPosition(float* x, float* y, float* z);
+    ENGINE_API bool GetPlayerCameraRotation(float* pitch, float* yaw, float* roll);
+    ENGINE_API void PrintPlayerCameraInfo();
+
 	//Physics and Collision API
     // BoxCollider Component
     ENGINE_API bool AddBoxColliderComponent(uint32_t entity, float width, float height, float depth, bool isTrigger);

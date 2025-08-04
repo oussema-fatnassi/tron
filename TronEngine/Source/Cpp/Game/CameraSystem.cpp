@@ -1,3 +1,4 @@
+// TronEngine/Source/Cpp/Game/CameraSystem.cpp - Complete Fixed version
 #include "../../Headers/Game/CameraSystem.hpp"
 #include "../../Headers/Game/World.hpp"
 #include "../../Headers/Game/TransformComponent.hpp"
@@ -11,85 +12,27 @@ CameraSystem::CameraSystem(InputManager* inputMgr)
     , cameraX(0), cameraY(0), cameraZ(0)
     , cameraPitch(0), cameraYaw(0)
     , movementSpeed(5.0f)
-    , mouseSensitivity(0.002f)  // Radians per pixel
+    , mouseSensitivity(0.002f)
     , firstMouseInput(true)
     , lastMouseX(0), lastMouseY(0)
-    , maxPitch(1.57f), minPitch(-1.57f)  // ~90 degrees in radians
+    , maxPitch(1.57f), minPitch(-1.57f)
 {
-    std::cout << "[CameraSystem] Initialized with basic FPS controls\n";
+    std::cout << "[CameraSystem] Initialized for first-person control\n";
 }
 
 void CameraSystem::Update(float deltaTime) {
     if (!inputManager) return;
     
-    // Process input
-    ProcessKeyboardInput(deltaTime);
-    ProcessMouseInput();
-    
-    // Update world transforms based on camera position
-    // (This is a hack - in proper implementation, we'd update view matrix)
-    // UpdateWorldTransforms();
+    // Process input for entities with Transform components
+    ProcessInput(deltaTime);
 }
 
-void CameraSystem::ProcessKeyboardInput(float deltaTime) {
-    if (!world) return;
+void CameraSystem::ProcessInput(float deltaTime) {
+    // Process mouse look
+    ProcessMouseInput();
     
-    float moveSpeed = movementSpeed * deltaTime;
-    bool moved = false;
-    
-    // DIRECT OBJECT MOVEMENT TEST - Move the first object directly
-    auto allEntities = world->GetAllEntities();
-    if (allEntities.empty()) return;
-    
-    Entity firstEntity = allEntities[0];
-    auto* transform = world->GetComponent<Transform>(firstEntity);
-    if (!transform) return;
-    
-    // WASD directly moves the first object (for testing)
-    if (inputManager->IsKeyDown('W') || inputManager->IsKeyDown('w')) {
-        transform->z -= moveSpeed * 10.0f; // Move forward (negative Z)
-        moved = true;
-        std::cout << "[CameraTest] Moving object FORWARD to Z=" << transform->z << "\n";
-    }
-    if (inputManager->IsKeyDown('S') || inputManager->IsKeyDown('s')) {
-        transform->z += moveSpeed * 10.0f; // Move backward (positive Z)
-        moved = true;  
-        std::cout << "[CameraTest] Moving object BACKWARD to Z=" << transform->z << "\n";
-    }
-    if (inputManager->IsKeyDown('A') || inputManager->IsKeyDown('a')) {
-        transform->x -= moveSpeed * 10.0f; // Move left (negative X)
-        moved = true;
-        std::cout << "[CameraTest] Moving object LEFT to X=" << transform->x << "\n";
-    }
-    if (inputManager->IsKeyDown('D') || inputManager->IsKeyDown('d')) {
-        transform->x += moveSpeed * 10.0f; // Move right (positive X)
-        moved = true;
-        std::cout << "[CameraTest] Moving object RIGHT to X=" << transform->x << "\n";
-    }
-    
-    // Vertical movement
-    if (inputManager->IsKeyDown(VK_SPACE)) {
-        transform->y += moveSpeed * 10.0f; // Move up
-        moved = true;
-        std::cout << "[CameraTest] Moving object UP to Y=" << transform->y << "\n";
-    }
-    if (inputManager->IsKeyDown(VK_SHIFT)) {
-        transform->y -= moveSpeed * 10.0f; // Move down
-        moved = true;
-        std::cout << "[CameraTest] Moving object DOWN to Y=" << transform->y << "\n";
-    }
-    
-    if (moved) {
-        std::cout << "[CameraTest] Object position: (" << transform->x 
-                  << ", " << transform->y << ", " << transform->z << ")\n";
-    }
-    
-    // Debug key
-    if (inputManager->IsKeyPressed('P') || inputManager->IsKeyPressed('p')) {
-        PrintCameraInfo();
-        std::cout << "[CameraTest] First object position: (" << transform->x 
-                  << ", " << transform->y << ", " << transform->z << ")\n";
-    }
+    // Process keyboard input for camera-controlled entities
+    ProcessKeyboardInput(deltaTime);
 }
 
 void CameraSystem::ProcessMouseInput() {
@@ -115,54 +58,57 @@ void CameraSystem::ProcessMouseInput() {
         float yawDelta = deltaX * mouseSensitivity;
         float pitchDelta = -deltaY * mouseSensitivity; // Invert Y axis
         
-        // Apply rotation
-        cameraYaw += yawDelta;
-        cameraPitch += pitchDelta;
+        // Apply rotation to all entities in this system (usually just the player)
+        ApplyRotationToEntities(pitchDelta, yawDelta);
         
-        // Clamp pitch to prevent camera flip
-        cameraPitch = std::clamp(cameraPitch, minPitch, maxPitch);
-        
-        std::cout << "[Camera] Mouse look: pitch=" << (cameraPitch * 180.0f / 3.14159f) 
-                  << "°, yaw=" << (cameraYaw * 180.0f / 3.14159f) << "°\n";
+        if (abs(deltaX) > 2 || abs(deltaY) > 2) { // Only log significant movement
+            std::cout << "[CameraSystem] Mouse look applied to " << entities.size() << " entities\n";
+        }
     }
 }
 
-void CameraSystem::UpdateWorldTransforms() {
-    // HACK: Since we don't have proper camera matrices yet,
-    // we move the world objects relative to camera position
-    
-    if (!world) return;
-    
-    // Get all entities and update their transforms relative to camera
-    auto allEntities = world->GetAllEntities();
-    
-    for (Entity entity : allEntities) {
-        // Skip the camera entity itself
-        if (entity == cameraEntity) continue;
-        
+void CameraSystem::ApplyRotationToEntities(float pitchDelta, float yawDelta) {
+    // Apply rotation to all entities managed by this system
+    for (Entity entity : entities) {
         auto* transform = world->GetComponent<Transform>(entity);
         if (!transform) continue;
         
-        // This is a simplified transformation - in real implementation,
-        // we'd use proper view matrices
+        // Update rotation
+        float newPitch = transform->pitch + pitchDelta;
+        float newYaw = transform->yaw + yawDelta;
         
-        // For now, just offset objects by negative camera position
-        // This creates the illusion that the camera is moving
-        transform->x -= cameraX * 0.01f; // Scale factor to prevent too much movement
-        transform->y -= cameraY * 0.01f;
-        transform->z -= cameraZ * 0.01f;
+        // Clamp pitch to prevent camera flip
+        newPitch = std::clamp(newPitch, minPitch, maxPitch);
         
-        // TODO: Apply rotation transformations based on camera pitch/yaw
+        // Apply the rotation
+        transform->SetRotation(newPitch, newYaw, transform->roll);
         
-        // Reset camera position to prevent accumulation
-        // (This is part of the hack - not how real cameras work)
+        // Update our internal state for the first entity (main camera)
+        if (entity == entities[0]) {
+            cameraPitch = newPitch;
+            cameraYaw = newYaw;
+        }
+    }
+}
+
+void CameraSystem::ProcessKeyboardInput(float deltaTime) {
+    // This system now focuses on camera rotation only
+    // Movement is handled by individual entity scripts (like PlayerScript)
+    
+    // Debug keys
+    if (inputManager->IsKeyPressed('C') || inputManager->IsKeyPressed('c')) {
+        PrintCameraInfo();
     }
     
-    // Reset camera position after applying to world
-    // (In real implementation, camera position would persist)
-    cameraX *= 0.99f; // Gradually reduce to prevent drift
-    cameraY *= 0.99f;
-    cameraZ *= 0.99f;
+    // Camera sensitivity adjustment
+    if (inputManager->IsKeyPressed(VK_OEM_PLUS)) { // '+' key
+        mouseSensitivity *= 1.1f;
+        std::cout << "[CameraSystem] Mouse sensitivity: " << mouseSensitivity << "\n";
+    }
+    if (inputManager->IsKeyPressed(VK_OEM_MINUS)) { // '-' key
+        mouseSensitivity *= 0.9f;
+        std::cout << "[CameraSystem] Mouse sensitivity: " << mouseSensitivity << "\n";
+    }
 }
 
 void CameraSystem::AttachToEntity(Entity entity) {
@@ -175,6 +121,8 @@ void CameraSystem::AttachToEntity(Entity entity) {
             cameraX = transform->x;
             cameraY = transform->y;
             cameraZ = transform->z;
+            cameraPitch = transform->pitch;
+            cameraYaw = transform->yaw;
         }
     }
     
@@ -190,9 +138,27 @@ void CameraSystem::SetPosition(float x, float y, float z) {
     cameraX = x;
     cameraY = y;
     cameraZ = z;
+    
+    // Apply to attached entity if exists
+    if (cameraEntity != 0 && world) {
+        auto* transform = world->GetComponent<Transform>(cameraEntity);
+        if (transform) {
+            transform->SetPosition(x, y, z);
+        }
+    }
 }
 
 void CameraSystem::GetPosition(float& x, float& y, float& z) const {
+    if (cameraEntity != 0 && world) {
+        auto* transform = world->GetComponent<Transform>(cameraEntity);
+        if (transform) {
+            x = transform->x;
+            y = transform->y;
+            z = transform->z;
+            return;
+        }
+    }
+    
     x = cameraX;
     y = cameraY;
     z = cameraZ;
@@ -201,19 +167,48 @@ void CameraSystem::GetPosition(float& x, float& y, float& z) const {
 void CameraSystem::SetRotation(float pitch, float yaw) {
     cameraPitch = std::clamp(pitch, minPitch, maxPitch);
     cameraYaw = yaw;
+    
+    // Apply to attached entity if exists
+    if (cameraEntity != 0 && world) {
+        auto* transform = world->GetComponent<Transform>(cameraEntity);
+        if (transform) {
+            transform->SetRotation(cameraPitch, cameraYaw, transform->roll);
+        }
+    }
 }
 
 void CameraSystem::GetRotation(float& pitch, float& yaw) const {
+    if (cameraEntity != 0 && world) {
+        auto* transform = world->GetComponent<Transform>(cameraEntity);
+        if (transform) {
+            pitch = transform->pitch;
+            yaw = transform->yaw;
+            return;
+        }
+    }
+    
     pitch = cameraPitch;
     yaw = cameraYaw;
 }
 
 void CameraSystem::GetForwardVector(float& x, float& y, float& z) const {
-    // Calculate forward vector from yaw and pitch
-    float cosPitch = cosf(cameraPitch);
-    float sinPitch = sinf(cameraPitch);
-    float cosYaw = cosf(cameraYaw);
-    float sinYaw = sinf(cameraYaw);
+    // Calculate forward vector from current rotation
+    float currentPitch = cameraPitch;
+    float currentYaw = cameraYaw;
+    
+    // Get rotation from first entity if available
+    if (!entities.empty() && world) {
+        auto* transform = world->GetComponent<Transform>(entities[0]);
+        if (transform) {
+            currentPitch = transform->pitch;
+            currentYaw = transform->yaw;
+        }
+    }
+    
+    float cosPitch = cosf(currentPitch);
+    float sinPitch = sinf(currentPitch);
+    float cosYaw = cosf(currentYaw);
+    float sinYaw = sinf(currentYaw);
     
     x = cosYaw * cosPitch;
     y = -sinPitch;
@@ -221,22 +216,52 @@ void CameraSystem::GetForwardVector(float& x, float& y, float& z) const {
 }
 
 void CameraSystem::GetRightVector(float& x, float& y, float& z) const {
+    float currentYaw = cameraYaw;
+    
+    // Get rotation from first entity if available
+    if (!entities.empty() && world) {
+        auto* transform = world->GetComponent<Transform>(entities[0]);
+        if (transform) {
+            currentYaw = transform->yaw;
+        }
+    }
+    
     // Right vector is perpendicular to forward
-    x = cosf(cameraYaw + 1.5708f); // yaw + 90 degrees
+    x = cosf(currentYaw + 1.5708f); // yaw + 90 degrees
     y = 0.0f;
-    z = sinf(cameraYaw + 1.5708f);
+    z = sinf(currentYaw + 1.5708f);
 }
 
 void CameraSystem::PrintCameraInfo() const {
-    std::cout << "[CameraSystem] Camera Info:\n";
-    std::cout << "  Position: (" << cameraX << ", " << cameraY << ", " << cameraZ << ")\n";
-    std::cout << "  Rotation: pitch=" << (cameraPitch * 180.0f / 3.14159f) 
-              << "°, yaw=" << (cameraYaw * 180.0f / 3.14159f) << "°\n";
-    std::cout << "  Speed: " << movementSpeed << ", Sensitivity: " << mouseSensitivity << "\n";
+    std::cout << "[CameraSystem] === CAMERA INFO ===" << std::endl;
+    std::cout << "[CameraSystem] Entities managed: " << entities.size() << std::endl;
+    
+    if (!entities.empty() && world) {
+        Entity firstEntity = entities[0];
+        auto* transform = world->GetComponent<Transform>(firstEntity);
+        if (transform) {
+            std::cout << "[CameraSystem] Primary Entity " << firstEntity << ":" << std::endl;
+            std::cout << "  Position: (" << transform->x << ", " << transform->y << ", " << transform->z << ")" << std::endl;
+            std::cout << "  Rotation: pitch=" << (transform->pitch * 180.0f / 3.14159f) 
+                      << "°, yaw=" << (transform->yaw * 180.0f / 3.14159f) 
+                      << "°, roll=" << (transform->roll * 180.0f / 3.14159f) << "°" << std::endl;
+        }
+    }
+    
+    std::cout << "[CameraSystem] Settings:" << std::endl;
+    std::cout << "  Speed: " << movementSpeed << std::endl;
+    std::cout << "  Mouse Sensitivity: " << mouseSensitivity << std::endl;
+    std::cout << "  Pitch Limits: " << (minPitch * 180.0f / 3.14159f) 
+              << "° to " << (maxPitch * 180.0f / 3.14159f) << "°" << std::endl;
     
     if (cameraEntity != 0) {
-        std::cout << "  Attached to entity: " << cameraEntity << "\n";
-    } else {
-        std::cout << "  Not attached to any entity\n";
+        std::cout << "[CameraSystem] Legacy attached entity: " << cameraEntity << std::endl;
     }
+    
+    // Print forward and right vectors
+    float fx, fy, fz, rx, ry, rz;
+    GetForwardVector(fx, fy, fz);
+    GetRightVector(rx, ry, rz);
+    std::cout << "[CameraSystem] Forward: (" << fx << ", " << fy << ", " << fz << ")" << std::endl;
+    std::cout << "[CameraSystem] Right: (" << rx << ", " << ry << ", " << rz << ")" << std::endl;
 }

@@ -1,14 +1,15 @@
-﻿#include <iostream>
+﻿// TestConsole/TestConsole.cpp - Updated for First-Person Camera
+#include <iostream>
 #include <windows.h>
 #include "TronEngine.hpp"
 #include "PlayerScript.hpp"
-#include "SecondScript.hpp"  // Include our second script for testing
-#include "PhysicsTestScript.hpp"  // Include our new physics test script
+#include "SecondScript.hpp"
+#include "PhysicsTestScript.hpp"
 
 #pragma comment(lib, "TronEngine.lib")
 
 int main() {
-    std::cout << "=== PLAYER SCRIPT INPUT TEST ===\n";
+    std::cout << "=== FIRST-PERSON CAMERA TEST ===\n";
 
     // Create and initialize engine (singleton)
     if (!CreateAndInitializeEngine()) {
@@ -20,108 +21,151 @@ int main() {
     PrintEngineVersion();
     std::cout << GetEngineInfo() << std::endl;
 
-    std::cout << "\n=== Creating Test Scene with Player ===\n";
+    std::cout << "\n=== Creating First-Person Scene ===\n";
 
     // Create reference objects to see movement relative to
     uint32_t centerCube = CreateEntity();
     AddTransformComponent(centerCube, 0.0f, 0.0f, 0.0f);
     AddMeshRendererComponent(centerCube, PRIMITIVE_CUBE, "RainbowShader");
     SetMeshRendererColor(centerCube, 1.0f, 0.0f, 0.0f, 1.0f); // Red cube at origin
-	AddCustomScript(centerCube, new SecondScript()); // Add our second script to the center cube
+    AddCustomScript(centerCube, new SecondScript());
     std::cout << "Created reference cube (RED) at origin\n";
 
-    // Create some other reference objects
-    uint32_t blueCube = CreateEntity();
-    AddTransformComponent(blueCube, 3.0f, 0.0f, 0.0f);
-    AddMeshRendererComponent(blueCube, PRIMITIVE_CUBE, "blue");
-    SetMeshRendererColor(blueCube, 0.0f, 0.0f, 1.0f, 1.0f); // Blue cube to the right
-	AddCustomScript(blueCube, new SecondScript()); // Add a second script to the blue cube
-    std::cout << "Created blue cube at (3, 0, 0)\n";
+    // Create some landmark objects for spatial reference
+    for (int i = 0; i < 8; i++) {
+        uint32_t landmark = CreateEntity();
+        float angle = (i / 8.0f) * 2.0f * 3.14159f; // Distribute in circle
+        float radius = 10.0f;
+        float x = radius * cosf(angle);
+        float z = radius * sinf(angle);
+        
+        AddTransformComponent(landmark, x, 0.0f, z);
+        AddMeshRendererComponent(landmark, PRIMITIVE_CUBE, "blue");
+        
+        // Color based on position
+        float r = (x + radius) / (2.0f * radius);
+        float g = 0.5f;
+        float b = (z + radius) / (2.0f * radius);
+        SetMeshRendererColor(landmark, r, g, b, 1.0f);
+        
+        AddCustomScript(landmark, new SecondScript());
+        std::cout << "Created landmark " << i << " at (" << x << ", 0, " << z << ")\n";
+    }
 
-    // Create some other reference objects
-    uint32_t blueCube2 = CreateEntity();
-    AddTransformComponent(blueCube2, 0.0f, 3.0f, 0.0f);
-    AddMeshRendererComponent(blueCube2, PRIMITIVE_CUBE, "blue");
-    SetMeshRendererColor(blueCube2, 0.0f, 0.0f, 1.0f, 1.0f); // Blue cube to the right
-    AddCustomScript(blueCube2, new SecondScript()); // Add a second script to the blue cube
-    std::cout << "Created blue cube at (0, 3, 0)\n";
+    // Create some vertical pillars for height reference
+    for (int i = 0; i < 4; i++) {
+        uint32_t pillar = CreateEntity();
+        float x = (i - 1.5f) * 8.0f; // Spread them out
+        float y = 3.0f; // Make them tall
+        
+        AddTransformComponent(pillar, x, y, -15.0f); // Put them in front
+        AddMeshRendererComponent(pillar, PRIMITIVE_CUBE, "default");
+        SetMeshRendererColor(pillar, 0.8f, 0.8f, 0.2f, 1.0f); // Yellow pillars
+        SetTransformScale(pillar, 1.0f, 6.0f, 1.0f); // Make them tall
+        
+        AddCustomScript(pillar, new SecondScript());
+        std::cout << "Created pillar " << i << " at (" << x << ", " << y << ", -15)\n";
+    }
 
-    uint32_t greenSphere = CreateEntity();
-    AddTransformComponent(greenSphere, -3.0f, 0.0f, 0.0f);
-    AddMeshRendererComponent(greenSphere, PRIMITIVE_SPHERE, "default");
-    SetMeshRendererColor(greenSphere, 0.0f, 1.0f, 0.0f, 1.0f); // Green sphere to the left
-	AddCustomScript(greenSphere, new SecondScript()); // Add a second script to the green sphere
-    std::cout << "Created green sphere at (-3, 0, 0)\n";
+    // Create a ground plane for reference
+    uint32_t ground = CreateEntity();
+    AddTransformComponent(ground, 0.0f, -2.0f, 0.0f);
+    AddMeshRendererComponent(ground, PRIMITIVE_PLANE, "default");
+    SetMeshRendererColor(ground, 0.3f, 0.7f, 0.3f, 1.0f); // Green ground
+    SetTransformScale(ground, 50.0f, 1.0f, 50.0f); // Large ground plane
+    AddCustomScript(ground, new SecondScript());
+    std::cout << "Created ground plane\n";
 
-    uint32_t yellowCube = CreateEntity();
-    AddTransformComponent(yellowCube, 0.0f, 0.0f, -3.0f);
-    AddMeshRendererComponent(yellowCube, PRIMITIVE_CUBE, "RainbowShader");
-    SetMeshRendererColor(yellowCube, 1.0f, 1.0f, 0.0f, 1.0f); // Yellow cube in front
-	AddCustomScript(yellowCube, new SecondScript()); // Add a second script to the yellow cube
-    std::cout << "Created yellow cube at (0, 0, -3)\n";
-
-    // Create the player entity with script
+    // Create the FIRST-PERSON PLAYER entity
     uint32_t player = CreateEntity();
-    std::cout << "Created player entity: " << player << std::endl;
+    std::cout << "Created first-person player entity: " << player << std::endl;
 
-    // Add the player script
-    PlayerScript* playerScript = new PlayerScript("TestPlayer");
+    // Add the updated PlayerScript with first-person camera
+    PlayerScript* playerScript = new PlayerScript("FirstPersonPlayer");
     if (AddCustomScript(player, playerScript)) {
-        std::cout << " PlayerScript added successfully\n";
+        std::cout << "✓ First-Person PlayerScript added successfully\n";
 
         // Configure player settings
-        playerScript->SetMovementSpeed(3.0f);
-        playerScript->SetMouseSensitivity(0.001f);
-    }
-    else {
-        std::cout << " ERROR: Failed to add PlayerScript\n";
+        playerScript->SetMovementSpeed(8.0f); // Faster movement for better testing
+        playerScript->SetMouseSensitivity(0.003f); // This will be noted but handled by CameraSystem
+        
+        std::cout << "✓ Player configured with enhanced movement speed\n";
+    } else {
+        std::cout << "✗ ERROR: Failed to add PlayerScript\n";
         return -1;
     }
 
-    for (int i = 0; i <= 1000; i++)
-    {
-		// Create some random cubes around the player for testing
-		uint32_t randomCube = CreateEntity();
-		float x = static_cast<float>(rand() % 20 - 10); // Random position between -10 and 10
-		float y = static_cast<float>(rand() % 20 - 10); // Random position between -10 and 10
-		float z = static_cast<float>(rand() % 20 - 10); // Random position between -10 and 10
-		AddTransformComponent(randomCube, x, y, 0.0f);
-		AddMeshRendererComponent(randomCube, PRIMITIVE_CUBE, "default");
-		AddCustomScript(randomCube, new SecondScript(player)); // Add a second script to the random cube
+    // Create some random objects around the scene for immersion
+    std::cout << "\nGenerating environment objects...\n";
+    for (int i = 0; i < 20; i++) {
+        uint32_t randomCube = CreateEntity();
+        
+        // Random position in a larger area
+        float x = static_cast<float>((rand() % 40) - 20); // -20 to 20
+        float y = static_cast<float>(rand() % 5); // 0 to 5
+        float z = static_cast<float>((rand() % 40) - 20); // -20 to 20
+        
+        // Don't place objects too close to spawn point
+        if (abs(x) < 3.0f && abs(z) < 3.0f) {
+            continue;
+        }
+        
+        AddTransformComponent(randomCube, x, y, z);
+        
+        // Random size
+        float scale = 0.5f + static_cast<float>(rand() % 3);
+        SetTransformUniformScale(randomCube, scale);
+        
+        // Random color and shader
+        const char* shaders[] = {"default", "blue", "RainbowShader"};
+        const char* selectedShader = shaders[rand() % 3];
+        
+        AddMeshRendererComponent(randomCube, PRIMITIVE_CUBE, selectedShader);
+        
+        float r = static_cast<float>(rand()) / RAND_MAX;
+        float g = static_cast<float>(rand()) / RAND_MAX;
+        float b = static_cast<float>(rand()) / RAND_MAX;
+        SetMeshRendererColor(randomCube, r, g, b, 1.0f);
+        
+        AddCustomScript(randomCube, new SecondScript(player));
     }
-	SetPhysicsGridCellSize(3.0f);
 
-    std::cout << "\n=== CONTROLS ===\n";
-    std::cout << "WASD     - Move around (watch console for movement messages)\n";
-    std::cout << "Mouse    - Look around (rotation logged to console)\n";
+    // Configure physics
+    SetPhysicsGridCellSize(3.0f);
+    SetPhysicsDebugOutput(false); // Disable for cleaner output
+
+    std::cout << "\n=== FIRST-PERSON CONTROLS ===\n";
+    std::cout << "Z/S      - Move forward/backward\n";
+    std::cout << "Q/D      - Strafe left/right\n";
+    std::cout << "Mouse    - Look around (first-person view)\n";
     std::cout << "Space    - Move up\n";
     std::cout << "Shift    - Move down\n";
-    std::cout << "P        - Print current position\n";
+    std::cout << "P        - Print player/camera status\n";
+    std::cout << "C        - Print camera info\n";
+    std::cout << "V        - Toggle player visibility (for debugging)\n";
     std::cout << "ESC      - Close window\n";
 
     std::cout << "\n=== Expected Behavior ===\n";
-    std::cout << "- Press WASD and see movement messages in console\n";
-    std::cout << "- Player cube (cyan) should move around the scene\n";
-    std::cout << "- Movement should be visible relative to other cubes\n";
-    std::cout << "- Position should be printed when you press P\n";
+    std::cout << "- Camera should be attached to player entity\n";
+    std::cout << "- Mouse movement rotates your view (first-person)\n";
+    std::cout << "- WASD movement is relative to where you're looking\n";
+    std::cout << "- You should see the environment from player's perspective\n";
+    std::cout << "- Player cube might be visible in peripheral vision\n";
 
     std::cout << "\nTotal entities: " << GetEntityCount() << "\n";
-    std::cout << "\n=== Starting Engine ===\n";
+    std::cout << "\n=== Starting First-Person Engine ===\n";
 
     // Start the engine
     RunEngine();
-
-    // Note: PlayerScript destructor will be called automatically
-    // when the entity is destroyed during engine shutdown
 
     // Cleanup
     std::cout << "\n=== Cleanup ===\n";
     DestroyGlobalEngine();
     std::cout << "Engine cleanup: SUCCESS\n\n";
 
-    std::cout << "====================================\n";
-    std::cout << "   PLAYER INPUT TEST COMPLETED!    \n";
-    std::cout << "====================================\n";
+    std::cout << "=====================================\n";
+    std::cout << "   FIRST-PERSON TEST COMPLETED!     \n";
+    std::cout << "=====================================\n";
     std::cout << "\nPress Enter to exit...";
     std::cin.get();
     return 0;

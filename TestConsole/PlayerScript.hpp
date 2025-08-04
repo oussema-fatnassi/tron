@@ -1,9 +1,10 @@
-// PlayerScript.hpp - Working version with real input
+// PlayerScript.hpp - With Proper Camera Integration
 #pragma once
 #include "TronEngine.hpp"
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <cmath>
 
 class PlayerScript : public ScriptBase
 {
@@ -12,17 +13,8 @@ private:
     int updateCount = 0;
 
     // Movement settings
-    float movementSpeed = 2.0f;
-
-    // Simple camera rotation state
-    float cameraYaw = 0.0f;
-    float cameraPitch = 0.0f;
-    float mouseSensitivity = 0.002f;
-
-    // Mouse state
-    bool firstMouse = true;
-    int lastMouseX = 640;
-    int lastMouseY = 360;
+    float movementSpeed = 5.0f;
+    bool cameraSetup = false;
 
 public:
     PlayerScript(const std::string &name = "Player")
@@ -33,10 +25,10 @@ public:
 
     void Start() override
     {
-        std::cout << "\n[" << playerName << "] START() - Setting up player on entity " << entity << std::endl;
+        std::cout << "\n[" << playerName << "] START() - Setting up first-person player on entity " << entity << std::endl;
 
         // Set initial position
-        float spawnX = 0.0f, spawnY = 0.0f, spawnZ = 0.0f;
+        float spawnX = 0.0f, spawnY = 2.0f, spawnZ = 0.0f;
 
         if (AddTransformComponent(entity, spawnX, spawnY, spawnZ))
         {
@@ -44,32 +36,38 @@ public:
                       << spawnX << ", " << spawnY << ", " << spawnZ << ")" << std::endl;
         }
 
-        // Add visual representation (optional)
+        // Add visual representation (very small for first-person)
         if (AddMeshRendererComponent(entity, PRIMITIVE_CUBE, "blue"))
         {
-            SetMeshRendererColor(entity, 0.0f, 1.0f, 1.0f, 1.0f); // Cyan player
-            std::cout << "[" << playerName << "] Visual representation added (cyan cube)" << std::endl;
+            SetMeshRendererColor(entity, 0.0f, 1.0f, 1.0f, 1.0f);
+            SetTransformUniformScale(entity, 0.1f); // Very small
+            std::cout << "[" << playerName << "] Visual representation added (tiny cyan cube)" << std::endl;
         }
 
-        AddBoxColliderComponent(entity, 1.5f, 1.0, 1.0f, false);
+        // Add collider
+        AddBoxColliderComponent(entity, 1.5f, 2.0f, 1.5f, false);
 
-        std::cout << "[" << playerName << "] Player initialization complete!" << std::endl;
-        std::cout << "[" << playerName << "] Controls: WASD to move, P to print position" << std::endl;
+        // Setup first-person camera
+        SetupFirstPersonCamera();
+
+        std::cout << "[" << playerName << "] First-person player initialization complete!" << std::endl;
+        std::cout << "[" << playerName << "] Controls: ZQSD to move, Mouse to look around" << std::endl;
     }
 
     void Update(float deltaTime) override
     {
         updateCount++;
 
-        // Process movement controls
-        ProcessMovement(deltaTime);
+        // Update camera first
+        if (cameraSetup) {
+            UpdatePlayerCamera(deltaTime);
+        }
 
-        // Process mouse look (simple version)
-        ProcessMouseLook();
+        // Process movement
+        ProcessFirstPersonMovement(deltaTime);
 
-        // Debug info every few seconds
-        if (updateCount % 300 == 0)
-        { // Every ~2.5 seconds at 120fps
+        // Debug info
+        if (updateCount % 360 == 0) {
             PrintPlayerStatus();
         }
     }
@@ -77,129 +75,136 @@ public:
     void OnDestroy() override
     {
         std::cout << "\n[" << playerName << "] OnDestroy() called on entity " << entity << std::endl;
-        std::cout << "[" << playerName << "] Total updates: " << updateCount << std::endl;
-        std::cout << "[" << playerName << "] Player cleanup complete!\n"
-                  << std::endl;
+        std::cout << "[" << playerName << "] Player cleanup complete!\n" << std::endl;
     }
 
 private:
-    void ProcessMovement(float deltaTime)
+    void SetupFirstPersonCamera()
+    {
+        // Create first-person camera
+        if (CreatePlayerCamera(75.0f, 16.0f/9.0f, 0.1f, 1000.0f)) {
+            std::cout << "[" << playerName << "] Player camera created\n";
+            
+            // Attach to this entity
+            if (AttachPlayerCameraToEntity(entity)) {
+                std::cout << "[" << playerName << "] Camera attached to player entity\n";
+                
+                // Set camera settings
+                if (SetPlayerCameraSettings(movementSpeed, 0.002f)) {
+                    std::cout << "[" << playerName << "] Camera settings configured\n";
+                    cameraSetup = true;
+                } else {
+                    std::cout << "[" << playerName << "] ERROR: Failed to set camera settings\n";
+                }
+            } else {
+                std::cout << "[" << playerName << "] ERROR: Failed to attach camera\n";
+            }
+        } else {
+            std::cout << "[" << playerName << "] ERROR: Failed to create camera\n";
+        }
+    }
+
+    void ProcessFirstPersonMovement(float deltaTime)
     {
         // Get current position
         float currentX, currentY, currentZ;
         if (!GetTransformComponent(entity, &currentX, &currentY, &currentZ))
         {
-            return; // No transform component
+            return;
         }
 
-        // Calculate movement
+        // Get camera rotation to determine movement direction
+        float pitch, yaw, roll;
+        bool hasRotation = GetPlayerCameraRotation(&pitch, &yaw, &roll);
+        
+        if (!hasRotation) {
+            // Fallback to transform rotation
+            GetTransformRotation(entity, &pitch, &yaw, &roll);
+        }
+
+        // Calculate movement vector based on camera orientation
         float moveX = 0.0f, moveY = 0.0f, moveZ = 0.0f;
         float speed = movementSpeed * deltaTime;
         bool moved = false;
 
-        // WASD movement (world-relative for now)
-        if (IsKeyDown('z') || IsKeyDown('Z'))
+        // Calculate forward and right vectors from yaw
+        float forwardX = cosf(yaw);
+        float forwardZ = sinf(yaw);
+        float rightX = cosf(yaw + 1.5708f); // yaw + 90 degrees  
+        float rightZ = sinf(yaw + 1.5708f);
+
+        // ZQSD movement relative to camera look direction
+        if (IsKeyDown('Z') || IsKeyDown('z'))
         {
-            moveZ -= speed; // Forward (negative Z)
+            moveX += forwardX * speed;
+            moveZ += forwardZ * speed;
             moved = true;
-            std::cout << "[" << playerName << "] Moving forward\n";
         }
         if (IsKeyDown('S') || IsKeyDown('s'))
         {
-            moveZ += speed; // Backward (positive Z)
+            moveX -= forwardX * speed;
+            moveZ -= forwardZ * speed;
             moved = true;
-            std::cout << "[" << playerName << "] Moving backward\n";
         }
-        if (IsKeyDown('q') || IsKeyDown('Q'))
+        if (IsKeyDown('Q') || IsKeyDown('q'))
         {
-            moveX -= speed; // Left (negative X)
+            moveX -= rightX * speed;
+            moveZ -= rightZ * speed;
             moved = true;
-            std::cout << "[" << playerName << "] Moving left\n";
         }
         if (IsKeyDown('D') || IsKeyDown('d'))
         {
-            moveX += speed; // Right (positive X)
+            moveX += rightX * speed;
+            moveZ += rightZ * speed;
             moved = true;
-            std::cout << "[" << playerName << "] Moving right\n";
         }
 
         // Vertical movement
         if (IsKeyDown(VK_SPACE))
         {
-            moveY += speed; // Up
+            moveY += speed;
             moved = true;
-            std::cout << "[" << playerName << "] Moving up\n";
         }
         if (IsKeyDown(VK_SHIFT))
         {
-            moveY -= speed; // Down
+            moveY -= speed;
             moved = true;
-            std::cout << "[" << playerName << "] Moving down\n";
         }
 
-        // Apply movement if any key was pressed
+        // Apply movement
         if (moved)
         {
             float newX = currentX + moveX;
             float newY = currentY + moveY;
             float newZ = currentZ + moveZ;
 
-            // Update position using the enhanced transform API
             SetTransformPosition(entity, newX, newY, newZ);
 
-            std::cout << "[" << playerName << "] New position: ("
-                      << std::fixed << std::setprecision(2)
-                      << newX << ", " << newY << ", " << newZ << ")\n";
+            if (updateCount % 120 == 0) {
+                std::cout << "[" << playerName << "] Position: ("
+                          << std::fixed << std::setprecision(2)
+                          << newX << ", " << newY << ", " << newZ << ")\n";
+            }
         }
 
-        // Debug key
+        // Debug keys
         if (IsKeyPressed('P') || IsKeyPressed('p'))
         {
             PrintPlayerStatus();
         }
-    }
 
-    void ProcessMouseLook()
-    {
-        int mouseX, mouseY;
-        GetMousePosition(&mouseX, &mouseY);
-
-        if (firstMouse)
+        if (IsKeyPressed('C') || IsKeyPressed('c'))
         {
-            lastMouseX = mouseX;
-            lastMouseY = mouseY;
-            firstMouse = false;
-            return;
+            PrintPlayerCameraInfo();
         }
 
-        // Calculate mouse delta
-        int deltaX = mouseX - lastMouseX;
-        int deltaY = mouseY - lastMouseY;
-
-        lastMouseX = mouseX;
-        lastMouseY = mouseY;
-
-        // Only process if there's actual movement
-        if (deltaX != 0 || deltaY != 0)
+        // Toggle visibility
+        if (IsKeyPressed('V') || IsKeyPressed('v'))
         {
-            // Update camera rotation
-            cameraYaw += deltaX * mouseSensitivity;
-            cameraPitch -= deltaY * mouseSensitivity; // Invert Y
-
-            // Clamp pitch
-            if (cameraPitch > 1.57f)
-                cameraPitch = 1.57f; // ~90 degrees
-            if (cameraPitch < -1.57f)
-                cameraPitch = -1.57f; // ~-90 degrees
-
-            // Apply rotation to transform (if we had rotation support)
-            // For now, just log it
-            std::cout << "[" << playerName << "] Camera rotation: yaw="
-                      << (cameraYaw * 180.0f / 3.14159f) << "°, pitch="
-                      << (cameraPitch * 180.0f / 3.14159f) << "°\n";
-
-            // TODO: Apply rotation to entity transform when rotation is supported
-            // SetTransformRotation(entity, cameraPitch, cameraYaw, 0.0f);
+            static bool visible = true;
+            visible = !visible;
+            SetMeshRendererVisible(entity, visible);
+            std::cout << "[" << playerName << "] Player visibility: " << (visible ? "ON" : "OFF") << std::endl;
         }
     }
 
@@ -208,20 +213,47 @@ private:
         float x, y, z;
         if (GetTransformComponent(entity, &x, &y, &z))
         {
-            std::cout << "[" << playerName << "] Position: ("
+            std::cout << "[" << playerName << "] === PLAYER STATUS ===" << std::endl;
+            std::cout << "[" << playerName << "] Entity Position: ("
                       << std::fixed << std::setprecision(2)
                       << x << ", " << y << ", " << z << ")" << std::endl;
-            std::cout << "[" << playerName << "] Camera: yaw="
-                      << (cameraYaw * 180.0f / 3.14159f) << "°, pitch="
-                      << (cameraPitch * 180.0f / 3.14159f) << "°" << std::endl;
+            
+            if (cameraSetup) {
+                float camX, camY, camZ;
+                if (GetPlayerCameraPosition(&camX, &camY, &camZ)) {
+                    std::cout << "[" << playerName << "] Camera Position: ("
+                              << camX << ", " << camY << ", " << camZ << ")" << std::endl;
+                }
+                
+                float pitch, yaw, roll;
+                if (GetPlayerCameraRotation(&pitch, &yaw, &roll)) {
+                    std::cout << "[" << playerName << "] Camera Rotation: pitch="
+                              << (pitch * 180.0f / 3.14159f) << "°, yaw="
+                              << (yaw * 180.0f / 3.14159f) << "°" << std::endl;
+                }
+            }
+            
+            std::cout << "[" << playerName << "] Speed: " << movementSpeed << std::endl;
+            std::cout << "[" << playerName << "] Camera Setup: " << (cameraSetup ? "YES" : "NO") << std::endl;
         }
     }
 
 public:
-    // Public interface
     const std::string &GetName() const { return playerName; }
     int GetUpdateCount() const { return updateCount; }
 
-    void SetMovementSpeed(float speed) { movementSpeed = speed; }
-    void SetMouseSensitivity(float sensitivity) { mouseSensitivity = sensitivity; }
+    void SetMovementSpeed(float speed) 
+    { 
+        movementSpeed = speed;
+        if (cameraSetup) {
+            SetPlayerCameraSettings(speed, 0.002f);
+        }
+    }
+    
+    void SetMouseSensitivity(float sensitivity) 
+    { 
+        if (cameraSetup) {
+            SetPlayerCameraSettings(movementSpeed, sensitivity);
+        }
+    }
 };

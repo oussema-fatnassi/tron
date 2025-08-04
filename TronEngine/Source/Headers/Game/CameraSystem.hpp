@@ -1,3 +1,4 @@
+// TronEngine/Source/Headers/Game/CameraSystem.hpp - Simplified version
 #pragma once
 #include "../Game/System.hpp"
 #include "../Core/InputManager.hpp"
@@ -6,23 +7,23 @@
 struct Transform;
 
 // <summary>
-// CameraSystem - Basic first-person camera controls
-// Works with the current  rendering pipeline (no matrices yet)
+// CameraSystem - Simplified First-Person Camera Control
+// Handles mouse look and applies rotation directly to entity transforms
 // </summary>
 // <remarks>
-// This system updates Transform components based on input to simulate camera movement.
-// Since we don't have a proper camera matrix pipeline yet, this system moves the WORLD
-// around the camera instead of moving the camera through the world.
+// This system processes mouse input and applies camera rotation directly to entities
+// with Transform components. It works by:
+// - Processing mouse movement for look control
+// - Applying rotation to entity transforms
+// - Providing camera state information
 // 
-// Controls:
-// - WASD: Move forward/back/left/right
-// - Mouse: Look around (rotates the world opposite to mouse movement)
-// - Space/Shift: Move up/down
+// Movement is handled by individual entity scripts (like PlayerScript),
+// while this system focuses purely on camera rotation control.
 // </remarks>
 class CameraSystem : public System {
 private:
     InputManager* inputManager;
-    Entity cameraEntity;  // The entity representing the camera/player
+    Entity cameraEntity;  // Currently attached entity
     
     // Camera state
     float cameraX, cameraY, cameraZ;
@@ -61,9 +62,11 @@ public:
     void PrintCameraInfo() const;
 
 private:
-    void ProcessKeyboardInput(float deltaTime);
+    // Input processing
+    void ProcessInput(float deltaTime);
     void ProcessMouseInput();
-    void UpdateWorldTransforms(); // Moves world objects based on camera position
+    void ProcessKeyboardInput(float deltaTime);
+    void ApplyRotationToEntities(float pitchDelta, float yawDelta);
     
     // Helper methods
     void GetForwardVector(float& x, float& y, float& z) const;

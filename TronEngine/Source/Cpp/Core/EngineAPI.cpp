@@ -9,9 +9,13 @@
 // Global singleton instance
 static Engine* g_engineInstance = nullptr;
 
+
 // Global camera management
-static std::unordered_map<std::string, std::unique_ptr<Camera>> g_cameras;
-static std::string g_activeCameraName = "";
+// static std::unordered_map<std::string, std::unique_ptr<Camera>> g_cameras;
+// static std::string g_activeCameraName = "";
+static std::unique_ptr<Camera> g_playerCamera = nullptr;
+static bool g_cameraAttached = false;
+static Entity g_cameraEntity = 0;
 
 // C-style API implementation
 extern "C" {
@@ -545,6 +549,76 @@ extern "C" {
         return g_activeCameraName.c_str();
     }
 
+    ENGINE_API bool CreatePlayerCamera(float fovDegrees, float aspectRatio, float nearPlane, float farPlane) {
+        if (!g_engineInstance) return false;
+        
+        // Create the player camera
+        g_playerCamera = std::make_unique<Camera>(fovDegrees, aspectRatio, nearPlane, farPlane);
+        
+        std::cout << "[EngineAPI] Player camera created with FOV=" << fovDegrees << "°\n";
+        return true;
+    }
+
+    ENGINE_API bool AttachPlayerCameraToEntity(uint32_t entity) {
+        if (!g_engineInstance || !g_playerCamera || !g_engineInstance->GetWorld()) return false;
+        
+        if (!g_engineInstance->GetWorld()->IsValidEntity(entity)) {
+            std::cout << "[EngineAPI] Error: Cannot attach camera to invalid entity " << entity << "\n";
+            return false;
+        }
+        
+        // Attach camera to entity
+        g_playerCamera->AttachToEntity(g_engineInstance->GetWorld(), entity);
+        g_cameraAttached = true;
+        g_cameraEntity = entity;
+        
+        std::cout << "[EngineAPI] Player camera attached to entity " << entity << "\n";
+        return true;
+    }
+
+    ENGINE_API bool SetPlayerCameraSettings(float movementSpeed, float mouseSensitivity) {
+        if (!g_playerCamera) return false;
+        
+        g_playerCamera->movementSpeed = movementSpeed;
+        g_playerCamera->mouseSensitivity = mouseSensitivity;
+        
+        std::cout << "[EngineAPI] Camera settings: speed=" << movementSpeed 
+                << ", sensitivity=" << mouseSensitivity << "\n";
+        return true;
+    }
+
+    ENGINE_API bool UpdatePlayerCamera(float deltaTime) {
+        if (!g_playerCamera || !g_engineInstance || !g_engineInstance->GetInputManager()) {
+            return false;
+        }
+        
+        // Update camera with input
+        g_playerCamera->Update(deltaTime, g_engineInstance->GetInputManager());
+        return true;
+    }
+
+    ENGINE_API bool GetPlayerCameraPosition(float* x, float* y, float* z) {
+        if (!g_playerCamera || !x || !y || !z) return false;
+        
+        g_playerCamera->GetPosition(*x, *y, *z);
+        return true;
+    }
+
+    ENGINE_API bool GetPlayerCameraRotation(float* pitch, float* yaw, float* roll) {
+        if (!g_playerCamera || !pitch || !yaw || !roll) return false;
+        
+        g_playerCamera->GetRotation(*pitch, *yaw, *roll);
+        return true;
+    }
+
+    ENGINE_API void PrintPlayerCameraInfo() {
+        if (g_playerCamera) {
+            g_playerCamera->PrintCameraInfo();
+        } else {
+            std::cout << "[EngineAPI] No player camera created\n";
+        }
+    }
+
     // Helper function to get active camera (for internal engine use)
     Camera* GetActiveCamera() {
         if (g_activeCameraName.empty()) return nullptr;
@@ -560,6 +634,16 @@ extern "C" {
         g_cameras.clear();
         g_activeCameraName.clear();
         std::cout << "[EngineAPI] All cameras cleaned up\n";
+    }
+
+    void CleanupPlayerCamera() {
+        if (g_playerCamera) {
+            g_playerCamera->DetachFromEntity();
+            g_playerCamera.reset();
+            g_cameraAttached = false;
+            g_cameraEntity = 0;
+            std::cout << "[EngineAPI] Player camera cleaned up\n";
+        }
     }
 
 	// Physics & Collisions System API
@@ -689,4 +773,6 @@ extern "C" {
             physicsSystem->PrintPhysicsStats();
         }
     }
+
+
 }

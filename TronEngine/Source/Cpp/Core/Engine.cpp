@@ -182,6 +182,7 @@ void Engine::Shutdown() {
         _gameThread->join();
         std::cout << "[Threading] Game Thread joined successfully\n";
     }
+    CleanupPlayerCamera();
 
     ShutdownSubsystems();
 
@@ -426,6 +427,10 @@ void Engine::GameLoop() {
                 // Process input events
                 _inputManager->Update();
             }
+
+            // This processes camera input and updates view matrices
+            UpdatePlayerCamera(static_cast<float>(TRON_GAME_TARGET_DELTA));
+
             // === NEW: Generate Render Commands (Clean Architecture) ===
             auto* meshRenderSystem = _world->GetSystem<MeshRenderSystem>();
             if (meshRenderSystem) {
