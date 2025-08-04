@@ -1,4 +1,4 @@
-// VertexShader.hlsl - Camera-Aware Version
+// VertexShader.hlsl - FIXED Camera-Aware Version
 // This shader now uses proper camera view/projection matrices
 
 // Constant buffer for object transform (register b0)
@@ -12,14 +12,14 @@ cbuffer ObjectTransform : register(b0)
     float  padding3;          // Padding for 16-byte alignment
 }
 
-// NEW: Camera matrices constant buffer (register b1)
+// FIXED: Camera matrices constant buffer (register b1)
 cbuffer CameraMatrices : register(b1)
 {
-    matrix viewMatrix;        // Camera view matrix
-    matrix projectionMatrix;  // Camera projection matrix
-    matrix viewProjectionMatrix; // Combined for efficiency
-    float3 cameraPosition;    // Camera world position
-    float  padding4;          // Padding for 16-byte alignment
+    float4x4 viewMatrix;        // Camera view matrix (64 bytes)
+    float4x4 projectionMatrix;  // Camera projection matrix (64 bytes)
+    float4x4 viewProjectionMatrix; // Combined for efficiency (64 bytes)
+    float3 cameraPosition;    // Camera world position (12 bytes)
+    float  padding4;          // Padding to 16-byte boundary (4 bytes) = 208 bytes total
 }
 
 struct VertexInput {
@@ -36,7 +36,7 @@ struct VertexOutput {
 VertexOutput main(VertexInput input) {
     VertexOutput output;
     
-    // Apply object transform to vertex position
+    // Step 1: Transform vertex to world space
     float3 worldPos = input.position;
     
     // Apply scale
@@ -48,12 +48,15 @@ VertexOutput main(VertexInput input) {
     // Apply translation (position from Transform component)
     worldPos += objectPosition;
     
-    // *** THIS IS THE KEY FIX ***
-    // Transform world position through camera matrices
+    // Step 2: Transform world position through camera matrices
     float4 worldPos4 = float4(worldPos, 1.0f);
     
-    // Apply view-projection matrix to get screen coordinates
+    // OPTION A: Use combined view-projection matrix (more efficient)
     output.pos = mul(worldPos4, viewProjectionMatrix);
+    
+    // OPTION B: Apply view and projection separately (for debugging)
+    // float4 viewPos = mul(worldPos4, viewMatrix);
+    // output.pos = mul(viewPos, projectionMatrix);
     
     // Pass through color and world position
     output.color = input.color;

@@ -99,4 +99,9 @@ private:
     void CreateViewMatrix(const float cameraPos[3], float pitch, float yaw, float roll, float viewMatrix[16]);
     void CreateProjectionMatrix(float fovDegrees, float aspectRatio, float nearPlane, float farPlane, float projMatrix[16]);
     void MultiplyMatrices(const float matrixA[16], const float matrixB[16], float result[16]);
+    void CreateViewMatrixLookAt(const float cameraPos[3], float pitch, float yaw, float roll, float viewMatrix[16]);
+    void CreateLookAtMatrix(float eyeX, float eyeY, float eyeZ,
+                           float targetX, float targetY, float targetZ,
+                           float upX, float upY, float upZ,
+                           float viewMatrix[16]);
 };

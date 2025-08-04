@@ -36,12 +36,14 @@ public:
                       << spawnX << ", " << spawnY << ", " << spawnZ << ")" << std::endl;
         }
 
-        // Add visual representation (very small for first-person)
+        // *** MAKE PLAYER INVISIBLE FOR TESTING ***
         if (AddMeshRendererComponent(entity, PRIMITIVE_CUBE, "blue"))
         {
             SetMeshRendererColor(entity, 0.0f, 1.0f, 1.0f, 1.0f);
-            SetTransformUniformScale(entity, 0.1f); // Very small
-            std::cout << "[" << playerName << "] Visual representation added (tiny cyan cube)" << std::endl;
+            SetTransformUniformScale(entity, 0.1f);
+            // Make player invisible to test camera
+            SetMeshRendererVisible(entity, false);
+            std::cout << "[" << playerName << "] Player made INVISIBLE for camera testing" << std::endl;
         }
 
         // Add collider
@@ -52,6 +54,7 @@ public:
 
         std::cout << "[" << playerName << "] First-person player initialization complete!" << std::endl;
         std::cout << "[" << playerName << "] Controls: ZQSD to move, Mouse to look around" << std::endl;
+        std::cout << "[" << playerName << "] Player is INVISIBLE - you should see the world from camera view" << std::endl;
     }
 
     void Update(float deltaTime) override

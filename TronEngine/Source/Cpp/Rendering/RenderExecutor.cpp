@@ -239,13 +239,13 @@ bool RenderExecutor::GetCameraMatrices(float viewMatrix[16], float projectionMat
         return false;
     }
     
-    // Create view matrix manually (simplified)
-    CreateViewMatrix(cameraPosition, pitch, yaw, roll, viewMatrix);
+    // Create view matrix using proper look-at calculation
+    CreateViewMatrixLookAt(cameraPosition, pitch, yaw, roll, viewMatrix);
     
-    // Create projection matrix manually (simplified)
+    // Create projection matrix 
     CreateProjectionMatrix(75.0f, 16.0f/9.0f, 0.1f, 1000.0f, projectionMatrix);
     
-    // Multiply view * projection for combined matrix
+    // Multiply projection * view for combined matrix (note the order!)
     MultiplyMatrices(projectionMatrix, viewMatrix, viewProjectionMatrix);
     
     return true;
@@ -370,32 +370,103 @@ void RenderExecutor::CreateViewMatrix(const float cameraPos[3], float pitch, flo
 }
 
 void RenderExecutor::CreateProjectionMatrix(float fovDegrees, float aspectRatio, float nearPlane, float farPlane, float projMatrix[16]) {
-    // Create perspective projection matrix
-    float fovRadians = fovDegrees * 3.14159f / 180.0f;
+    // Convert FOV to radians
+    float fovRadians = fovDegrees * 3.14159265f / 180.0f;
     float tanHalfFov = tanf(fovRadians * 0.5f);
     
+    // Clear matrix
     std::memset(projMatrix, 0, sizeof(float) * 16);
     
-    projMatrix[0] = 1.0f / (aspectRatio * tanHalfFov);
-    projMatrix[5] = 1.0f / tanHalfFov;
-    projMatrix[10] = -(farPlane + nearPlane) / (farPlane - nearPlane);
-    projMatrix[11] = -1.0f;
-    projMatrix[14] = -(2.0f * farPlane * nearPlane) / (farPlane - nearPlane);
+    // Create perspective projection matrix (column-major for HLSL)
+    projMatrix[0]  = 1.0f / (aspectRatio * tanHalfFov);  // [0][0]
+    projMatrix[5]  = 1.0f / tanHalfFov;                  // [1][1]
+    projMatrix[10] = -(farPlane + nearPlane) / (farPlane - nearPlane);  // [2][2]
+    projMatrix[11] = -1.0f;                              // [2][3]
+    projMatrix[14] = -(2.0f * farPlane * nearPlane) / (farPlane - nearPlane);  // [3][2]
+    // projMatrix[15] = 0.0f (already set by memset)
 }
 
 void RenderExecutor::MultiplyMatrices(const float matrixA[16], const float matrixB[16], float result[16]) {
-    // Simple 4x4 matrix multiplication
-    for (int row = 0; row < 4; row++) {
-        for (int col = 0; col < 4; col++) {
-            result[row * 4 + col] = 0.0f;
+    // Temporary result to handle in-place multiplication
+    float temp[16];
+    
+    for (int col = 0; col < 4; col++) {
+        for (int row = 0; row < 4; row++) {
+            temp[col * 4 + row] = 0.0f;
             for (int k = 0; k < 4; k++) {
-                result[row * 4 + col] += matrixA[row * 4 + k] * matrixB[k * 4 + col];
+                temp[col * 4 + row] += matrixA[k * 4 + row] * matrixB[col * 4 + k];
             }
         }
     }
+    
+    // Copy result back
+    std::memcpy(result, temp, sizeof(float) * 16);
 }
 
 void RenderExecutor::ResetFrameStats() {
     drawCallsThisFrame = 0;
     verticesRenderedThisFrame = 0;
+}
+
+void RenderExecutor::CreateViewMatrixLookAt(const float cameraPos[3], float pitch, float yaw, float roll, float viewMatrix[16]) {
+    // Calculate forward vector from pitch and yaw
+    float cosPitch = cosf(pitch);
+    float sinPitch = sinf(pitch);
+    float cosYaw = cosf(yaw);
+    float sinYaw = sinf(yaw);
+    
+    float forwardX = cosYaw * cosPitch;
+    float forwardY = -sinPitch;  // Negative because Y points up
+    float forwardZ = sinYaw * cosPitch;
+    
+    // Target point = camera position + forward vector
+    float targetX = cameraPos[0] + forwardX;
+    float targetY = cameraPos[1] + forwardY;
+    float targetZ = cameraPos[2] + forwardZ;
+    
+    // Up vector (world up)
+    float upX = 0.0f, upY = 1.0f, upZ = 0.0f;
+    
+    // Create look-at view matrix
+    CreateLookAtMatrix(cameraPos[0], cameraPos[1], cameraPos[2],
+                       targetX, targetY, targetZ,
+                       upX, upY, upZ,
+                       viewMatrix);
+}
+
+void RenderExecutor::CreateLookAtMatrix(float eyeX, float eyeY, float eyeZ,
+                                       float targetX, float targetY, float targetZ,
+                                       float upX, float upY, float upZ,
+                                       float viewMatrix[16]) {
+    // Calculate forward vector (normalized)
+    float forwardX = targetX - eyeX;
+    float forwardY = targetY - eyeY;
+    float forwardZ = targetZ - eyeZ;
+    float forwardLength = sqrtf(forwardX*forwardX + forwardY*forwardY + forwardZ*forwardZ);
+    forwardX /= forwardLength;
+    forwardY /= forwardLength;
+    forwardZ /= forwardLength;
+    
+    // Calculate right vector (forward x up, normalized)
+    float rightX = forwardY * upZ - forwardZ * upY;
+    float rightY = forwardZ * upX - forwardX * upZ;
+    float rightZ = forwardX * upY - forwardY * upX;
+    float rightLength = sqrtf(rightX*rightX + rightY*rightY + rightZ*rightZ);
+    rightX /= rightLength;
+    rightY /= rightLength;
+    rightZ /= rightLength;
+    
+    // Calculate true up vector (right x forward)
+    float trueUpX = rightY * forwardZ - rightZ * forwardY;
+    float trueUpY = rightZ * forwardX - rightX * forwardZ;
+    float trueUpZ = rightX * forwardY - rightY * forwardX;
+    
+    // Build view matrix (column-major for HLSL)
+    viewMatrix[0]  = rightX;   viewMatrix[1]  = trueUpX;   viewMatrix[2]  = -forwardX;  viewMatrix[3]  = 0.0f;
+    viewMatrix[4]  = rightY;   viewMatrix[5]  = trueUpY;   viewMatrix[6]  = -forwardY;  viewMatrix[7]  = 0.0f;
+    viewMatrix[8]  = rightZ;   viewMatrix[9]  = trueUpZ;   viewMatrix[10] = -forwardZ;  viewMatrix[11] = 0.0f;
+    viewMatrix[12] = -(rightX * eyeX + rightY * eyeY + rightZ * eyeZ);
+    viewMatrix[13] = -(trueUpX * eyeX + trueUpY * eyeY + trueUpZ * eyeZ);
+    viewMatrix[14] = forwardX * eyeX + forwardY * eyeY + forwardZ * eyeZ;
+    viewMatrix[15] = 1.0f;
 }
