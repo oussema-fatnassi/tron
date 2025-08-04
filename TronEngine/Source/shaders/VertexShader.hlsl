@@ -1,25 +1,23 @@
-// VertexShader.hlsl - FIXED Camera-Aware Version
-// This shader now uses proper camera view/projection matrices
+// DebugVertexShader.hlsl - For testing camera matrices
+// This shader visualizes camera data to help debug issues
 
-// Constant buffer for object transform (register b0)
 cbuffer ObjectTransform : register(b0)
 {
-    float3 objectPosition;    // From Transform component (x, y, z)
-    float  padding1;          // Padding for 16-byte alignment
-    float3 objectScale;       // From Transform component (scaleX, scaleY, scaleZ)  
-    float  padding2;          // Padding for 16-byte alignment
-    float3 objectRotation;    // From Transform component (pitch, yaw, roll)
-    float  padding3;          // Padding for 16-byte alignment
+    float3 objectPosition;
+    float  padding1;
+    float3 objectScale;
+    float  padding2;
+    float3 objectRotation;
+    float  padding3;
 }
 
-// FIXED: Camera matrices constant buffer (register b1)
 cbuffer CameraMatrices : register(b1)
 {
-    float4x4 viewMatrix;        // Camera view matrix (64 bytes)
-    float4x4 projectionMatrix;  // Camera projection matrix (64 bytes)
-    float4x4 viewProjectionMatrix; // Combined for efficiency (64 bytes)
-    float3 cameraPosition;    // Camera world position (12 bytes)
-    float  padding4;          // Padding to 16-byte boundary (4 bytes) = 208 bytes total
+    float4x4 viewMatrix;
+    float4x4 projectionMatrix;
+    float4x4 viewProjectionMatrix;
+    float3 cameraPosition;
+    float  padding4;
 }
 
 struct VertexInput {
@@ -30,37 +28,28 @@ struct VertexInput {
 struct VertexOutput {
     float4 pos : SV_POSITION;
     float3 color : COLOR;
-    float3 worldPos : TEXCOORD0; // Pass world position for debugging
+    float3 debugInfo : TEXCOORD0;
 };
 
 VertexOutput main(VertexInput input) {
     VertexOutput output;
     
-    // Step 1: Transform vertex to world space
-    float3 worldPos = input.position;
-    
-    // Apply scale
-    worldPos *= objectScale;
-    
-    // TODO: Apply rotation (for now, skip rotation to avoid complexity)
-    // This is where you'd apply rotation matrices later
-    
-    // Apply translation (position from Transform component)
-    worldPos += objectPosition;
-    
-    // Step 2: Transform world position through camera matrices
+    // Transform to world space
+    float3 worldPos = input.position * objectScale + objectPosition;
     float4 worldPos4 = float4(worldPos, 1.0f);
     
-    // OPTION A: Use combined view-projection matrix (more efficient)
+    // Apply view-projection matrix
     output.pos = mul(worldPos4, viewProjectionMatrix);
     
-    // OPTION B: Apply view and projection separately (for debugging)
-    // float4 viewPos = mul(worldPos4, viewMatrix);
-    // output.pos = mul(viewPos, projectionMatrix);
+    // Debug: Color based on camera distance
+    float3 toCameraVec = worldPos - cameraPosition;
+    float distanceToCamera = length(toCameraVec);
     
-    // Pass through color and world position
-    output.color = input.color;
-    output.worldPos = worldPos;
+    // Visualize distance as color (red = close, blue = far)
+    float normalizedDistance = saturate(distanceToCamera / 20.0f); // Normalize to 0-20 units
+    
+    output.color = float3(1.0f - normalizedDistance, 0.5f, normalizedDistance);
+    output.debugInfo = float3(distanceToCamera, worldPos.y, cameraPosition.y);
     
     return output;
 }
