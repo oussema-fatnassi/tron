@@ -89,18 +89,6 @@ extern "C" {
     #define PRIMITIVE_TRIANGLE 5
     #define PRIMITIVE_CUSTOM 6
 
-    // Camera System API
-    ENGINE_API bool CreateCamera(const char* cameraName, float fovDegrees, float aspectRatio, float nearPlane, float farPlane);
-    ENGINE_API bool AttachCameraToEntity(const char* cameraName, uint32_t entity);
-    ENGINE_API bool DetachCamera(const char* cameraName);
-    ENGINE_API bool SetCameraProjection(const char* cameraName, float fovDegrees, float aspectRatio, float nearPlane, float farPlane);
-    ENGINE_API bool SetCameraMovementSpeed(const char* cameraName, float speed);
-    ENGINE_API bool SetCameraMouseSensitivity(const char* cameraName, float sensitivity);
-    ENGINE_API bool GetCameraPosition(const char* cameraName, float* x, float* y, float* z);
-    ENGINE_API bool GetCameraRotation(const char* cameraName, float* pitch, float* yaw, float* roll);
-    ENGINE_API bool SetActiveCamera(const char* cameraName);
-    ENGINE_API const char* GetActiveCameraName();
-
     // Player Camera API (Simplified)
     ENGINE_API bool CreatePlayerCamera(float fovDegrees, float aspectRatio, float nearPlane, float farPlane);
     ENGINE_API bool AttachPlayerCameraToEntity(uint32_t entity);

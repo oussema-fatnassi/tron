@@ -26,13 +26,22 @@ struct Material;
 class RenderExecutor {
 
     struct ObjectTransformBuffer {
-    float position[3];    // x, y, z
-    float padding1;       // Padding for 16-byte alignment
-    float scale[3];       // scaleX, scaleY, scaleZ
-    float padding2;       // Padding for 16-byte alignment  
-    float rotation[3];    // pitch, yaw, roll
-    float padding3;       // Padding for 16-byte alignment
-};
+        float position[3];    // x, y, z
+        float padding1;       // Padding for 16-byte alignment
+        float scale[3];       // scaleX, scaleY, scaleZ
+        float padding2;       // Padding for 16-byte alignment  
+        float rotation[3];    // pitch, yaw, roll
+        float padding3;       // Padding for 16-byte alignment
+    };
+
+    // Camera matrices buffer structure
+    struct CameraMatricesBuffer {
+        float viewMatrix[16];        // Camera view matrix (4x4)
+        float projectionMatrix[16];  // Camera projection matrix (4x4)  
+        float viewProjectionMatrix[16]; // Combined matrix (4x4)
+        float cameraPosition[3];     // Camera world position
+        float padding;               // Padding for 16-byte alignment
+    };
 
 private:
     RenderEngine* renderEngine;
@@ -72,7 +81,22 @@ private:
         Shader*& outShader,
         Material*& outMaterial);
 
+    // Camera matrix helpers
+    bool GetCameraMatrices(float viewMatrix[16], float projectionMatrix[16], 
+                          float viewProjectionMatrix[16], float cameraPosition[3]);
+    void CreateFallbackCameraMatrices(CameraMatricesBuffer& cameraData);
+    
+    // Constant buffer helpers
+    void CreateConstantBuffer(size_t size, ID3D11Buffer** buffer, const char* debugName);
+    void UpdateConstantBuffer(ID3D11DeviceContext* context, ID3D11Buffer* buffer, 
+                             const void* data, size_t size);
+
     // Matrix/Transform helpers
     void CreateWorldMatrix(const RenderTransform& transform, float worldMatrix[16]);
     void CreateViewProjectionMatrix(float viewProjMatrix[16]);
+    
+    // Matrix math helpers
+    void CreateViewMatrix(const float cameraPos[3], float pitch, float yaw, float roll, float viewMatrix[16]);
+    void CreateProjectionMatrix(float fovDegrees, float aspectRatio, float nearPlane, float farPlane, float projMatrix[16]);
+    void MultiplyMatrices(const float matrixA[16], const float matrixB[16], float result[16]);
 };

@@ -9,10 +9,7 @@
 // Global singleton instance
 static Engine* g_engineInstance = nullptr;
 
-
-// Global camera management
-// static std::unordered_map<std::string, std::unique_ptr<Camera>> g_cameras;
-// static std::string g_activeCameraName = "";
+// Player Camera management (simplified)
 static std::unique_ptr<Camera> g_playerCamera = nullptr;
 static bool g_cameraAttached = false;
 static Entity g_cameraEntity = 0;
@@ -48,6 +45,15 @@ extern "C" {
             delete g_engineInstance;
             g_engineInstance = nullptr;
         }
+        
+        // Clean up player camera
+        if (g_playerCamera) {
+            g_playerCamera->DetachFromEntity();
+            g_playerCamera.reset();
+            g_cameraAttached = false;
+            g_cameraEntity = 0;
+            std::cout << "[EngineAPI] Player camera cleaned up\n";
+        }
     }
 
     ENGINE_API void QuitGame() {
@@ -65,7 +71,7 @@ extern "C" {
         return "TRON 3D Game Engine - Professional DLL Version with ECS";
     }
 
-	// Input API
+    // Input API
     ENGINE_API bool IsKeyDown(int keyCode) {
         if (!g_engineInstance || !g_engineInstance->GetInputManager()) return false;
         return g_engineInstance->GetInputManager()->IsKeyDown(keyCode);
@@ -426,129 +432,7 @@ extern "C" {
         return false;
     }
 
-    // Camera System API Implementation
-    ENGINE_API bool CreateCamera(const char* cameraName, float fovDegrees, float aspectRatio, float nearPlane, float farPlane) {
-        if (!cameraName || !g_engineInstance) return false;
-
-        std::string name(cameraName);
-        if (g_cameras.find(name) != g_cameras.end()) {
-            std::cout << "[EngineAPI] Warning: Camera '" << name << "' already exists\n";
-            return false;
-        }
-
-        auto camera = std::make_unique<Camera>(fovDegrees, aspectRatio, nearPlane, farPlane);
-        g_cameras[name] = std::move(camera);
-
-        // Set as active camera if it's the first one
-        if (g_activeCameraName.empty()) {
-            g_activeCameraName = name;
-        }
-
-        std::cout << "[EngineAPI] Created camera '" << name << "'\n";
-        return true;
-    }
-
-    ENGINE_API bool AttachCameraToEntity(const char* cameraName, uint32_t entity) {
-        if (!cameraName || !g_engineInstance) return false;
-
-        std::string name(cameraName);
-        auto it = g_cameras.find(name);
-        if (it == g_cameras.end()) {
-            std::cout << "[EngineAPI] Error: Camera '" << name << "' not found\n";
-            return false;
-        }
-
-        it->second->AttachToEntity(g_engineInstance->GetWorld(), entity);
-        std::cout << "[EngineAPI] Attached camera '" << name << "' to entity " << entity << "\n";
-        return true;
-    }
-
-    ENGINE_API bool DetachCamera(const char* cameraName) {
-        if (!cameraName) return false;
-
-        std::string name(cameraName);
-        auto it = g_cameras.find(name);
-        if (it == g_cameras.end()) return false;
-
-        it->second->DetachFromEntity();
-        std::cout << "[EngineAPI] Detached camera '" << name << "'\n";
-        return true;
-    }
-
-    ENGINE_API bool SetCameraProjection(const char* cameraName, float fovDegrees, float aspectRatio, float nearPlane, float farPlane) {
-        if (!cameraName) return false;
-
-        std::string name(cameraName);
-        auto it = g_cameras.find(name);
-        if (it == g_cameras.end()) return false;
-
-        it->second->SetProjection(fovDegrees, aspectRatio, nearPlane, farPlane);
-        return true;
-    }
-
-    ENGINE_API bool SetCameraMovementSpeed(const char* cameraName, float speed) {
-        if (!cameraName) return false;
-
-        std::string name(cameraName);
-        auto it = g_cameras.find(name);
-        if (it == g_cameras.end()) return false;
-
-        it->second->movementSpeed = speed;
-        return true;
-    }
-
-    ENGINE_API bool SetCameraMouseSensitivity(const char* cameraName, float sensitivity) {
-        if (!cameraName) return false;
-
-        std::string name(cameraName);
-        auto it = g_cameras.find(name);
-        if (it == g_cameras.end()) return false;
-
-        it->second->mouseSensitivity = sensitivity;
-        return true;
-    }
-
-    ENGINE_API bool GetCameraPosition(const char* cameraName, float* x, float* y, float* z) {
-        if (!cameraName || !x || !y || !z) return false;
-
-        std::string name(cameraName);
-        auto it = g_cameras.find(name);
-        if (it == g_cameras.end()) return false;
-
-        it->second->GetPosition(*x, *y, *z);
-        return true;
-    }
-
-    ENGINE_API bool GetCameraRotation(const char* cameraName, float* pitch, float* yaw, float* roll) {
-        if (!cameraName || !pitch || !yaw || !roll) return false;
-
-        std::string name(cameraName);
-        auto it = g_cameras.find(name);
-        if (it == g_cameras.end()) return false;
-
-        it->second->GetRotation(*pitch, *yaw, *roll);
-        return true;
-    }
-
-    ENGINE_API bool SetActiveCamera(const char* cameraName) {
-        if (!cameraName) return false;
-
-        std::string name(cameraName);
-        auto it = g_cameras.find(name);
-        if (it == g_cameras.end()) {
-            std::cout << "[EngineAPI] Error: Camera '" << name << "' not found\n";
-            return false;
-        }
-
-        g_activeCameraName = name;
-        std::cout << "[EngineAPI] Set active camera to '" << name << "'\n";
-        return true;
-    }
-
-    ENGINE_API const char* GetActiveCameraName() {
-        return g_activeCameraName.c_str();
-    }
-
+    // Player Camera API Implementation
     ENGINE_API bool CreatePlayerCamera(float fovDegrees, float aspectRatio, float nearPlane, float farPlane) {
         if (!g_engineInstance) return false;
         
@@ -583,7 +467,7 @@ extern "C" {
         g_playerCamera->mouseSensitivity = mouseSensitivity;
         
         std::cout << "[EngineAPI] Camera settings: speed=" << movementSpeed 
-                << ", sensitivity=" << mouseSensitivity << "\n";
+                  << ", sensitivity=" << mouseSensitivity << "\n";
         return true;
     }
 
@@ -619,34 +503,7 @@ extern "C" {
         }
     }
 
-    // Helper function to get active camera (for internal engine use)
-    Camera* GetActiveCamera() {
-        if (g_activeCameraName.empty()) return nullptr;
-
-        auto it = g_cameras.find(g_activeCameraName);
-        if (it == g_cameras.end()) return nullptr;
-
-        return it->second.get();
-    }
-
-    // Cleanup function (call in DestroyGlobalEngine)
-    void CleanupCameras() {
-        g_cameras.clear();
-        g_activeCameraName.clear();
-        std::cout << "[EngineAPI] All cameras cleaned up\n";
-    }
-
-    void CleanupPlayerCamera() {
-        if (g_playerCamera) {
-            g_playerCamera->DetachFromEntity();
-            g_playerCamera.reset();
-            g_cameraAttached = false;
-            g_cameraEntity = 0;
-            std::cout << "[EngineAPI] Player camera cleaned up\n";
-        }
-    }
-
-	// Physics & Collisions System API
+    //Physics and Collision API
     // NEW: Basic BoxCollider Component API
         ENGINE_API bool AddBoxColliderComponent(uint32_t entity, float width, float height, float depth, bool isTrigger) {
         if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
@@ -773,6 +630,4 @@ extern "C" {
             physicsSystem->PrintPhysicsStats();
         }
     }
-
-
 }

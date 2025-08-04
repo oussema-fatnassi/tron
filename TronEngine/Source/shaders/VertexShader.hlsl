@@ -1,5 +1,5 @@
-// Fixed Transform-Aware Vertex Shader
-// This shader receives transform data from the CPU and applies it properly
+// VertexShader.hlsl - Camera-Aware Version
+// This shader now uses proper camera view/projection matrices
 
 // Constant buffer for object transform (register b0)
 cbuffer ObjectTransform : register(b0)
@@ -12,6 +12,16 @@ cbuffer ObjectTransform : register(b0)
     float  padding3;          // Padding for 16-byte alignment
 }
 
+// NEW: Camera matrices constant buffer (register b1)
+cbuffer CameraMatrices : register(b1)
+{
+    matrix viewMatrix;        // Camera view matrix
+    matrix projectionMatrix;  // Camera projection matrix
+    matrix viewProjectionMatrix; // Combined for efficiency
+    float3 cameraPosition;    // Camera world position
+    float  padding4;          // Padding for 16-byte alignment
+}
+
 struct VertexInput {
     float3 position : POSITION;
     float3 color : COLOR;
@@ -20,34 +30,34 @@ struct VertexInput {
 struct VertexOutput {
     float4 pos : SV_POSITION;
     float3 color : COLOR;
+    float3 worldPos : TEXCOORD0; // Pass world position for debugging
 };
 
 VertexOutput main(VertexInput input) {
     VertexOutput output;
     
-    // Apply transform from Transform component
+    // Apply object transform to vertex position
     float3 worldPos = input.position;
     
     // Apply scale
     worldPos *= objectScale;
     
     // TODO: Apply rotation (for now, skip rotation to avoid complexity)
+    // This is where you'd apply rotation matrices later
     
     // Apply translation (position from Transform component)
     worldPos += objectPosition;
     
-    // IMPORTANT: Proper projection matrix
-    // Create a simple orthographic projection that maps world coordinates to screen
-    float4 projectedPos = float4(worldPos, 1.0f);
+    // *** THIS IS THE KEY FIX ***
+    // Transform world position through camera matrices
+    float4 worldPos4 = float4(worldPos, 1.0f);
     
-    // Scale down the world coordinates to fit the screen properly
-    // This creates a camera-like view where (0,0,0) is at center of screen
-    projectedPos.x *= 0.1f;  // Scale X
-    projectedPos.y *= 0.1f;  // Scale Y
-    projectedPos.z = 0.0f;   // Flatten Z for 2D-like view
+    // Apply view-projection matrix to get screen coordinates
+    output.pos = mul(worldPos4, viewProjectionMatrix);
     
-    output.pos = projectedPos;
+    // Pass through color and world position
     output.color = input.color;
+    output.worldPos = worldPos;
     
     return output;
 }

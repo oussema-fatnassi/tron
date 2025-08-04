@@ -182,7 +182,6 @@ void Engine::Shutdown() {
         _gameThread->join();
         std::cout << "[Threading] Game Thread joined successfully\n";
     }
-    CleanupPlayerCamera();
 
     ShutdownSubsystems();
 
@@ -428,6 +427,7 @@ void Engine::GameLoop() {
                 _inputManager->Update();
             }
 
+            // *** ADD THIS: Update Player Camera ***
             // This processes camera input and updates view matrices
             UpdatePlayerCamera(static_cast<float>(TRON_GAME_TARGET_DELTA));
 
@@ -454,21 +454,6 @@ void Engine::GameLoop() {
                 << actualGameFPS << " updates/sec (target: " << TRON_GAME_TARGET_FPS
                 << ") | Loop FPS: " << loopFPS << "\n";
 
-            // Show entity positions every second instead of every 120 frames
-            //for (Entity entity : allEntities) {
-            //    if (!_world->IsValidEntity(entity))
-            //        continue;
-
-            //    auto* transform = _world->GetComponent<Transform>(entity);
-            //    if (transform) {
-            //        std::cout << "[TronEngine] Entity " << entity
-            //            << " position: (" << std::fixed << std::setprecision(2)
-            //            << transform->x << ", " << transform->y << ", " << transform->z << ")\n";
-            //    }
-            //}
-           
-            //_renderCommandQueue->PrintBufferStats();
-       
             // Reset counters
             gameFrameCount = 0;
             actualUpdates = 0;
