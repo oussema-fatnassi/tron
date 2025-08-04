@@ -15,31 +15,17 @@ tron/
 
 
 TODO : 
+
 -Add layer to the collision system in order to optimize
 -Make the update functions of the scripts in separates threads
+
 -Make possible to an entity have more than one script attached and iterate for each script
 -Same for BoxColliders
+
 -Clean close management - The system shutdown itself after the run method called? - At the end of the game loop destroy the window
--Do the system like entity->GetPosition.x or similar - Create an API class Vector3D or struct
 
+-Create an API class Vector3D or struct
 
--Verify memory clean when an entity has benn erased
-    Entity destruction:
-        Entity ID gets recycled (goes to _availableEntities queue)
-        Memory stays allocated but marked as "inactive"
-    Actually It's Not That Bad!
-        The memory stabilizes after the first wave:
-            Vectors grow to max size, then stop growing
-            Components are properly deleted/recreated
-            Only the "bookkeeping" memory stays allocated
-
-    Real issue: If you have one mega-wave of 100,000 enemies, memory stays allocated for 100,000 entities forever, even if you never use that many again.
-    For typical games: This is actually acceptable behavior! The memory footprint stabilizes at your "peak usage."
-    FOR THE FUTURE IMPLEMENT A MEMORY SHRINK SYSTEM????
--Memory leak problem in TestConsole due to the method of adding scripts
-    Option A: Engine takes ownership and deletes user scripts
-    Option B: User manages memory (current approach)
-    Option C: Use smart pointers in API
 - ✅ Solve the flickering problem - BufferedRenderCommandQueue or thread
 - ✅ Add to the CustomScripting functions Start et OnDestroy()
 - ✅ Add the possibility to Destry the entity from a customScript
