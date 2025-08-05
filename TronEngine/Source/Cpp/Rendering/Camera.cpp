@@ -146,108 +146,6 @@ void Camera::SetRotation(float pitch, float yaw, float roll) {
     MarkViewDirty();
 }
 
-void Camera::Update(float deltaTime, InputManager* inputManager) {
-    if (!inputManager) return;
-
-    // Process mouse look
-    if (mouseLookEnabled) {
-        POINT mousePos = inputManager->GetMousePosition();
-        ProcessMouseLook(mousePos.x, mousePos.y);
-    }
-
-    // Process movement
-    ProcessMovement(deltaTime, inputManager);
-
-    // Update input manager (important for key state transitions)
-    // This should be called by the engine, but we ensure it here
-    // inputManager->Update(); // Don't call this here, engine handles it
-}
-
-void Camera::ProcessMouseLook(int mouseX, int mouseY) {
-    if (firstMouseInput) {
-        lastMouseX = mouseX;
-        lastMouseY = mouseY;
-        firstMouseInput = false;
-        return;
-    }
-
-    // Calculate mouse delta
-    int deltaX = mouseX - lastMouseX;
-    int deltaY = mouseY - lastMouseY;
-    
-    lastMouseX = mouseX;
-    lastMouseY = mouseY;
-
-    // Convert to rotation
-    float yawDelta = deltaX * mouseSensitivity * DegreesToRadians(1.0f);
-    float pitchDelta = -deltaY * mouseSensitivity * DegreesToRadians(1.0f); // Invert Y
-
-    // Apply rotation
-    float currentPitch, currentYaw, currentRoll;
-    GetRotation(currentPitch, currentYaw, currentRoll);
-    
-    currentYaw += yawDelta;
-    currentPitch += pitchDelta;
-
-    // Clamp pitch to prevent camera flip
-    float pitchDegrees = RadiansToDegrees(currentPitch);
-    pitchDegrees = std::clamp(pitchDegrees, minPitchDegrees, maxPitchDegrees);
-    currentPitch = DegreesToRadians(pitchDegrees);
-
-    SetRotation(currentPitch, currentYaw, currentRoll);
-}
-
-void Camera::ProcessMovement(float deltaTime, InputManager* inputManager) {
-    float moveSpeed = movementSpeed * deltaTime;
-    
-    // Get current position and vectors
-    float currentX, currentY, currentZ;
-    GetPosition(currentX, currentY, currentZ);
-    
-    float forwardX, forwardY, forwardZ;
-    float rightX, rightY, rightZ;
-    GetForwardVector(forwardX, forwardY, forwardZ);
-    GetRightVector(rightX, rightY, rightZ);
-
-    // Calculate movement vector
-    float moveX = 0, moveY = 0, moveZ = 0;
-
-    // WASD movement
-    if (inputManager->IsKeyDown('W') || inputManager->IsKeyDown('w')) {
-        moveX += forwardX * moveSpeed;
-        moveY += forwardY * moveSpeed;
-        moveZ += forwardZ * moveSpeed;
-    }
-    if (inputManager->IsKeyDown('S') || inputManager->IsKeyDown('s')) {
-        moveX -= forwardX * moveSpeed;
-        moveY -= forwardY * moveSpeed;
-        moveZ -= forwardZ * moveSpeed;
-    }
-    if (inputManager->IsKeyDown('A') || inputManager->IsKeyDown('a')) {
-        moveX -= rightX * moveSpeed;
-        moveY -= rightY * moveSpeed;
-        moveZ -= rightZ * moveSpeed;
-    }
-    if (inputManager->IsKeyDown('D') || inputManager->IsKeyDown('d')) {
-        moveX += rightX * moveSpeed;
-        moveY += rightY * moveSpeed;
-        moveZ += rightZ * moveSpeed;
-    }
-
-    // Vertical movement (Space/Shift)
-    if (inputManager->IsKeyDown(VK_SPACE)) {
-        moveY += moveSpeed; // Up
-    }
-    if (inputManager->IsKeyDown(VK_SHIFT)) {
-        moveY -= moveSpeed; // Down
-    }
-
-    // Apply movement
-    if (moveX != 0 || moveY != 0 || moveZ != 0) {
-        SetPosition(currentX + moveX, currentY + moveY, currentZ + moveZ);
-    }
-}
-
 void Camera::SetProjection(float fov, float aspect, float nearPlane, float farPlane) {
     fovDegrees = fov;
     aspectRatio = aspect;
@@ -338,22 +236,24 @@ void Camera::PrintCameraInfo() const {
 void Camera::UpdateViewMatrix() const {
     float eyeX, eyeY, eyeZ;
     GetPosition(eyeX, eyeY, eyeZ);
-    
-    float forwardX, forwardY, forwardZ;
-    GetForwardVector(forwardX, forwardY, forwardZ);
-    
-    float upX, upY, upZ;
-    GetUpVector(upX, upY, upZ);
-    
+
+    float pitch, yaw, roll;
+    GetRotation(pitch, yaw, roll);
+
+    // Use the SAME forward calculation as CameraMatrixSystem
+    float forwardX = sinf(yaw) * cosf(pitch);
+    float forwardY = -sinf(pitch);
+    float forwardZ = -cosf(yaw) * cosf(pitch);
+
     // Target is position + forward
     float targetX = eyeX + forwardX;
     float targetY = eyeY + forwardY;
     float targetZ = eyeZ + forwardZ;
-    
+
     viewMatrix = Matrix::LookAt(eyeX, eyeY, eyeZ,
-                                targetX, targetY, targetZ,
-                                upX, upY, upZ);
-    
+        targetX, targetY, targetZ,
+        0.0f, 1.0f, 0.0f);  // World up
+
     viewMatrixDirty = false;
 }
 

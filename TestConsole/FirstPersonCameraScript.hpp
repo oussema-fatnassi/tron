@@ -110,10 +110,11 @@ private:
         
         // Apply mouse sensitivity
         cameraYaw += deltaX * mouseSensitivity;
-        cameraPitch -= deltaY * mouseSensitivity; // Invert Y
+        cameraPitch += deltaY * mouseSensitivity; // Invert Y
         
         // Clamp pitch
-        cameraPitch = std::clamp(cameraPitch, minPitch, maxPitch);
+        //cameraPitch = std::clamp(cameraPitch, minPitch, maxPitch);
+        cameraPitch = max(-1.5f, min(1.5f, cameraPitch));
         
         // Update transform rotation
         SetTransformRotation(entity, cameraPitch, cameraYaw, 0.0f);

@@ -135,7 +135,6 @@ bool Engine::InitializeSubsystems() {
     auto* scriptSystem = _world->RegisterSystem<ScriptSystem>();
     auto* cameraMatrixSystem = _world->RegisterSystem<CameraMatrixSystem>(_renderCommandQueue.get());
     auto* meshRenderSystem = _world->RegisterSystem<MeshRenderSystem>(_renderCommandQueue.get(), cameraMatrixSystem);
-    //auto* cameraSystem = _world->RegisterSystem<CameraSystem>(_inputManager.get());
     auto* physicsSystem = _world->RegisterSystem<PhysicsSystem>();
 
     physicsSystem->SetDebugOutput(false); // Enable debug output for testing

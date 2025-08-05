@@ -34,9 +34,9 @@ void CameraMatrixSystem::Update(float deltaTime) {
     // Update camera from entity transform
     if (cameraEntity != 0 && world) {
         UpdateCameraFromEntity();
-    } else if (activeCamera) {
+    } 
+    else if (activeCamera) {
         // Fallback: Use Camera object if available
-        activeCamera->Update(deltaTime, nullptr);
         UpdateMatricesFromCamera();
     }
     
@@ -45,43 +45,42 @@ void CameraMatrixSystem::Update(float deltaTime) {
 
 void CameraMatrixSystem::UpdateCameraFromEntity() {
     if (!world || cameraEntity == 0) return;
-    
+
     auto* transform = world->GetComponent<Transform>(cameraEntity);
     if (!transform) return;
-    
+
     // Camera position
     float eyeX = transform->x;
-    float eyeY = transform->y; 
+    float eyeY = transform->y;
     float eyeZ = transform->z;
-    
-    // FIXED: Calculate forward vector correctly
+
     float pitch = transform->pitch;
     float yaw = transform->yaw;
-    
-    // Standard FPS camera forward calculation
-    float forwardX = sinf(yaw) * cosf(pitch);      // FIXED: positive sin for yaw
-    float forwardY = -sinf(pitch);                 // Look up/down
-    float forwardZ = -cosf(yaw) * cosf(pitch);     // FIXED: negative cos for forward (toward negative Z)
-    
-    // Target position (camera position + forward direction)
+
+    // Calculate forward vector
+    float forwardX = sinf(yaw) * cosf(pitch);
+    float forwardY = -sinf(pitch);
+    float forwardZ = -cosf(yaw) * cosf(pitch);
+
+    // Target position
     float targetX = eyeX + forwardX;
     float targetY = eyeY + forwardY;
     float targetZ = eyeZ + forwardZ;
-    
-    // Create view matrix - STANDARD LOOKAT
+
+    // Create view matrix
     viewMatrix = Matrix::LookAt(
-        eyeX, eyeY, eyeZ,        // Camera position
-        targetX, targetY, targetZ, // Look at target
-        0.0f, 1.0f, 0.0f         // Up vector (world Y-up)
+        eyeX, eyeY, eyeZ,
+        targetX, targetY, targetZ,
+        0.0f, 1.0f, 0.0f
     );
-    
-    // Debug output with better frequency and more detail
-    static int debugCount = 0;
-    if ((++debugCount % 120) == 0) { // Every 1 second at 120fps
-        std::cout << "[CameraMatrix] Camera(" << eyeX << "," << eyeY << "," << eyeZ 
-                  << ") -> Target(" << targetX << "," << targetY << "," << targetZ << ")\n";
-        std::cout << "[CameraMatrix] Forward vector: (" << forwardX << "," << forwardY << "," << forwardZ << ")\n";
-        std::cout << "[CameraMatrix] Yaw=" << (yaw * 180.0f / 3.14159f) << "° Pitch=" << (pitch * 180.0f / 3.14159f) << "°\n";
+
+    // ADD THIS DEBUG OUTPUT
+    static int frameCount = 0;
+    if (++frameCount % 60 == 0) { // Every second
+        std::cout << "[CameraMatrix] Pos(" << eyeX << "," << eyeY << "," << eyeZ
+            << ") Looking at(" << targetX << "," << targetY << "," << targetZ << ")\n";
+        std::cout << "[CameraMatrix] Rotation: Pitch=" << (pitch * 180 / 3.14159f)
+            << "° Yaw=" << (yaw * 180 / 3.14159f) << "°\n";
     }
 }
 
