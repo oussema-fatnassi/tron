@@ -163,6 +163,7 @@ copy "$(SolutionDir)bin\$(Configuration)\*.cso" "$(SolutionDir)TestConsole\"</Co
     <Text Include="..\ALL_ECS_SYSTEM\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ParticleTestScript.hpp" />
     <ClInclude Include="PhysicsTestScript.hpp" />
     <ClInclude Include="PlayerScript.hpp" />
     <ClInclude Include="SecondScript.hpp" />
