@@ -5,7 +5,7 @@
 // Forward declarations
 struct Transform;
 
-// Color structure for rendering
+// Color structure for rendering (existing)
 struct RenderColor {
     float r, g, b, a;
 
@@ -15,10 +15,10 @@ struct RenderColor {
     }
 };
 
-// Transform data for rendering (copy of essential transform info)
+// Transform data for rendering (existing)
 struct RenderTransform {
     float position[3];    // x, y, z
-    float rotation[3];    // rx, ry, rz (euler angles for now)
+    float rotation[3];    // rx, ry, rz (euler angles)
     float scale[3];       // sx, sy, sz
 
     RenderTransform() {
@@ -34,7 +34,32 @@ struct RenderTransform {
     }
 };
 
-// Render command types
+// NEW: Matrix data for rendering (16 floats in column-major order)
+struct RenderMatrix {
+    float data[16];
+    
+    RenderMatrix() {
+        // Initialize as identity matrix
+        for (int i = 0; i < 16; ++i) data[i] = 0.0f;
+        data[0] = data[5] = data[10] = data[15] = 1.0f; // Diagonal = 1
+    }
+    
+    void SetFromMatrix(const class Matrix& matrix); // Implementation needed
+};
+
+// NEW: Camera matrices for rendering
+struct RenderCameraMatrices {
+    RenderMatrix worldMatrix;
+    RenderMatrix viewMatrix;
+    RenderMatrix projectionMatrix;
+    RenderMatrix worldViewProjMatrix;
+    
+    bool hasValidMatrices;
+    
+    RenderCameraMatrices() : hasValidMatrices(false) {}
+};
+
+// Render command types (existing)
 enum class RenderCommandType {
     DRAW_MESH,
     CLEAR_SCREEN,
@@ -43,30 +68,33 @@ enum class RenderCommandType {
     END_FRAME
 };
 
-// Main render command structure
+// Main render command structure (EXTENDED)
 struct RenderCommand {
     RenderCommandType type;
 
-    // Mesh rendering data (used for DRAW_MESH)
+    // Mesh rendering data (existing)
     std::string meshName;
     std::string shaderName;
-    std::string materialName;  // Optional
+    std::string materialName;
     RenderTransform transform;
     RenderColor color;
     bool visible;
     float alpha;
 
-    // Screen clear data (used for CLEAR_SCREEN)
+    // Screen clear data (existing)
     RenderColor clearColor;
 
-    // Default constructor
+    // NEW: Camera matrices
+    RenderCameraMatrices cameraMatrices;
+
+    // Default constructor (existing)
     RenderCommand()
         : type(RenderCommandType::DRAW_MESH)
         , visible(true)
         , alpha(1.0f) {
     }
 
-    // Convenience constructor for mesh rendering
+    // Existing convenience constructors...
     static RenderCommand CreateDrawMesh(
         const std::string& mesh,
         const std::string& shader,
@@ -86,7 +114,20 @@ struct RenderCommand {
         return cmd;
     }
 
-    // Convenience constructor for screen clear
+    // NEW: Enhanced constructor with matrices
+    static RenderCommand CreateDrawMeshWithMatrices(
+        const std::string& mesh,
+        const std::string& shader,
+        const RenderTransform& trans,
+        const RenderCameraMatrices& matrices,
+        const RenderColor& col = RenderColor(),
+        const std::string& material = ""
+    ) {
+        RenderCommand cmd = CreateDrawMesh(mesh, shader, trans, col, material);
+        cmd.cameraMatrices = matrices;
+        return cmd;
+    }
+
     static RenderCommand CreateClearScreen(const RenderColor& col = RenderColor(0.0f, 0.0f, 0.0f, 1.0f)) {
         RenderCommand cmd;
         cmd.type = RenderCommandType::CLEAR_SCREEN;
