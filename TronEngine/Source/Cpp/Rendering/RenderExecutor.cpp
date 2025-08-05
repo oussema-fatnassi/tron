@@ -3,6 +3,7 @@
 #include "../../Headers/Rendering/Resources/MeshManager.hpp"
 #include "../../Headers/Rendering/Resources/MaterialManager.hpp"
 #include "../../Headers/Rendering/Resources/ShaderManager.hpp"
+#include "../../Headers/Game/ConstantBuffers.hpp"
 #include <iostream>
 #include <cmath>
 
@@ -178,76 +179,73 @@ bool RenderExecutor::SetupShaderPipeline(ID3D11DeviceContext* context, const std
 }
 
 void RenderExecutor::UpdateRenderConstants(ID3D11DeviceContext* context, const RenderCommand& command) {
-    // Create transform data from the render command
-    ObjectTransformBuffer transformData = {};
+    // Create camera matrices constant buffer (NEW APPROACH)
+    static ID3D11Buffer* s_cameraMatricesBuffer = nullptr;
     
-    // Copy position from render command
-    transformData.position[0] = command.transform.position[0];
-    transformData.position[1] = command.transform.position[1]; 
-    transformData.position[2] = command.transform.position[2];
-    
-    // Copy scale (default to 1.0 if not provided)
-    transformData.scale[0] = (command.transform.scale[0] != 0.0f) ? command.transform.scale[0] : 1.0f;
-    transformData.scale[1] = (command.transform.scale[1] != 0.0f) ? command.transform.scale[1] : 1.0f;
-    transformData.scale[2] = (command.transform.scale[2] != 0.0f) ? command.transform.scale[2] : 1.0f;
-    
-    // Copy rotation (default to 0.0 if not provided)
-    transformData.rotation[0] = command.transform.rotation[0];
-    transformData.rotation[1] = command.transform.rotation[1];
-    transformData.rotation[2] = command.transform.rotation[2];
-    
-  /*  std::cout << "[RenderExecutor] Transform data: pos(" 
-              << transformData.position[0] << ", " << transformData.position[1] 
-              << ", " << transformData.position[2] << ") scale(" 
-              << transformData.scale[0] << ", " << transformData.scale[1] 
-              << ", " << transformData.scale[2] << ")\n";*/
-    
-    // Map the existing constant buffer instead of creating a new one each frame
-    D3D11_MAPPED_SUBRESOURCE mappedResource;
-    
-    // Get or create a persistent constant buffer
-    static ID3D11Buffer* s_transformBuffer = nullptr;
-    
-    if (!s_transformBuffer) {
-        // Create the constant buffer once
+    if (!s_cameraMatricesBuffer) {
+        // Create the camera matrices constant buffer once
         D3D11_BUFFER_DESC bufferDesc = {};
         bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-        bufferDesc.ByteWidth = sizeof(ObjectTransformBuffer);
+        bufferDesc.ByteWidth = sizeof(CameraMatricesBuffer);
         bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
         bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
         
-        HRESULT hr = renderEngine->GetDevice()->CreateBuffer(&bufferDesc, nullptr, &s_transformBuffer);
+        HRESULT hr = renderEngine->GetDevice()->CreateBuffer(&bufferDesc, nullptr, &s_cameraMatricesBuffer);
         
         if (FAILED(hr)) {
-            std::cout << "[RenderExecutor] Failed to create transform constant buffer: " 
+            std::cout << "[RenderExecutor] Failed to create camera matrices constant buffer: " 
                       << std::hex << hr << std::dec << "\n";
             return;
         }
         
-        //std::cout << "[RenderExecutor] Created persistent transform constant buffer\n";
+        std::cout << "[RenderExecutor] Created camera matrices constant buffer\n";
     }
     
-    // Map and update the buffer
-    HRESULT hr = context->Map(s_transformBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    // Prepare camera matrices data
+    CameraMatricesBuffer cameraData;
+    
+    if (command.cameraMatrices.hasValidMatrices) {
+        // Use matrices from the command
+        memcpy(cameraData.worldMatrix.Data(), command.cameraMatrices.worldMatrix.data, sizeof(float) * 16);
+        memcpy(cameraData.viewMatrix.Data(), command.cameraMatrices.viewMatrix.data, sizeof(float) * 16);
+        memcpy(cameraData.projectionMatrix.Data(), command.cameraMatrices.projectionMatrix.data, sizeof(float) * 16);
+        memcpy(cameraData.worldViewProjMatrix.Data(), command.cameraMatrices.worldViewProjMatrix.data, sizeof(float) * 16);
+    } else {
+        // Create matrices from transform data (fallback)
+        Matrix worldMatrix = CreateWorldMatrixFromTransform(command.transform);
+        Matrix viewMatrix = Matrix::Identity(); // Default view
+        Matrix projMatrix = Matrix::Perspective(DegreesToRadians(75.0f), 16.0f/9.0f, 0.1f, 1000.0f);
+        
+        cameraData.worldMatrix = worldMatrix;
+        cameraData.viewMatrix = viewMatrix;
+        cameraData.projectionMatrix = projMatrix;
+        cameraData.worldViewProjMatrix = projMatrix * viewMatrix * worldMatrix;
+    }
+    
+    // Map and update the camera matrices buffer
+    D3D11_MAPPED_SUBRESOURCE mappedResource;
+    HRESULT hr = context->Map(s_cameraMatricesBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
     
     if (SUCCEEDED(hr)) {
-        // Copy the transform data to the mapped buffer
-        memcpy(mappedResource.pData, &transformData, sizeof(ObjectTransformBuffer));
-        context->Unmap(s_transformBuffer, 0);
+        memcpy(mappedResource.pData, &cameraData, sizeof(CameraMatricesBuffer));
+        context->Unmap(s_cameraMatricesBuffer, 0);
         
         // Bind to vertex shader constant buffer slot 0
-        context->VSSetConstantBuffers(0, 1, &s_transformBuffer);
+        context->VSSetConstantBuffers(0, 1, &s_cameraMatricesBuffer);
         
-        // Also keep the existing color buffer for pixel shader
+        // Keep existing pixel shader constant buffer (slot 1)
         ID3D11Buffer* colorBuffer = renderEngine->GetColorConstantBuffer();
         if (colorBuffer) {
             context->PSSetConstantBuffers(1, 1, &colorBuffer);
         }
         
-        // Debug: Verify the constant buffer is bound
-        //std::cout << "[RenderExecutor] Transform constant buffer updated and bound successfully\n";
+        // Debug output (remove in production)
+        static int debugCount = 0;
+        if ((++debugCount % 300) == 0) {
+            //std::cout << "[RenderExecutor] Camera matrices updated (frame " << debugCount << ")\n";
+        }
     } else {
-        std::cout << "[RenderExecutor] Failed to map transform constant buffer: " 
+        std::cout << "[RenderExecutor] Failed to map camera matrices buffer: " 
                   << std::hex << hr << std::dec << "\n";
     }
 }
@@ -306,4 +304,14 @@ void RenderExecutor::CreateViewProjectionMatrix(float viewProjMatrix[16]) {
 void RenderExecutor::ResetFrameStats() {
     drawCallsThisFrame = 0;
     verticesRenderedThisFrame = 0;
+}
+
+// Helper method to create world matrix from transform
+Matrix RenderExecutor::CreateWorldMatrixFromTransform(const RenderTransform& transform) {
+    // Create TRS matrix: Translation * Rotation * Scale
+    Matrix translation = Matrix::Translation(transform.position[0], transform.position[1], transform.position[2]);
+    Matrix rotation = Matrix::RotationEuler(transform.rotation[0], transform.rotation[1], transform.rotation[2]);
+    Matrix scale = Matrix::Scale(transform.scale[0], transform.scale[1], transform.scale[2]);
+    
+    return translation * rotation * scale;
 }

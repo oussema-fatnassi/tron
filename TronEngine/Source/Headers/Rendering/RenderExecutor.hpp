@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include "../Communication/RenderCommand.hpp"
+#include "../Math/Matrix.hpp"
 
 // Forward declarations
 class RenderEngine;
@@ -75,4 +76,6 @@ private:
     // Matrix/Transform helpers
     void CreateWorldMatrix(const RenderTransform& transform, float worldMatrix[16]);
     void CreateViewProjectionMatrix(float viewProjMatrix[16]);
+    Matrix CreateWorldMatrixFromTransform(const RenderTransform& transform);
+
 };
