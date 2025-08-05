@@ -112,10 +112,10 @@ RenderCommand MeshRenderSystem::CreateRenderCommandFromEntity(Entity entity,
     // FIXED: Camera matrix integration with proper null checking
     if (cameraMatrixSystem) {
         // Create world matrix from transform
-        Matrix translation = Matrix::Translation(transform->x, transform->y, transform->z);
-        Matrix rotation = Matrix::RotationEuler(transform->rotationX, transform->rotationY, transform->rotationZ);
         Matrix scale = Matrix::Scale(transform->scaleX, transform->scaleY, transform->scaleZ);
-        Matrix worldMatrix = translation * rotation * scale;
+        Matrix rotation = Matrix::RotationEuler(transform->rotationX, transform->rotationY, transform->rotationZ);
+        Matrix translation = Matrix::Translation(transform->x, transform->y, transform->z);
+        Matrix worldMatrix = scale * rotation * translation;
         
         // Get camera matrices
         Matrix viewMatrix = cameraMatrixSystem->GetViewMatrix();

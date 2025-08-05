@@ -17,19 +17,18 @@ struct VertexOutput {
     float3 color : COLOR;
 };
 
-VertexOutput main(VertexInput input) {
+VertexOutput main(VertexInput input)
+{
     VertexOutput output;
     
-    // Transform vertex position through the full pipeline:
-    // Local Space -> World Space -> View Space -> Clip Space
+    // For column-major matrices, multiply matrix first, then vector
+    float4 localPos = float4(input.position, 1.0f);
+    float4 worldPos = mul(worldMatrix, localPos);
+    float4 viewPos = mul(viewMatrix, worldPos);
+    float4 clipPos = mul(projectionMatrix, viewPos);
     
-    // Method 1: Step by step (easier to debug)
-    float4 worldPos = mul(float4(input.position, 1.0f), worldMatrix);
-    float4 viewPos = mul(worldPos, viewMatrix);
-    float4 clipPos = mul(viewPos, projectionMatrix);
-    
-    // Method 2: Combined matrix (more efficient, uncomment to use)
-    // float4 clipPos = mul(float4(input.position, 1.0f), worldViewProjMatrix);
+    // Or use the pre-computed combined matrix:
+    //float4 clipPos = mul(worldViewProjMatrix, float4(input.position, 1.0f));
     
     output.pos = clipPos;
     output.color = input.color;
