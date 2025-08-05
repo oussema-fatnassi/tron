@@ -1,15 +1,10 @@
-// Fixed Transform-Aware Vertex Shader
-// This shader receives transform data from the CPU and applies it properly
-
-// Constant buffer for object transform (register b0)
-cbuffer ObjectTransform : register(b0)
+// Constant buffer for camera matrices (register b0)
+cbuffer CameraMatrices : register(b0)
 {
-    float3 objectPosition;    // From Transform component (x, y, z)
-    float  padding1;          // Padding for 16-byte alignment
-    float3 objectScale;       // From Transform component (scaleX, scaleY, scaleZ)  
-    float  padding2;          // Padding for 16-byte alignment
-    float3 objectRotation;    // From Transform component (pitch, yaw, roll)
-    float  padding3;          // Padding for 16-byte alignment
+    matrix worldMatrix;      // Object's world transform
+    matrix viewMatrix;       // Camera view matrix
+    matrix projectionMatrix; // Camera projection matrix
+    matrix worldViewProjMatrix; // Combined WVP matrix (for optimization)
 }
 
 struct VertexInput {
@@ -25,28 +20,18 @@ struct VertexOutput {
 VertexOutput main(VertexInput input) {
     VertexOutput output;
     
-    // Apply transform from Transform component
-    float3 worldPos = input.position;
+    // Transform vertex position through the full pipeline:
+    // Local Space -> World Space -> View Space -> Clip Space
     
-    // Apply scale
-    worldPos *= objectScale;
+    // Method 1: Step by step (easier to debug)
+    float4 worldPos = mul(float4(input.position, 1.0f), worldMatrix);
+    float4 viewPos = mul(worldPos, viewMatrix);
+    float4 clipPos = mul(viewPos, projectionMatrix);
     
-    // TODO: Apply rotation (for now, skip rotation to avoid complexity)
+    // Method 2: Combined matrix (more efficient, uncomment to use)
+    // float4 clipPos = mul(float4(input.position, 1.0f), worldViewProjMatrix);
     
-    // Apply translation (position from Transform component)
-    worldPos += objectPosition;
-    
-    // IMPORTANT: Proper projection matrix
-    // Create a simple orthographic projection that maps world coordinates to screen
-    float4 projectedPos = float4(worldPos, 1.0f);
-    
-    // Scale down the world coordinates to fit the screen properly
-    // This creates a camera-like view where (0,0,0) is at center of screen
-    projectedPos.x *= 0.1f;  // Scale X
-    projectedPos.y *= 0.1f;  // Scale Y
-    projectedPos.z = 0.0f;   // Flatten Z for 2D-like view
-    
-    output.pos = projectedPos;
+    output.pos = clipPos;
     output.color = input.color;
     
     return output;
