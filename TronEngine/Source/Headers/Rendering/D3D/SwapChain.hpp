@@ -12,6 +12,7 @@ public:
 
     ID3D11RenderTargetView* GetBackBufferRTV() const { return renderTargetView; }
     ID3D11DepthStencilView* GetDepthStencilView() const { return depthStencilView; }
+    ID3D11DepthStencilState* GetDepthStencilState() const { return depthStencilState; }
 
 private:
     int width, height;

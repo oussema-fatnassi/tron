@@ -78,6 +78,36 @@ void RenderEngine::BeginFrame() {
     viewport.MinDepth = 0.0f;
     viewport.MaxDepth = 1.0f;
     ctx->RSSetViewports(1, &viewport);
+
+    // ADD THIS: Create and set rasterizer state
+    static ID3D11RasterizerState* rasterizerState = nullptr;
+    if (!rasterizerState) {
+        D3D11_RASTERIZER_DESC rasterDesc = {};
+        rasterDesc.FillMode = D3D11_FILL_SOLID;
+        rasterDesc.CullMode = D3D11_CULL_NONE;  // Disable culling to see all faces
+        rasterDesc.FrontCounterClockwise = FALSE;
+        rasterDesc.DepthBias = 0;
+        rasterDesc.SlopeScaledDepthBias = 0.0f;
+        rasterDesc.DepthBiasClamp = 0.0f;
+        rasterDesc.DepthClipEnable = TRUE;
+        rasterDesc.ScissorEnable = FALSE;
+        rasterDesc.MultisampleEnable = FALSE;
+        rasterDesc.AntialiasedLineEnable = FALSE;
+
+        HRESULT hr = context->GetDevice()->CreateRasterizerState(&rasterDesc, &rasterizerState);
+        if (FAILED(hr)) {
+            std::cout << "[RenderEngine] Failed to create rasterizer state\n";
+        }
+    }
+
+    if (rasterizerState) {
+        ctx->RSSetState(rasterizerState);
+    }
+
+    // ADD THIS: Set the depth stencil state from SwapChain
+    if (swapChain->GetDepthStencilState()) {
+        ctx->OMSetDepthStencilState(swapChain->GetDepthStencilState(), 0);
+    }
 }
 
 void RenderEngine::EndFrame() {
