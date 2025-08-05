@@ -115,4 +115,9 @@ extern "C" {
     ENGINE_API void SetPhysicsGridCellSize(float cellSize);
     ENGINE_API void GetPhysicsPerformanceStats(float* broadPhaseMs, float* narrowPhaseMs, float* totalMs);
     ENGINE_API void PrintPhysicsSystemStats();
+
+    // NEW: Camera Entity Integration (Add this to the existing API)
+    ENGINE_API bool SetCameraEntity(uint32_t entity);
+    ENGINE_API uint32_t GetCameraEntity();
+    ENGINE_API void PrintCameraMatrices();
 }

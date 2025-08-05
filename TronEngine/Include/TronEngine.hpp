@@ -19,3 +19,8 @@
 // Utility macros
 // TODO: Check what is used for and if we need to keep it
 #define TRON_UNUSED(x) ((void)(x))
+
+// Camera Entity Integration - NEW API
+bool SetCameraEntity(uint32_t entity);
+uint32_t GetCameraEntity();
+void PrintCameraMatrices();

@@ -4,6 +4,7 @@
 #include <iostream>
 #include "../Headers/Rendering/Camera.hpp"
 #include "../Headers/Math/Matrix.hpp"
+#include "../Headers/Game/CameraMatrixSystem.hpp"
 #include <unordered_map>
 
 // Global singleton instance
@@ -687,6 +688,47 @@ extern "C" {
         auto* physicsSystem = g_engineInstance->GetWorld()->GetSystem<PhysicsSystem>();
         if (physicsSystem) {
             physicsSystem->PrintPhysicsStats();
+        }
+    }
+
+    // NEW: Camera Entity Integration
+    ENGINE_API bool SetCameraEntity(uint32_t entity) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) {
+            std::cout << "[EngineAPI] Error: No engine or world available\n";
+            return false;
+        }
+
+        auto* cameraMatrixSystem = g_engineInstance->GetWorld()->GetSystem<CameraMatrixSystem>();
+        if (!cameraMatrixSystem) {
+            std::cout << "[EngineAPI] Error: CameraMatrixSystem not found\n";
+            return false;
+        }
+
+        cameraMatrixSystem->SetCameraEntity(entity);
+        std::cout << "[EngineAPI] Camera entity set to " << entity << "\n";
+        return true;
+    }
+
+    ENGINE_API uint32_t GetCameraEntity() {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return 0;
+
+        auto* cameraMatrixSystem = g_engineInstance->GetWorld()->GetSystem<CameraMatrixSystem>();
+        if (!cameraMatrixSystem) return 0;
+
+        return cameraMatrixSystem->GetCameraEntity();
+    }
+
+    ENGINE_API void PrintCameraMatrices() {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) {
+            std::cout << "[EngineAPI] Error: No engine or world available\n";
+            return;
+        }
+
+        auto* cameraMatrixSystem = g_engineInstance->GetWorld()->GetSystem<CameraMatrixSystem>();
+        if (cameraMatrixSystem) {
+            cameraMatrixSystem->PrintCameraMatrices();
+        } else {
+            std::cout << "[EngineAPI] Error: CameraMatrixSystem not found\n";
         }
     }
 }
