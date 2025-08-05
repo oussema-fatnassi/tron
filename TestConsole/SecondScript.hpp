@@ -16,11 +16,11 @@ public:
     void Start() override {
 		AddBoxColliderComponent(entity, 1.0f, 1.0f, 1.0f, true); // Add a collider
 		//Add a random velocity to this entity
-		AddVelocityComponent(entity,
-			static_cast<float>(rand() % 10 - 5), // Random X velocity between -5 and 5
-			static_cast<float>(rand() % 10 - 5), // Random Y velocity between -5 and 5
-			0.0f
-		);
+		//AddVelocityComponent(entity,
+		//	static_cast<float>(rand() % 10 - 5), // Random X velocity between -5 and 5
+		//	static_cast<float>(rand() % 10 - 5), // Random Y velocity between -5 and 5
+		//	0.0f
+		//);
     }
 
     void Update(float deltaTime) override 
