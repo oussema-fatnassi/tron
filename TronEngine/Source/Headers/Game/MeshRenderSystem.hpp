@@ -4,6 +4,7 @@
 
 // Forward declarations - NO rendering dependencies!
 class BufferedCommandQueue;
+class CameraMatrixSystem;
 struct Transform;
 struct MeshRenderer;  // This is the COMPONENT, not our rendering class
 struct RenderCommand;
@@ -30,11 +31,12 @@ struct RenderCommand;
 class MeshRenderSystem : public System {
 private:        // Communication with render thread
     BufferedCommandQueue* commandQueue;
+    CameraMatrixSystem* cameraMatrixSystem;  // For camera matrices
     uint32_t entitiesProcessed;          // Statistics for debugging
 
 public:
     // Constructor takes only CommandQueue - no rendering dependencies
-    MeshRenderSystem(BufferedCommandQueue* cmdQueue);
+    MeshRenderSystem(BufferedCommandQueue* cmdQueue, CameraMatrixSystem* cameraSystem);
     ~MeshRenderSystem() = default;
 
     // System interface

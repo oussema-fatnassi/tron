@@ -4,11 +4,15 @@
 #include "../../Headers/Game/MeshRendererComponent.hpp"
 #include "../../Headers/Communication/RenderCommand.hpp"
 #include "../../Headers/Rendering/D3D/BufferedCommandQueue.hpp"
+#include "../../Headers/Game/CameraMatrixSystem.hpp"
+#include "../../Headers/Game/ConstantBuffers.hpp"
+#include "../../Headers/Math/Matrix.hpp"
 #include <iostream>
 
 // Constructor now only takes CommandQueue - no direct rendering dependencies
-MeshRenderSystem::MeshRenderSystem(BufferedCommandQueue* cmdQueue)
+MeshRenderSystem::MeshRenderSystem(BufferedCommandQueue* cmdQueue, CameraMatrixSystem* cameraSystem)
     : commandQueue(cmdQueue)
+    , cameraMatrixSystem(cameraSystem)
     , entitiesProcessed(0) {
 
     //std::cout << "[MeshRenderSystem] Clean ECS rendering system initialized (NO D3D dependencies)\n";
@@ -69,23 +73,22 @@ void MeshRenderSystem::GenerateRenderCommands() {
 RenderCommand MeshRenderSystem::CreateRenderCommandFromEntity(Entity entity,
     const Transform* transform,
     const MeshRenderer* meshRenderer) {
-    // Convert ECS Transform to RenderTransform
+    
+    // Convert ECS Transform to RenderTransform (existing code)
     RenderTransform renderTransform;
     renderTransform.position[0] = transform->x;
     renderTransform.position[1] = transform->y;
     renderTransform.position[2] = transform->z;
 
-    // FIXED: Use proper rotation and scale from Transform component
     renderTransform.rotation[0] = transform->rotationX;
     renderTransform.rotation[1] = transform->rotationY;
     renderTransform.rotation[2] = transform->rotationZ;
 
-    // FIXED: Use proper scale values from Transform component
     renderTransform.scale[0] = transform->scaleX;
     renderTransform.scale[1] = transform->scaleY;
     renderTransform.scale[2] = transform->scaleZ;
 
-    // Convert MeshRenderer color to RenderColor
+    // Convert MeshRenderer color to RenderColor (existing code)
     RenderColor renderColor(
         meshRenderer->color[0],
         meshRenderer->color[1],
@@ -93,7 +96,7 @@ RenderCommand MeshRenderSystem::CreateRenderCommandFromEntity(Entity entity,
         meshRenderer->color[3]
     );
 
-    // Create render command with all necessary data
+    // Create basic render command
     RenderCommand command = RenderCommand::CreateDrawMesh(
         meshRenderer->GetMeshName(),
         meshRenderer->shaderName,
@@ -105,6 +108,45 @@ RenderCommand MeshRenderSystem::CreateRenderCommandFromEntity(Entity entity,
     // Set additional properties
     command.visible = meshRenderer->isVisible;
     command.alpha = meshRenderer->alpha;
+
+    // FIXED: Camera matrix integration with proper null checking
+    if (cameraMatrixSystem) {
+        // Create world matrix from transform
+        Matrix translation = Matrix::Translation(transform->x, transform->y, transform->z);
+        Matrix rotation = Matrix::RotationEuler(transform->rotationX, transform->rotationY, transform->rotationZ);
+        Matrix scale = Matrix::Scale(transform->scaleX, transform->scaleY, transform->scaleZ);
+        Matrix worldMatrix = translation * rotation * scale;
+        
+        // Get camera matrices
+        Matrix viewMatrix = cameraMatrixSystem->GetViewMatrix();
+        Matrix projectionMatrix = cameraMatrixSystem->GetProjectionMatrix();
+        
+        // Create combined WVP matrix
+        Matrix worldViewProjMatrix = projectionMatrix * viewMatrix * worldMatrix;
+        
+        // Store matrices in render command
+        command.cameraMatrices.hasValidMatrices = true;
+        
+        // Copy matrix data (we'll need to implement this helper)
+        memcpy(command.cameraMatrices.worldMatrix.data, worldMatrix.Data(), sizeof(float) * 16);
+        memcpy(command.cameraMatrices.viewMatrix.data, viewMatrix.Data(), sizeof(float) * 16);
+        memcpy(command.cameraMatrices.projectionMatrix.data, projectionMatrix.Data(), sizeof(float) * 16);
+        memcpy(command.cameraMatrices.worldViewProjMatrix.data, worldViewProjMatrix.Data(), sizeof(float) * 16);
+        
+        // Debug: Print matrices occasionally for first entity
+        static int debugCounter = 0;
+        if ((++debugCounter % 300) == 0 && entity == 1) {
+            std::cout << "[MeshRenderSystem] Entity " << entity << " matrices updated (frame " << debugCounter << ")\n";
+        }
+    } else {
+        // Fallback: No camera system available
+        command.cameraMatrices.hasValidMatrices = false;
+        
+        static int fallbackWarning = 0;
+        if ((++fallbackWarning % 300) == 0) {
+            std::cout << "[MeshRenderSystem] WARNING: Using fallback matrices (no camera system)\n";
+        }
+    }
 
     return command;
 }
@@ -131,6 +173,7 @@ void MeshRenderSystem::OnEntityRemoved(Entity entity) {
 
     // Optional: Send command to remove any cached rendering data
     // (not needed for current implementation)
+    (void)entity;
 }
 
 // Utility methods for debugging and optimization
