@@ -1,4 +1,3 @@
-// TronEngine/Source/Headers/Game/SpatialGrid.hpp
 #pragma once
 #include "Types.hpp"
 #include <vector>
@@ -81,7 +80,7 @@ struct AABB {
 // - Only entities in same/adjacent cells are tested for collision
 // 
 // Benefits:
-// - O(n) insertion instead of O(n²) brute force
+// - O(n) insertion instead of O(nï¿½) brute force
 // - Dramatically reduces collision checks for sparse worlds
 // - Simple and cache-friendly data structure
 // </remarks>
@@ -128,6 +127,12 @@ public:
     // Grid configuration
     float GetCellSize() const { return cellSize; }
     void SetCellSize(float newCellSize);
+
+    //Raycast support
+    std::vector<Entity> GetEntitiesInCell(const GridCell& cell) const;
+    friend bool operator==(const GridCell& a, const GridCell& b) {
+        return a.x == b.x && a.y == b.y && a.z == b.z;
+    }
 
 private:
     // Helper methods

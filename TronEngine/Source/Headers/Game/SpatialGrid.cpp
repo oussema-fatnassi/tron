@@ -253,3 +253,12 @@ uint32_t SpatialGrid::GetActiveCellCount() const {
 uint32_t SpatialGrid::GetTotalEntityCount() const {
     return totalEntities;
 }
+
+std::vector<Entity> SpatialGrid::GetEntitiesInCell(const GridCell& cell) const {
+    std::vector<Entity> entities;
+    auto it = grid.find(cell);
+    if (it != grid.end()) {
+        entities = it->second;
+    }
+    return entities;
+}
