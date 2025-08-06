@@ -1,18 +1,21 @@
+// FIXED VertexShader.hlsl - Specify column_major for matrices
 // Constant buffer for camera matrices (register b0)
 cbuffer CameraMatrices : register(b0)
 {
-    matrix worldMatrix;      // Object's world transform
-    matrix viewMatrix;       // Camera view matrix
-    matrix projectionMatrix; // Camera projection matrix
-    matrix worldViewProjMatrix; // Combined WVP matrix (for optimization)
+    column_major matrix worldMatrix; // Object's world transform
+    column_major matrix viewMatrix; // Camera view matrix
+    column_major matrix projectionMatrix; // Camera projection matrix
+    column_major matrix worldViewProjMatrix; // Combined WVP matrix (for optimization)
 }
 
-struct VertexInput {
+struct VertexInput
+{
     float3 position : POSITION;
     float3 color : COLOR;
 };
 
-struct VertexOutput {
+struct VertexOutput
+{
     float4 pos : SV_POSITION;
     float3 color : COLOR;
 };

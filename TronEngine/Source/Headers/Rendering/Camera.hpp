@@ -82,11 +82,6 @@ public:
     void SetPosition(float x, float y, float z);
     void SetRotation(float pitch, float yaw, float roll);
 
-    // Camera controls
-    void Update(float deltaTime, InputManager* inputManager);
-    void ProcessMouseLook(int mouseX, int mouseY);
-    void ProcessMovement(float deltaTime, InputManager* inputManager);
-
     // Camera configuration
     void SetProjection(float fov, float aspect, float nearPlane, float farPlane);
     void SetAspectRatio(float aspect);
