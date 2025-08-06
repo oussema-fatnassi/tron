@@ -61,6 +61,10 @@ int main() {
     
     std::cout << "✓ Blue reference box created at (3, 2, 0)\n";
 
+    uint32_t circle = CreateEntity();
+    AddTransformComponent(circle, -3.0f, 2.0f, -3.0f);
+    AddMeshRendererComponent(circle, PRIMITIVE_SPHERE,"RainbowShader");
+    SetTransformUniformScale(circle, 1.0f);
 
     uint32_t particles = CreateEntity();
     ParticleTestScript* particleScript = new ParticleTestScript();
