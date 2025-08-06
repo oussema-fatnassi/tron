@@ -164,6 +164,7 @@ copy "$(SolutionDir)bin\$(Configuration)\*.cso" "$(SolutionDir)TestConsole\"</Co
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FirstPersonCameraScript.hpp" />
+    <ClInclude Include="ParticleTestScript.hpp" />
     <ClInclude Include="PhysicsTestScript.hpp" />
     <ClInclude Include="PlayerScript.hpp" />
     <ClInclude Include="SecondScript.hpp" />

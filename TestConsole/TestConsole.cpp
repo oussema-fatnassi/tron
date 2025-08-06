@@ -1,8 +1,9 @@
-﻿// Simplified TestConsole/TestConsole.cpp - Single box test
+// Simplified TestConsole/TestConsole.cpp - Single box test
 #include <iostream>
 #include <windows.h>
 #include "TronEngine.hpp"
 #include "FirstPersonCameraScript.hpp"
+#include "ParticleTestScript.hpp"  // Include our particle test script
 
 #pragma comment(lib, "TronEngine.lib")
 

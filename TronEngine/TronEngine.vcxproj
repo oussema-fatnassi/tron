@@ -41,6 +41,7 @@
     <ClInclude Include="Include\TronEngine.hpp" />
     <ClInclude Include="Source\Headers\Rendering\D3D\D3DRenderer.hpp" />
     <ClInclude Include="Source\Headers\Rendering\FullscreenQuad.hpp" />
+    <ClInclude Include="Source\Headers\Rendering\ParticleSystem.hpp" />
     <ClInclude Include="Source\Headers\Rendering\PrimitiveMeshGenerator.hpp" />
     <ClInclude Include="Source\Headers\Rendering\RenderEngine.hpp" />
     <ClInclude Include="Source\Headers\Core\Engine.hpp" />
@@ -77,6 +78,7 @@
     <ClCompile Include="Source\Cpp\Rendering\D3D\D3DContext.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\D3D\D3DRenderer.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\FullscreenQuad.cpp" />
+    <ClCompile Include="Source\Cpp\Rendering\ParticleSystem.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\PrimitiveMeshGenerator.cpp" />
     <ClCompile Include="Source\Cpp\Rendering\RenderEngine.cpp" />
     <ClCompile Include="Source\Cpp\Core\Engine.cpp" />
