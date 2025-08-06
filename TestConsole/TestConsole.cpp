@@ -61,6 +61,10 @@ int main() {
     
     std::cout << "✓ Blue reference box created at (3, 2, 0)\n";
 
+
+    uint32_t particles = CreateEntity();
+    ParticleTestScript* particleScript = new ParticleTestScript();
+    AddCustomScript(particles, particleScript);
     // Set up physics (keep it simple)
     SetPhysicsGridCellSize(5.0f);
     SetPhysicsDebugOutput(false);
