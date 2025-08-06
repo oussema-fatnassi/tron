@@ -137,8 +137,9 @@ bool Engine::InitializeSubsystems() {
     auto* cameraMatrixSystem = _world->RegisterSystem<CameraMatrixSystem>(_renderCommandQueue.get());
     auto* meshRenderSystem = _world->RegisterSystem<MeshRenderSystem>(_renderCommandQueue.get(), cameraMatrixSystem);
     //auto* cameraSystem = _world->RegisterSystem<CameraSystem>(_inputManager.get());
-    auto* physicsSystem = _world->RegisterSystem<PhysicsSystem>();
+    auto* physicsSystem = _world->RegisterSystem<PhysicsSystem>(5.0f);
     auto* raycastSystem = _world->RegisterSystem<RaycastSystem>(physicsSystem->GetSpatialGrid(), cameraMatrixSystem);
+    auto* spatialGrid = physicsSystem->GetSpatialGrid();
 
     physicsSystem->SetDebugOutput(false); // Enable debug output for testing
 
@@ -147,7 +148,7 @@ bool Engine::InitializeSubsystems() {
     _world->SetSystemSignature<Transform, Velocity>(movementSystem);
     _world->SetSystemSignature<Script>(scriptSystem);
     _world->SetSystemSignature<Transform, MeshRenderer>(meshRenderSystem);
-    //_world->SetSystemSignature<Transform>(cameraSystem);
+    _world->SetSystemSignature<Transform>(cameraMatrixSystem);
     _world->SetSystemSignature<Transform, BoxCollider>(physicsSystem);
     _world->SetSystemSignature<Transform, BoxCollider>(raycastSystem);
 

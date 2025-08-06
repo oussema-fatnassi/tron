@@ -1,5 +1,7 @@
 #pragma once
 #include "Vector3.hpp"
+#include "../Game/Types.hpp"
+#include <iostream>
 
 // <summary>
 // Ray structure for raycasting operations

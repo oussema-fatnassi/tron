@@ -5,6 +5,9 @@
 #include "../Headers/Rendering/Camera.hpp"
 #include "../Headers/Math/Matrix.hpp"
 #include "../Headers/Game/CameraMatrixSystem.hpp"
+#include "../../Headers/Game/RaycastSystem.hpp"
+#include "../../Headers/Math/Ray.hpp"
+#include "../../Headers/Math/Vector3.hpp"
 #include <unordered_map>
 
 // Global singleton instance

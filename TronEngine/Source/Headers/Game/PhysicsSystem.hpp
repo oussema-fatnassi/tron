@@ -72,6 +72,8 @@ public:
     AABB CalculateAABB(const Transform* transform, const BoxCollider* collider) const;
     bool AABBOverlap(const AABB& a, const AABB& b) const;
 
+    SpatialGrid* GetSpatialGrid() { return spatialGrid.get(); }
+
 private:
     // Core physics pipeline
     void BroadPhaseUpdate();

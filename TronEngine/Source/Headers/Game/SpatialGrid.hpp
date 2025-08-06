@@ -49,8 +49,8 @@ struct AABB {
     // Check if this AABB overlaps with another AABB
     bool Overlaps(const AABB& other) const {
         return (minX <= other.maxX && maxX >= other.minX) &&
-            (minY <= other.maxY && maxY >= other.minY) &&
-            (minZ <= other.maxZ && maxZ >= other.minZ);
+               (minY <= other.maxY && maxY >= other.minY) &&
+               (minZ <= other.maxZ && maxZ >= other.minZ);
     }
 
     // Get the center point of the AABB
@@ -127,6 +127,7 @@ public:
     // Grid configuration
     float GetCellSize() const { return cellSize; }
     void SetCellSize(float newCellSize);
+    GridCell WorldToGrid(float x, float y, float z) const;
 
     //Raycast support
     std::vector<Entity> GetEntitiesInCell(const GridCell& cell) const;
@@ -136,7 +137,6 @@ public:
 
 private:
     // Helper methods
-    GridCell WorldToGrid(float x, float y, float z) const;
     void GridToWorld(const GridCell& cell, float& x, float& y, float& z) const;
     std::vector<GridCell> GetCellsForAABB(const AABB& boundingBox) const;
     void GetAdjacentCells(const GridCell& center, std::vector<GridCell>& adjacent) const;

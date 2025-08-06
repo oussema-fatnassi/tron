@@ -4,9 +4,13 @@
 #include "../../Headers/Game/BoxColliderComponent.hpp"
 #include "../../Headers/Game/CameraMatrixSystem.hpp"
 #include "../../Headers/Math/Matrix.hpp"
+#include "../../Headers/Math/Ray.hpp"      
+#include "../../Headers/Math/Vector3.hpp"
 #include <chrono>
 #include <algorithm>
 #include <limits>
+#include <unordered_set>
+
 
 RaycastSystem::RaycastSystem(SpatialGrid* grid, CameraMatrixSystem* cameraSystem)
     : spatialGrid(grid)
@@ -278,31 +282,31 @@ bool RaycastSystem::RayAABBIntersection(const Ray& ray, const AABB& aabb, float&
     for (int i = 0; i < 3; i++) {
         float origin = (i == 0) ? ray.origin.x : (i == 1) ? ray.origin.y : ray.origin.z;
         float direction = (i == 0) ? ray.direction.x : (i == 1) ? ray.direction.y : ray.direction.z;
-        float boxMin = (i == 0) ? aabb.minX : (i == 1) ? aabb.minY : aabb.minZ;
-        float boxMax = (i == 0) ? aabb.maxX : (i == 1) ? aabb.maxY : aabb.maxZ;
+        float aabbMin = (i == 0) ? aabb.minX : (i == 1) ? aabb.minY : aabb.minZ;
+        float aabbMax = (i == 0) ? aabb.maxX : (i == 1) ? aabb.maxY : aabb.maxZ;
         
-        if (std::abs(direction) < 0.000001f) {
+        if (std::abs(direction) < 0.00001f) {
             // Ray is parallel to this axis
-            if (origin < boxMin || origin > boxMax) {
+            if (origin < aabbMin || origin > aabbMax) {
                 return false;
             }
         } else {
-            float t1 = (boxMin - origin) / direction;
-            float t2 = (boxMax - origin) / direction;
+            float t1 = (aabbMin - origin) / direction;
+            float t2 = (aabbMax - origin) / direction;
             
             if (t1 > t2) std::swap(t1, t2);
             
             tmin = std::max(tmin, t1);
             tmax = std::min(tmax, t2);
             
-            if (tmin > tmax || tmax < 0) {
+            if (tmin > tmax) {
                 return false;
             }
         }
     }
     
     tMin = tmin;
-    hitPoint = ray.GetPoint(tMin);
+    hitPoint = ray.GetPoint(tmin);
     return true;
 }
 
