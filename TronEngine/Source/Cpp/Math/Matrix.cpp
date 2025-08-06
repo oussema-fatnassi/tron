@@ -121,7 +121,8 @@ Matrix Matrix::Scale(float uniform) {
 Matrix Matrix::LookAt(float eyeX, float eyeY, float eyeZ,
     float targetX, float targetY, float targetZ,
     float upX, float upY, float upZ) {
-    // Calculate forward vector (normalized)
+
+    // Calculate forward vector (from eye to target)
     float forwardX = targetX - eyeX;
     float forwardY = targetY - eyeY;
     float forwardZ = targetZ - eyeZ;
@@ -130,33 +131,56 @@ Matrix Matrix::LookAt(float eyeX, float eyeY, float eyeZ,
     forwardY /= forwardLength;
     forwardZ /= forwardLength;
 
-    // Calculate right vector (forward x up, normalized)
-    float rightX = forwardY * upZ - forwardZ * upY;
-    float rightY = forwardZ * upX - forwardX * upZ;
-    float rightZ = forwardX * upY - forwardY * upX;
+    // Calculate right vector = up × forward (cross product)
+    float rightX = upY * forwardZ - upZ * forwardY;
+    float rightY = upZ * forwardX - upX * forwardZ;
+    float rightZ = upX * forwardY - upY * forwardX;
     float rightLength = sqrtf(rightX * rightX + rightY * rightY + rightZ * rightZ);
     rightX /= rightLength;
     rightY /= rightLength;
     rightZ /= rightLength;
 
-    // Calculate true up vector (right x forward)
-    float trueUpX = rightY * forwardZ - rightZ * forwardY;
-    float trueUpY = rightZ * forwardX - rightX * forwardZ;
-    float trueUpZ = rightX * forwardY - rightY * forwardX;
+    // Calculate actual up vector = forward × right
+    float actualUpX = forwardY * rightZ - forwardZ * rightY;
+    float actualUpY = forwardZ * rightX - forwardX * rightZ;
+    float actualUpZ = forwardX * rightY - forwardY * rightX;
 
     Matrix result;
-    // Set rotation part
-    result.At(0, 0) = rightX;   result.At(0, 1) = trueUpX;   result.At(0, 2) = -forwardX;
-    result.At(1, 0) = rightY;   result.At(1, 1) = trueUpY;   result.At(1, 2) = -forwardY;
-    result.At(2, 0) = rightZ;   result.At(2, 1) = trueUpZ;   result.At(2, 2) = -forwardZ;
 
-    // Set translation part (negative dot products)
-    result.At(0, 3) = -(rightX * eyeX + rightY * eyeY + rightZ * eyeZ);
-    result.At(1, 3) = -(trueUpX * eyeX + trueUpY * eyeY + trueUpZ * eyeZ);
-    result.At(2, 3) = forwardX * eyeX + forwardY * eyeY + forwardZ * eyeZ;
+    // For a view matrix in a right-handed system:
+    // We need to create the INVERSE of the camera transformation
+    // The rotation part is the transpose of the camera basis
+    // The translation part is -R^T * eye
+
+    // Fill the matrix in COLUMN-MAJOR order
+    // Column 0: Right vector
+    result.m[0] = rightX;
+    result.m[1] = actualUpX;
+    result.m[2] = -forwardX;
+    result.m[3] = 0.0f;
+
+    // Column 1: Up vector  
+    result.m[4] = rightY;
+    result.m[5] = actualUpY;
+    result.m[6] = -forwardY;
+    result.m[7] = 0.0f;
+
+    // Column 2: Forward vector (negated for right-handed)
+    result.m[8] = rightZ;
+    result.m[9] = actualUpZ;
+    result.m[10] = -forwardZ;
+    result.m[11] = 0.0f;
+
+    // Column 3: Translation
+    // This is -R^T * eye where R^T is already in the matrix
+    result.m[12] = -(rightX * eyeX + rightY * eyeY + rightZ * eyeZ);
+    result.m[13] = -(actualUpX * eyeX + actualUpY * eyeY + actualUpZ * eyeZ);
+    result.m[14] = -(-forwardX * eyeX + -forwardY * eyeY + -forwardZ * eyeZ);
+    result.m[15] = 1.0f;
 
     return result;
 }
+
 
 Matrix Matrix::Perspective(float fovYRadians, float aspectRatio, float nearPlane, float farPlane) {
     Matrix result;

@@ -57,7 +57,7 @@ public:
         }
         
         // Initialize camera rotation - LOOK TOWARD ORIGIN (negative Z direction)
-        cameraYaw = 0.0f;     // Face forward (toward negative Z)
+        cameraYaw = -1.0f;     // Face forward (toward negative Z)
         cameraPitch = 0.0f;   // Level horizon
         SetTransformRotation(entity, cameraPitch, cameraYaw, 0.0f);
         
@@ -90,54 +90,57 @@ public:
 
 private:
     void ProcessMouseLook() {
+        // Store position before rotation
+        float posX, posY, posZ;
+        GetTransformComponent(entity, &posX, &posY, &posZ);
+
         int mouseX, mouseY;
         GetMousePosition(&mouseX, &mouseY);
-        
+
         if (firstMouse) {
             lastMouseX = mouseX;
             lastMouseY = mouseY;
             firstMouse = false;
             return;
         }
-        
+
         int deltaX = mouseX - lastMouseX;
         int deltaY = mouseY - lastMouseY;
-        
+
         lastMouseX = mouseX;
         lastMouseY = mouseY;
-        
+
         if (deltaX == 0 && deltaY == 0) return;
-        
-        // Apply mouse sensitivity
-        cameraYaw += deltaX * mouseSensitivity;
-        cameraPitch += deltaY * mouseSensitivity; // Invert Y
-        
-        // Clamp pitch
-        //cameraPitch = std::clamp(cameraPitch, minPitch, maxPitch);
-        cameraPitch = max(-1.5f, min(1.5f, cameraPitch));
-        
-        // Update transform rotation
+
+        // Update rotation ONLY
+        cameraYaw -= deltaX * mouseSensitivity;
+        cameraPitch += deltaY * mouseSensitivity;
+        cameraPitch = std::clamp(cameraPitch, minPitch, maxPitch);
+
+        // Set ONLY rotation, not position!
         SetTransformRotation(entity, cameraPitch, cameraYaw, 0.0f);
-        
-        // Debug mouse movement occasionally
-        static int mouseDebugCount = 0;
-        if ((++mouseDebugCount % 120) == 0) { // Every 1 second
-            std::cout << "[" << playerName << "] Mouse: yaw=" << RadiansToDegrees(cameraYaw) 
-                      << "° pitch=" << RadiansToDegrees(cameraPitch) << "°\n";
+
+        // Verify position didn't change
+        float newX, newY, newZ;
+        GetTransformComponent(entity, &newX, &newY, &newZ);
+        if (newX != posX || newY != posY || newZ != posZ) {
+            std::cout << "[ERROR] Position changed during rotation! Was ("
+                << posX << "," << posY << "," << posZ << ") now ("
+                << newX << "," << newY << "," << newZ << ")\n";
         }
     }
     
     void ProcessMovement(float deltaTime) {
         float currentX, currentY, currentZ;
         if (!GetTransformComponent(entity, &currentX, &currentY, &currentZ)) return;
-        
+
         float frameSpeed = movementSpeed * deltaTime;
         float moveX = 0.0f, moveY = 0.0f, moveZ = 0.0f;
         bool moved = false;
-        
-        // FIXED: Forward/Backward movement (match the camera matrix calculation)
+
+        // Forward/Backward (Z/S keys)
         if (IsKeyDown('Z') || IsKeyDown('z')) {
-            // Move forward - same calculation as camera matrix
+            // Move forward in camera direction
             moveX += sinf(cameraYaw) * cosf(cameraPitch) * frameSpeed;
             moveY += -sinf(cameraPitch) * frameSpeed;
             moveZ += -cosf(cameraYaw) * cosf(cameraPitch) * frameSpeed;
@@ -145,53 +148,57 @@ private:
             std::cout << "[" << playerName << "] Moving FORWARD\n";
         }
         if (IsKeyDown('S') || IsKeyDown('s')) {
-            // Move backward - opposite of forward
+            // Move backward (opposite of forward)
             moveX -= sinf(cameraYaw) * cosf(cameraPitch) * frameSpeed;
             moveY -= -sinf(cameraPitch) * frameSpeed;
             moveZ -= -cosf(cameraYaw) * cosf(cameraPitch) * frameSpeed;
             moved = true;
             std::cout << "[" << playerName << "] Moving BACKWARD\n";
         }
-        
-        // FIXED: Left/Right strafing (perpendicular to forward)
+
+        // Left/Right strafing (Q/D keys) - FIXED: Inverted the direction
         if (IsKeyDown('Q') || IsKeyDown('q')) {
-            // Strafe left (90 degrees left from forward direction)
-            moveX += sinf(cameraYaw - 1.5708f) * frameSpeed; // -90 degrees
-            moveZ += -cosf(cameraYaw - 1.5708f) * frameSpeed;
+            // Strafe left - use correct right vector calculation
+            float rightX = cosf(cameraYaw);
+            float rightZ = sinf(cameraYaw);
+            moveX += rightX * frameSpeed;  // Changed from -= to +=
+            moveZ += rightZ * frameSpeed;  // Changed from -= to +=
             moved = true;
             std::cout << "[" << playerName << "] Strafing LEFT\n";
         }
         if (IsKeyDown('D') || IsKeyDown('d')) {
-            // Strafe right (90 degrees right from forward direction)
-            moveX += sinf(cameraYaw + 1.5708f) * frameSpeed; // +90 degrees
-            moveZ += -cosf(cameraYaw + 1.5708f) * frameSpeed;
+            // Strafe right
+            float rightX = cosf(cameraYaw);
+            float rightZ = sinf(cameraYaw);
+            moveX -= rightX * frameSpeed;  // Changed from += to -=
+            moveZ -= rightZ * frameSpeed;  // Changed from += to -=
             moved = true;
             std::cout << "[" << playerName << "] Strafing RIGHT\n";
         }
-        
-        // Vertical movement (world-space up/down)
+
+        // Vertical movement (Space/Shift) - ADDED
         if (IsKeyDown(VK_SPACE)) {
+            // Move up (positive Y in world space)
             moveY += frameSpeed;
             moved = true;
             std::cout << "[" << playerName << "] Moving UP\n";
         }
         if (IsKeyDown(VK_SHIFT)) {
+            // Move down (negative Y in world space)
             moveY -= frameSpeed;
             moved = true;
             std::cout << "[" << playerName << "] Moving DOWN\n";
         }
-        
+
         // Apply movement
         if (moved) {
             float newX = currentX + moveX;
             float newY = currentY + moveY;
             float newZ = currentZ + moveZ;
-            
             SetTransformPosition(entity, newX, newY, newZ);
-            
-            std::cout << "[" << playerName << "] New position: (" 
-                      << std::fixed << std::setprecision(2)
-                      << newX << ", " << newY << ", " << newZ << ")\n";
+            std::cout << "[" << playerName << "] New position: ("
+                << std::fixed << std::setprecision(2)
+                << newX << ", " << newY << ", " << newZ << ")\n";
         }
     }
     
