@@ -35,5 +35,8 @@
     <ClInclude Include="FirstPersonCameraScript.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RaycastTestScript.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

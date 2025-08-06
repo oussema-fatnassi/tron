@@ -6,6 +6,7 @@
 #include "../Headers/Game/MeshRenderSystem.hpp"
 #include "../Headers/Game/CameraMatrixSystem.hpp"
 #include "../Headers/Rendering/PrimitiveMeshGenerator.hpp"
+#include "../Headers/Game/RaycastSystem.hpp"
 #include <iostream>
 #include <chrono>
 #include <iomanip>
@@ -137,6 +138,7 @@ bool Engine::InitializeSubsystems() {
     auto* meshRenderSystem = _world->RegisterSystem<MeshRenderSystem>(_renderCommandQueue.get(), cameraMatrixSystem);
     //auto* cameraSystem = _world->RegisterSystem<CameraSystem>(_inputManager.get());
     auto* physicsSystem = _world->RegisterSystem<PhysicsSystem>();
+    auto* raycastSystem = _world->RegisterSystem<RaycastSystem>(physicsSystem->GetSpatialGrid(), cameraMatrixSystem);
 
     physicsSystem->SetDebugOutput(false); // Enable debug output for testing
 
@@ -147,6 +149,7 @@ bool Engine::InitializeSubsystems() {
     _world->SetSystemSignature<Transform, MeshRenderer>(meshRenderSystem);
     //_world->SetSystemSignature<Transform>(cameraSystem);
     _world->SetSystemSignature<Transform, BoxCollider>(physicsSystem);
+    _world->SetSystemSignature<Transform, BoxCollider>(raycastSystem);
 
     std::cout << "[TronEngine] ECS World initialized with all components and systems\n";
 

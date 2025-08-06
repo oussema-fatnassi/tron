@@ -97,6 +97,9 @@
     <ClCompile Include="Source\Cpp\Game\CameraMatrixSystem.cpp">
       <Filter>Source\Cpp\Game</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Cpp\Game\RaycastSystem.cpp">
+      <Filter>Source\Cpp\Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\EngineExports.hpp">
@@ -227,6 +230,15 @@
     </ClInclude>
     <ClInclude Include="Source\Headers\Game\CameraMatrixSystem.hpp">
       <Filter>Source\Headers\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Game\RaycastSystem.hpp">
+      <Filter>Source\Headers\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Math\Ray.hpp">
+      <Filter>Source\Headers\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Headers\Math\Vector3.hpp">
+      <Filter>Source\Headers\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

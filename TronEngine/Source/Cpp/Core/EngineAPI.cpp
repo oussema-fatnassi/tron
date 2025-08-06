@@ -731,4 +731,135 @@ extern "C" {
             std::cout << "[EngineAPI] Error: CameraMatrixSystem not found\n";
         }
     }
+
+    ENGINE_API bool Raycast(float originX, float originY, float originZ, 
+                       float dirX, float dirY, float dirZ, 
+                       float maxDistance,
+                       uint32_t* hitEntity, 
+                       float* hitX, float* hitY, float* hitZ,
+                       float* hitDistance) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+        
+        auto* raycastSystem = g_engineInstance->GetWorld()->GetSystem<RaycastSystem>();
+        if (!raycastSystem) {
+            std::cout << "[EngineAPI] Error: RaycastSystem not found\n";
+            return false;
+        }
+        
+        Vector3 origin(originX, originY, originZ);
+        Vector3 direction(dirX, dirY, dirZ);
+        direction.Normalize();
+        
+        Ray ray(origin, direction, maxDistance);
+        RaycastHit hit;
+        
+        if (raycastSystem->Raycast(ray, hit)) {
+            if (hitEntity) *hitEntity = hit.entity;
+            if (hitX) *hitX = hit.point.x;
+            if (hitY) *hitY = hit.point.y;
+            if (hitZ) *hitZ = hit.point.z;
+            if (hitDistance) *hitDistance = hit.distance;
+            return true;
+        }
+        
+        return false;
+    }
+
+    ENGINE_API bool RaycastFromCamera(float dirX, float dirY, float dirZ,
+                                    uint32_t* hitEntity,
+                                    float* hitX, float* hitY, float* hitZ,
+                                    float* hitDistance) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+        
+        auto* raycastSystem = g_engineInstance->GetWorld()->GetSystem<RaycastSystem>();
+        if (!raycastSystem) return false;
+        
+        Vector3 direction(dirX, dirY, dirZ);
+        RaycastHit hit;
+        
+        if (raycastSystem->RaycastFromCamera(direction, hit)) {
+            if (hitEntity) *hitEntity = hit.entity;
+            if (hitX) *hitX = hit.point.x;
+            if (hitY) *hitY = hit.point.y;
+            if (hitZ) *hitZ = hit.point.z;
+            if (hitDistance) *hitDistance = hit.distance;
+            return true;
+        }
+        
+        return false;
+    }
+
+    ENGINE_API bool MousePick(int mouseX, int mouseY,
+                            uint32_t* hitEntity,
+                            float* hitX, float* hitY, float* hitZ,
+                            float* hitDistance) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+        
+        auto* raycastSystem = g_engineInstance->GetWorld()->GetSystem<RaycastSystem>();
+        if (!raycastSystem) return false;
+        
+        // TODO: Get actual screen dimensions
+        int screenWidth = 1280;
+        int screenHeight = 720;
+        
+        RaycastHit hit;
+        if (raycastSystem->MousePick(mouseX, mouseY, screenWidth, screenHeight, hit)) {
+            if (hitEntity) *hitEntity = hit.entity;
+            if (hitX) *hitX = hit.point.x;
+            if (hitY) *hitY = hit.point.y;
+            if (hitZ) *hitZ = hit.point.z;
+            if (hitDistance) *hitDistance = hit.distance;
+            return true;
+        }
+        
+        return false;
+    }
+
+    ENGINE_API bool LineOfSight(float fromX, float fromY, float fromZ,
+                            float toX, float toY, float toZ) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+        
+        auto* raycastSystem = g_engineInstance->GetWorld()->GetSystem<RaycastSystem>();
+        if (!raycastSystem) return false;
+        
+        Vector3 from(fromX, fromY, fromZ);
+        Vector3 to(toX, toY, toZ);
+        
+        return raycastSystem->LineOfSight(from, to);
+    }
+
+    ENGINE_API bool LineOfSightBetweenEntities(uint32_t entityA, uint32_t entityB) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return false;
+        
+        auto* raycastSystem = g_engineInstance->GetWorld()->GetSystem<RaycastSystem>();
+        if (!raycastSystem) return false;
+        
+        return raycastSystem->LineOfSightBetweenEntities(entityA, entityB);
+    }
+
+    ENGINE_API void SetRaycastDebugDraw(bool enabled) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) return;
+        
+        auto* raycastSystem = g_engineInstance->GetWorld()->GetSystem<RaycastSystem>();
+        if (raycastSystem) {
+            raycastSystem->SetDebugDrawEnabled(enabled);
+            std::cout << "[EngineAPI] Raycast debug draw " << (enabled ? "enabled" : "disabled") << "\n";
+        }
+    }
+
+    ENGINE_API void GetRaycastStats(uint32_t* raycastCount, uint32_t* aabbTestCount, float* lastRaycastMs) {
+        if (!g_engineInstance || !g_engineInstance->GetWorld()) {
+            if (raycastCount) *raycastCount = 0;
+            if (aabbTestCount) *aabbTestCount = 0;
+            if (lastRaycastMs) *lastRaycastMs = 0.0f;
+            return;
+        }
+        
+        auto* raycastSystem = g_engineInstance->GetWorld()->GetSystem<RaycastSystem>();
+        if (raycastSystem) {
+            if (raycastCount) *raycastCount = raycastSystem->GetRaycastsThisFrame();
+            if (aabbTestCount) *aabbTestCount = raycastSystem->GetAABBTestsThisFrame();
+            if (lastRaycastMs) *lastRaycastMs = raycastSystem->GetLastRaycastTime();
+        }
+    }
 }

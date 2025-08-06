@@ -116,8 +116,34 @@ extern "C" {
     ENGINE_API void GetPhysicsPerformanceStats(float* broadPhaseMs, float* narrowPhaseMs, float* totalMs);
     ENGINE_API void PrintPhysicsSystemStats();
 
-    // NEW: Camera Entity Integration (Add this to the existing API)
+    // Camera Entity Integration (Add this to the existing API)
     ENGINE_API bool SetCameraEntity(uint32_t entity);
     ENGINE_API uint32_t GetCameraEntity();
     ENGINE_API void PrintCameraMatrices();
+
+    // Raycasting API
+    ENGINE_API bool Raycast(float originX, float originY, float originZ, 
+                       float dirX, float dirY, float dirZ, 
+                       float maxDistance,
+                       uint32_t* hitEntity, 
+                       float* hitX, float* hitY, float* hitZ,
+                       float* hitDistance);
+
+    ENGINE_API bool RaycastFromCamera(float dirX, float dirY, float dirZ,
+                                    uint32_t* hitEntity,
+                                    float* hitX, float* hitY, float* hitZ,
+                                    float* hitDistance);
+
+    ENGINE_API bool MousePick(int mouseX, int mouseY,
+                            uint32_t* hitEntity,
+                            float* hitX, float* hitY, float* hitZ,
+                            float* hitDistance);
+
+    ENGINE_API bool LineOfSight(float fromX, float fromY, float fromZ,
+                            float toX, float toY, float toZ);
+
+    ENGINE_API bool LineOfSightBetweenEntities(uint32_t entityA, uint32_t entityB);
+
+    ENGINE_API void SetRaycastDebugDraw(bool enabled);
+    ENGINE_API void GetRaycastStats(uint32_t* raycastCount, uint32_t* aabbTestCount, float* lastRaycastMs);
 }

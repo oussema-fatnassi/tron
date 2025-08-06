@@ -22,7 +22,7 @@ class World;
 // 3. Trigger Events: OnTriggerEnter/OnTriggerExit for scripts
 // 
 // PERFORMANCE:
-// - Without spatial grid: O(n²) collision checks
+// - Without spatial grid: O(nï¿½) collision checks
 // - With spatial grid: O(n) average case, much better for sparse worlds
 // 
 // INTEGRATION:
