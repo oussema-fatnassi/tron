@@ -28,6 +28,8 @@ private:
     const float maxPitch = 1.5f;   // ~85 degrees
     const float minPitch = -1.5f;  // ~-85 degrees
 
+    bool mouseLocked = false;
+
 public:
     FirstPersonCameraScript(const std::string& name = "FirstPersonPlayer")
         : playerName(name) {
@@ -63,6 +65,9 @@ public:
         
         std::cout << "[" << playerName << "] ✓ Camera setup - should see red box ahead!\n";
         std::cout << "[" << playerName << "] Controls: ZQSD=move, Mouse=look, P=debug\n";
+
+        std::cout << "[" << playerName << "] Mouse locked to center for 360° look\n";
+        std::cout << "[" << playerName << "] Press TAB to toggle mouse lock\n";
     }
 
     void Update(float deltaTime) override {
@@ -82,6 +87,12 @@ public:
             PrintStatus();
             PrintCameraMatrices(); // Print matrix debug info
         }
+        if (IsKeyPressed(VK_TAB)) {
+            mouseLocked = !mouseLocked;
+            EnableMouseLock(mouseLocked);
+            std::cout << "[" << playerName << "] Mouse lock: "
+                << (mouseLocked ? "ON" : "OFF") << "\n";
+        }
     }
 
     void OnDestroy() override {
@@ -90,44 +101,58 @@ public:
 
 private:
     void ProcessMouseLook() {
-        // Store position before rotation
-        float posX, posY, posZ;
-        GetTransformComponent(entity, &posX, &posY, &posZ);
+        if (!mouseLocked) {
+            // Store position before rotation
+            float posX, posY, posZ;
+            GetTransformComponent(entity, &posX, &posY, &posZ);
 
-        int mouseX, mouseY;
-        GetMousePosition(&mouseX, &mouseY);
+            int mouseX, mouseY;
+            GetMousePosition(&mouseX, &mouseY);
 
-        if (firstMouse) {
+            if (firstMouse) {
+                lastMouseX = mouseX;
+                lastMouseY = mouseY;
+                firstMouse = false;
+                return;
+            }
+
+            int deltaX = mouseX - lastMouseX;
+            int deltaY = mouseY - lastMouseY;
+
             lastMouseX = mouseX;
             lastMouseY = mouseY;
-            firstMouse = false;
+
+            if (deltaX == 0 && deltaY == 0) return;
+
+            // Update rotation ONLY
+            cameraYaw -= deltaX * mouseSensitivity;
+            cameraPitch += deltaY * mouseSensitivity;
+            cameraPitch = std::clamp(cameraPitch, minPitch, maxPitch);
+
+            // Set ONLY rotation, not position!
+            SetTransformRotation(entity, cameraPitch, cameraYaw, 0.0f);
+
+            // Verify position didn't change
+            float newX, newY, newZ;
+            GetTransformComponent(entity, &newX, &newY, &newZ);
+            if (newX != posX || newY != posY || newZ != posZ) {
+                std::cout << "[ERROR] Position changed during rotation! Was ("
+                    << posX << "," << posY << "," << posZ << ") now ("
+                    << newX << "," << newY << "," << newZ << ")\n";
+            }
             return;
         }
-
-        int deltaX = mouseX - lastMouseX;
-        int deltaY = mouseY - lastMouseY;
-
-        lastMouseX = mouseX;
-        lastMouseY = mouseY;
+        int deltaX, deltaY;
+        GetMousePosition(&deltaX, &deltaY);
 
         if (deltaX == 0 && deltaY == 0) return;
 
-        // Update rotation ONLY
+        // Apply rotation based on delta
         cameraYaw -= deltaX * mouseSensitivity;
         cameraPitch += deltaY * mouseSensitivity;
         cameraPitch = std::clamp(cameraPitch, minPitch, maxPitch);
 
-        // Set ONLY rotation, not position!
         SetTransformRotation(entity, cameraPitch, cameraYaw, 0.0f);
-
-        // Verify position didn't change
-        float newX, newY, newZ;
-        GetTransformComponent(entity, &newX, &newY, &newZ);
-        if (newX != posX || newY != posY || newZ != posZ) {
-            std::cout << "[ERROR] Position changed during rotation! Was ("
-                << posX << "," << posY << "," << posZ << ") now ("
-                << newX << "," << newY << "," << newZ << ")\n";
-        }
     }
     
     void ProcessMovement(float deltaTime) {

@@ -144,19 +144,12 @@ bool Engine::InitializeSubsystems() {
     _world->SetSystemSignature<Transform, Velocity>(movementSystem);
     _world->SetSystemSignature<Script>(scriptSystem);
     _world->SetSystemSignature<Transform, MeshRenderer>(meshRenderSystem);
-    //_world->SetSystemSignature<Transform>(cameraSystem);
     _world->SetSystemSignature<Transform, BoxCollider>(physicsSystem);
 
     std::cout << "[TronEngine] ECS World initialized with all components and systems\n";
 
-    // Create test quad for shader testing (MOVED FROM RENDERENGINE) - Optional, can be removed
-    _testQuad = std::make_unique<FullscreenQuad>();
-    if (!_testQuad->Initialize(_renderEngine->GetDevice())) {
-        std::cout << "[TronEngine] Failed to create test quad\n";
-        _testQuad.reset();
-    }
-
     _inputManager = std::make_unique<InputManager>();
+    _inputManager->SetWindowHandle(hwnd);
     std::cout << "[TronEngine] InputManager initialized\n";
 
     // LOGS

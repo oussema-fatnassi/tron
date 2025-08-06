@@ -128,6 +128,16 @@ extern "C" {
         std::cout << "[EngineAPI] TODO: SetMouseSensitivity(" << sensitivity << ")\n";
     }
 
+    void EnableMouseLock(bool enable) {
+        if (!g_engineInstance || !g_engineInstance->GetInputManager()) return;
+        return g_engineInstance->GetInputManager()->SetMouseLock(enable);
+    }
+
+    bool IsMouseLocked() {
+        if (!g_engineInstance || !g_engineInstance->GetInputManager()) return false;
+        return g_engineInstance->GetInputManager()->IsMouseLocked();
+    }
+
     // ECS C-style API with Engine prefix
     // Direct World Access API
     ENGINE_API uint32_t CreateEntity() {

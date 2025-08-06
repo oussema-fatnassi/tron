@@ -34,6 +34,11 @@ public:
     POINT GetMousePosition() const;
     int GetMouseWheelDelta() const;
 
+    // Mouse lock functionality
+    void SetMouseLock(bool lock);
+    bool IsMouseLocked() const { return _mouseLocked; }
+    void SetWindowHandle(HWND hwnd) { _hwnd = hwnd; }
+
     // Internal: called from window proc
     void OnKeyEvent(WPARAM wParam, bool down);
     void OnMouseButtonEvent(int button, bool down);
@@ -46,4 +51,10 @@ private:
     POINT _mousePos;
     int _mouseWheelDelta;
     std::mutex _mutex;
+
+    bool _mouseLocked = false;
+    HWND _hwnd = nullptr;
+    RECT _windowRect;
+    int _centerX = 0;
+    int _centerY = 0;
 };
