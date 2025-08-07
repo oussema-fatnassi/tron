@@ -4,6 +4,7 @@
 #include "TronEngine.hpp"
 #include "FirstPersonCameraScript.hpp"
 #include "ParticleTestScript.hpp"  // Include our particle test script
+#include "RaycastTestScript.hpp"
 
 #pragma comment(lib, "TronEngine.lib")
 
@@ -54,7 +55,8 @@ int main() {
     AddMeshRendererComponent(testBox, PRIMITIVE_CUBE, "RainbowShader");
     SetMeshRendererColor(testBox, 1.0f, 0.0f, 0.0f, 1.0f); // Bright red
     SetTransformUniformScale(testBox, 2.0f); // Make it bigger to be easily visible
-    
+    AddBoxColliderComponent(testBox, 2.0f, 2.0f, 2.0f, false);
+
     std::cout << "✓ Red test box created at (0, 2, 0) with 2x scale\n";
     std::cout << "✓ Camera starts at (0, 2, 5) looking toward (0, 2, 0)\n";
 
@@ -64,6 +66,7 @@ int main() {
     AddMeshRendererComponent(sideBox, PRIMITIVE_CUBE, "blue");
     SetMeshRendererColor(sideBox, 0.0f, 0.0f, 1.0f, 1.0f); // Bright blue
     SetTransformUniformScale(sideBox, 1.0f);
+    AddBoxColliderComponent(sideBox, 1.0f, 1.0f, 1.0f, false);
     
     std::cout << "✓ Blue reference box created at (3, 2, 0)\n";
 
@@ -71,11 +74,18 @@ int main() {
     AddTransformComponent(circle, -3.0f, 2.0f, -3.0f);
     AddMeshRendererComponent(circle, PRIMITIVE_SPHERE,"RainbowShader");
     SetTransformUniformScale(circle, 1.0f);
+    AddBoxColliderComponent(circle, 1.0f, 1.0f, 1.0f, false);
 
-    uint32_t particles = CreateEntity();
-    ParticleTestScript* particleScript = new ParticleTestScript();
-    AddCustomScript(particles, particleScript);
-    // Set up physics (keep it simple)
+    uint32_t raycastTester = CreateEntity();
+    RaycastTestScript* raycastScript = new RaycastTestScript("RaycastController");
+    if (AddCustomScript(raycastTester, raycastScript)) {
+        std::cout << "✓ Raycast Test Controller added\n";
+    } else {
+        std::cout << "✗ ERROR: Failed to add Raycast Test Script\n";
+        return -1;
+    }
+
+    // Set up physics system for raycast optimization
     SetPhysicsGridCellSize(5.0f);
     SetPhysicsDebugOutput(false);
     
