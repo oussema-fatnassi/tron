@@ -33,6 +33,8 @@ extern "C" {
     ENGINE_API void GetMousePosition(int* x, int* y);
     ENGINE_API int GetMouseWheelDelta();
     ENGINE_API void SetMouseSensitivity(float sensitivity);
+    ENGINE_API void EnableMouseLock(bool enable);
+    ENGINE_API bool IsMouseLocked();
 
     // Direct ECS API
     // ECS Interface - Entity management

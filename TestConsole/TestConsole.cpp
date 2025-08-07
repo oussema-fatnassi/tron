@@ -1,9 +1,9 @@
-﻿// TestConsole.cpp - Raycast System Test
+// TestConsole.cpp - Raycast System Test
 #include <iostream>
 #include <windows.h>
 #include "TronEngine.hpp"
 #include "FirstPersonCameraScript.hpp"
-#include "RaycastTestScript.hpp"  // Include the raycast test script
+#include "ParticleTestScript.hpp"  // Include our particle test script
 
 #pragma comment(lib, "TronEngine.lib")
 
@@ -44,17 +44,38 @@ int main() {
         return -1;
     }
 
-    // Create the RAYCAST TEST CONTROLLER
-    uint32_t raycastTester = CreateEntity();
-    RaycastTestScript* raycastScript = new RaycastTestScript("RaycastController");
-    if (AddCustomScript(raycastTester, raycastScript)) {
-        std::cout << "✓ Raycast Test Controller added\n";
-    } else {
-        std::cout << "✗ ERROR: Failed to add Raycast Test Script\n";
-        return -1;
-    }
+    // Create ONE test box directly in front of the camera
+    std::cout << "\n=== Creating Test Box ===\n";
+    uint32_t testBox = CreateEntity();
+    
+    // Position: 5 units in front of camera (camera starts at Z=5, looking toward negative Z)
+    // So box at Z=0 should be visible
+    AddTransformComponent(testBox, 0.0f, 2.0f, 0.0f);  // Same height as camera (Y=2)
+    AddMeshRendererComponent(testBox, PRIMITIVE_CUBE, "RainbowShader");
+    SetMeshRendererColor(testBox, 1.0f, 0.0f, 0.0f, 1.0f); // Bright red
+    SetTransformUniformScale(testBox, 2.0f); // Make it bigger to be easily visible
+    
+    std::cout << "✓ Red test box created at (0, 2, 0) with 2x scale\n";
+    std::cout << "✓ Camera starts at (0, 2, 5) looking toward (0, 2, 0)\n";
 
-    // Set up physics system for raycast optimization
+    // Create a second box to the right for reference
+    uint32_t sideBox = CreateEntity();
+    AddTransformComponent(sideBox, 3.0f, 2.0f, 0.0f);  // To the right
+    AddMeshRendererComponent(sideBox, PRIMITIVE_CUBE, "blue");
+    SetMeshRendererColor(sideBox, 0.0f, 0.0f, 1.0f, 1.0f); // Bright blue
+    SetTransformUniformScale(sideBox, 1.0f);
+    
+    std::cout << "✓ Blue reference box created at (3, 2, 0)\n";
+
+    uint32_t circle = CreateEntity();
+    AddTransformComponent(circle, -3.0f, 2.0f, -3.0f);
+    AddMeshRendererComponent(circle, PRIMITIVE_SPHERE,"RainbowShader");
+    SetTransformUniformScale(circle, 1.0f);
+
+    uint32_t particles = CreateEntity();
+    ParticleTestScript* particleScript = new ParticleTestScript();
+    AddCustomScript(particles, particleScript);
+    // Set up physics (keep it simple)
     SetPhysicsGridCellSize(5.0f);
     SetPhysicsDebugOutput(false);
     

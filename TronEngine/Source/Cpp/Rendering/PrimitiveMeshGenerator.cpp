@@ -15,6 +15,7 @@ bool PrimitiveMeshGenerator::GenerateAllPrimitives(ID3D11Device* device, MeshMan
     success &= GenerateCylinder(device, meshManager);
     success &= GeneratePlane(device, meshManager);
     success &= GenerateTriangle(device, meshManager);
+    success &= GenerateSphere(device, meshManager);
 
     if (success) {
         std::cout << "[PrimitiveMeshGenerator] All primitive meshes generated successfully!\n";

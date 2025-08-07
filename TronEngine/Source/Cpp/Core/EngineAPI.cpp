@@ -8,6 +8,7 @@
 #include "../../Headers/Game/RaycastSystem.hpp"
 #include "../../Headers/Math/Ray.hpp"
 #include "../../Headers/Math/Vector3.hpp"
+#include "../Headers/Rendering/ParticleSystem.hpp"
 #include <unordered_map>
 
 // Global singleton instance
@@ -16,6 +17,14 @@ static Engine* g_engineInstance = nullptr;
 // Global camera management
 static std::unordered_map<std::string, std::unique_ptr<Camera>> g_cameras;
 static std::string g_activeCameraName = "";
+
+// Global particle system management
+static std::unordered_map<uint32_t, std::unique_ptr<ParticleSystem>> g_particleSystems;
+static uint32_t g_nextParticleSystemId = 1;
+
+// Forward declarations for cleanup functions
+void CleanupCameras();
+void CleanupParticleSystems();
 
 // C-style API implementation
 extern "C" {
@@ -48,6 +57,10 @@ extern "C" {
             delete g_engineInstance;
             g_engineInstance = nullptr;
         }
+        
+        // Clean up cameras and particle systems
+        CleanupCameras();
+        CleanupParticleSystems();
     }
 
     ENGINE_API void QuitGame() {
@@ -116,6 +129,16 @@ extern "C" {
     ENGINE_API void SetMouseSensitivity(float sensitivity) {
         // TODO: Implement global mouse sensitivity setting
         std::cout << "[EngineAPI] TODO: SetMouseSensitivity(" << sensitivity << ")\n";
+    }
+
+    void EnableMouseLock(bool enable) {
+        if (!g_engineInstance || !g_engineInstance->GetInputManager()) return;
+        return g_engineInstance->GetInputManager()->SetMouseLock(enable);
+    }
+
+    bool IsMouseLocked() {
+        if (!g_engineInstance || !g_engineInstance->GetInputManager()) return false;
+        return g_engineInstance->GetInputManager()->IsMouseLocked();
     }
 
     // ECS C-style API with Engine prefix
@@ -559,13 +582,6 @@ extern "C" {
         return it->second.get();
     }
 
-    // Cleanup function (call in DestroyGlobalEngine)
-    void CleanupCameras() {
-        g_cameras.clear();
-        g_activeCameraName.clear();
-        std::cout << "[EngineAPI] All cameras cleaned up\n";
-    }
-
 	// Physics & Collisions System API
     // NEW: Basic BoxCollider Component API
         ENGINE_API bool AddBoxColliderComponent(uint32_t entity, float width, float height, float depth, bool isTrigger) {
@@ -865,4 +881,104 @@ extern "C" {
             if (lastRaycastMs) *lastRaycastMs = raycastSystem->GetLastRaycastTime();
         }
     }
+    // Particle System API Implementation
+    ENGINE_API uint32_t CreateParticleSystem(uint32_t maxParticles) {
+        if (maxParticles == 0) {
+            std::cout << "[EngineAPI] Error: maxParticles must be greater than 0\n";
+            return 0;
+        }
+
+        uint32_t id = g_nextParticleSystemId++;
+        auto particleSystem = std::make_unique<ParticleSystem>(static_cast<std::size_t>(maxParticles));
+        g_particleSystems[id] = std::move(particleSystem);
+
+        std::cout << "[EngineAPI] Created ParticleSystem " << id << " with max " << maxParticles << " particles\n";
+        return id;
+    }
+
+    ENGINE_API void DestroyParticleSystem(uint32_t particleSystemId) {
+        auto it = g_particleSystems.find(particleSystemId);
+        if (it != g_particleSystems.end()) {
+            g_particleSystems.erase(it);
+            std::cout << "[EngineAPI] Destroyed ParticleSystem " << particleSystemId << "\n";
+        } else {
+            std::cout << "[EngineAPI] Warning: ParticleSystem " << particleSystemId << " not found\n";
+        }
+    }
+
+    ENGINE_API bool UpdateParticleSystem(uint32_t particleSystemId, float deltaTime) {
+        auto it = g_particleSystems.find(particleSystemId);
+        if (it == g_particleSystems.end()) {
+            std::cout << "[EngineAPI] Error: ParticleSystem " << particleSystemId << " not found\n";
+            return false;
+        }
+
+        it->second->Update(deltaTime);
+        return true;
+    }
+
+    ENGINE_API bool EmitParticle(uint32_t particleSystemId, float x, float y, float z, float vx, float vy, float vz, float life) {
+        auto it = g_particleSystems.find(particleSystemId);
+        if (it == g_particleSystems.end()) {
+            std::cout << "[EngineAPI] Error: ParticleSystem " << particleSystemId << " not found\n";
+            return false;
+        }
+
+        Particle particle;
+        particle.x = x;
+        particle.y = y;
+        particle.z = z;
+        particle.vx = vx;
+        particle.vy = vy;
+        particle.vz = vz;
+        particle.life = life;
+
+        it->second->Emit(particle);
+        return true;
+    }
+
+    ENGINE_API uint32_t GetParticleCount(uint32_t particleSystemId) {
+        auto it = g_particleSystems.find(particleSystemId);
+        if (it == g_particleSystems.end()) {
+            std::cout << "[EngineAPI] Error: ParticleSystem " << particleSystemId << " not found\n";
+            return 0;
+        }
+
+        // Note: We need to add a public getter method to ParticleSystem class
+        // For now, we'll return 0 as a placeholder
+        std::cout << "[EngineAPI] Warning: GetParticleCount not fully implemented - need to add getter to ParticleSystem\n";
+        return 0;
+    }
+
+    ENGINE_API bool GetParticleData(uint32_t particleSystemId, uint32_t particleIndex, float* x, float* y, float* z, float* life) {
+        if (!x || !y || !z || !life) return false;
+
+        auto it = g_particleSystems.find(particleSystemId);
+        if (it == g_particleSystems.end()) {
+            std::cout << "[EngineAPI] Error: ParticleSystem " << particleSystemId << " not found\n";
+            return false;
+        }
+
+        // Note: We need to add public getter methods to ParticleSystem class to access particle data
+        // For now, we'll return false as a placeholder
+        std::cout << "[EngineAPI] Warning: GetParticleData not fully implemented - need to add getter methods to ParticleSystem\n";
+        *x = 0.0f;
+        *y = 0.0f;
+        *z = 0.0f;
+        *life = 0.0f;
+        return false;
+    }
+}
+
+// Cleanup functions definitions (MOVED OUTSIDE extern "C")
+void CleanupCameras() {
+    g_cameras.clear();
+    g_activeCameraName.clear();
+    std::cout << "[EngineAPI] All cameras cleaned up\n";
+}
+
+void CleanupParticleSystems() {
+    g_particleSystems.clear();
+    g_nextParticleSystemId = 1;
+    std::cout << "[EngineAPI] All particle systems cleaned up\n";
 }

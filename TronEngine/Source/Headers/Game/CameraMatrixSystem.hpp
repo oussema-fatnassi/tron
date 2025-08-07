@@ -50,6 +50,7 @@ public:
     
     // Debug
     void PrintCameraMatrices() const;
+    void DebugPrintMatrices() const;
 
 private:
     // Update methods

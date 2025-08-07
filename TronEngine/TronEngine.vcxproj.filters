@@ -94,6 +94,7 @@
     <ClCompile Include="Source\Cpp\Rendering\D3D\BufferedCommandQueue.cpp">
       <Filter>Source\Cpp\Rendering\D3D</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Cpp\Rendering\ParticleSystem.cpp" />
     <ClCompile Include="Source\Cpp\Game\CameraMatrixSystem.cpp">
       <Filter>Source\Cpp\Game</Filter>
     </ClCompile>
@@ -228,6 +229,7 @@
     <ClInclude Include="Source\Headers\Rendering\D3D\BufferedCommandQueue.hpp">
       <Filter>Source\Headers\Rendering\D3D</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Headers\Rendering\ParticleSystem.hpp" />
     <ClInclude Include="Source\Headers\Game\CameraMatrixSystem.hpp">
       <Filter>Source\Headers\Game</Filter>
     </ClInclude>
