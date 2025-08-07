@@ -15,6 +15,7 @@ public:
 
     void OnTriggerEnter(uint32_t otherEntity) override
     {
-        DestroyEntity(entity);
+        SafeDestroyEntity(otherEntity);
+        SafeDestroyEntity(entity);
     }
 };

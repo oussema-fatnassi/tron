@@ -9,11 +9,10 @@ private:
 	float _maxDistance = 100.0f;
 
 	uint32_t _player;
-	std::vector<uint32_t> *_projectilesRef;
 
 public:
-	Projectile(uint32_t player, std::vector<uint32_t> *projectiles)
-		: _player(player), _projectilesRef(projectiles) {}
+	Projectile(uint32_t player)
+		: _player(player) {}
 
 	void Start() override
 	{
@@ -33,27 +32,12 @@ public:
 		if (distance > _maxDistance)
 		{
 			std::cout << "Projectile destroyed due to max distance reached: " << distance << "\n";
-			DestroyEntity(entity);
+			SafeDestroyEntity(entity);
 			return;
 		}
 	}
-	void OnDestroy() override
-	{
-		std::cout << "Projectile destroyed: " << entity << "\n";
-		// Remove from the projectile list
-		auto it = std::find(_projectilesRef->begin(), _projectilesRef->end(), entity);
-		if (it != _projectilesRef->end())
-		{
-			_projectilesRef->erase(it);
-			std::cout << "Projectile removed from list\n";
-		}
-		else
-		{
-			std::cout << "Projectile not found in list\n";
-		}
-	}
+	void OnDestroy() override {}
 	void OnTriggerEnter(uint32_t otherEntity) override
 	{
-		DestroyEntity(entity);
 	}
 };

@@ -144,10 +144,6 @@ int main()
     AddCustomScript(targetBox8, target);
     std::cout << "Created target box 8 (PINK) at (-10, 2, 10)\n";
 
-    delete target; // Clean up the target script instance
-    delete cameraScript; // Clean up the camera script instance
-    delete raycastScript; // Clean up the raycast script instance
-
     // Set up physics
     SetPhysicsGridCellSize(5.0f);
     SetPhysicsDebugOutput(false);

@@ -32,7 +32,6 @@ private:
 
     bool mouseLocked = false;
 
-    std::vector<uint32_t> projectiles;
     float projectileSpeed = 20.0f;
 
 public:
@@ -294,7 +293,7 @@ private:
         GetTransformComponent(entity, &x, &y, &z);
         SetTransformPosition(projectile, x, y, z);
         SetTransformScale(projectile, 0.1f, 0.1f, 0.1f);
-        AddMeshRendererComponent(entity, PRIMITIVE_SPHERE, "blue");
+        AddMeshRendererComponent(projectile, PRIMITIVE_SPHERE, "blue");
         AddBoxColliderComponent(projectile, 0.1f, 0.1f, 0.1f, true);
 
         // Set projectile direction based on camera rotation
@@ -303,23 +302,14 @@ private:
         float forwardZ = -cosf(cameraYaw) * cosf(cameraPitch);
         AddVelocityComponent(projectile, forwardX * projectileSpeed, forwardY * projectileSpeed, forwardZ * projectileSpeed);
 
-        projectiles.push_back(projectile);
-
         // Create and initialize the projectile
-        Projectile *proj = new Projectile(entity, &projectiles);
+        Projectile *proj = new Projectile(entity);
 
         // Add the projectile script to the entity
-        if (AddCustomScript(projectiles.back(), proj))
+        if (AddCustomScript(projectile, proj))
         {
             std::cout << "[" << playerName << "] ✓ Projectile script added\n";
         }
-        else
-        {
-            std::cout << "[" << playerName << "] ✗ Failed to add projectile script\n";
-            delete proj; // Clean up if failed
-        }
-
-        std::cout << "[" << playerName << "] ✓ Projectile created: " << projectile << "\n";
     }
 
     void Shoot()
