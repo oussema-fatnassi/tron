@@ -90,7 +90,7 @@ void CameraMatrixSystem::UpdateCameraFromEntity() {
     // Debug every 60 frames
     static int frameCount = 0;
     if (++frameCount % 60 == 0) {
-        DebugPrintMatrices();
+        //DebugPrintMatrices();
     }
 }
 

@@ -87,7 +87,7 @@ public:
         // Continuous rotation test (automatic)
         if (testTimer > 5.0f) {
             // Every 5 seconds, do an automatic sweep test
-            AutomaticSweepTest();
+            //AutomaticSweepTest();
             testTimer = 0.0f;
         }
     }

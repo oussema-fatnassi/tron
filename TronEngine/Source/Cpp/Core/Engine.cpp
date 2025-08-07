@@ -345,7 +345,7 @@ void Engine::MainRenderLoop() {
         // FPS counter every second
         auto currentTime = clock::now();
         if (std::chrono::duration<double>(currentTime - lastFPSTime).count() >= 1.0) {
-            std::cout << "[MainRender] Rendered " << frameCount << " frames in last second\n";
+            //std::cout << "[MainRender] Rendered " << frameCount << " frames in last second\n";
             frameCount = 0;
             lastFPSTime = currentTime;
         }
