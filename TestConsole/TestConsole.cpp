@@ -26,6 +26,7 @@ int main()
 
     PrintEngineVersion();
     std::cout << GetEngineInfo() << std::endl;
+
     // Create the FIRST PERSON CAMERA PLAYER with raycast testing
     uint32_t player = CreateEntity();
     std::cout << "Created player entity: " << player << std::endl;

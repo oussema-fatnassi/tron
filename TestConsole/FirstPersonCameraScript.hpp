@@ -32,7 +32,7 @@ private:
 
     bool mouseLocked = false;
 
-    float projectileSpeed = 20.0f;
+    float projectileSpeed = 1.0f;
 
 public:
     FirstPersonCameraScript(const std::string &name = "FirstPersonPlayer")
@@ -292,24 +292,15 @@ private:
         float x, y, z;
         GetTransformComponent(entity, &x, &y, &z);
         SetTransformPosition(projectile, x, y, z);
-        SetTransformScale(projectile, 0.1f, 0.1f, 0.1f);
+        SetTransformScale(projectile, 2.0f, 2.0f, 2.0f);
         AddMeshRendererComponent(projectile, PRIMITIVE_SPHERE, "blue");
-        AddBoxColliderComponent(projectile, 0.1f, 0.1f, 0.1f, true);
+        //AddBoxColliderComponent(projectile, 0.1f, 0.1f, 0.1f, true);
 
         // Set projectile direction based on camera rotation
-        float forwardX = sinf(cameraYaw) * cosf(cameraPitch);
+       /* float forwardX = sinf(cameraYaw) * cosf(cameraPitch);
         float forwardY = -sinf(cameraPitch);
         float forwardZ = -cosf(cameraYaw) * cosf(cameraPitch);
-        AddVelocityComponent(projectile, forwardX * projectileSpeed, forwardY * projectileSpeed, forwardZ * projectileSpeed);
-
-        // Create and initialize the projectile
-        Projectile *proj = new Projectile(entity);
-
-        // Add the projectile script to the entity
-        if (AddCustomScript(projectile, proj))
-        {
-            std::cout << "[" << playerName << "] ✓ Projectile script added\n";
-        }
+        AddVelocityComponent(projectile, forwardX * projectileSpeed, forwardY * projectileSpeed, forwardZ * projectileSpeed);*/
     }
 
     void Shoot()

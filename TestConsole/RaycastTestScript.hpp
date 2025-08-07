@@ -233,7 +233,7 @@ private:
             
             // Flash white briefly
             SetMeshRendererColor(hitEntity, 1.0f, 1.0f, 1.0f, 1.0f);
-            SafeDestroyEntity(hitEntity);
+            //SafeDestroyEntity(hitEntity);
         } else {
             std::cout << "✗ No entity under mouse cursor\n";
         }
