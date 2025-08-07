@@ -4,77 +4,149 @@
 #include <windows.h>
 #include "TronEngine.hpp"
 #include "FirstPersonCameraScript.hpp"
-#include "ParticleTestScript.hpp"  // Include our particle test script
+#include "ParticleTestScript.hpp" // Include our particle test script
 #include "RaycastTestScript.hpp"
-
+#include "Target.hpp"
 
 #pragma comment(lib, "TronEngine.lib")
 
-int main() {
+int main()
+{
     std::cout << "========================================\n";
     std::cout << "     TRON ENGINE - RAYCAST TEST        \n";
     std::cout << "========================================\n\n";
     std::cout << "=== ASTEROID GENERATOR DLL TEST ===\n";
 
     // Create and initialize engine
-    if (!CreateAndInitializeEngine()) {
+    if (!CreateAndInitializeEngine())
+    {
         std::cout << "Failed to create and initialize engine\n";
         return -1;
     }
 
     PrintEngineVersion();
     std::cout << GetEngineInfo() << std::endl;
-
-    std::cout << "\n=== Setting Up Raycast Test Scene ===\n";
-
-    std::cout << "\n=== Creating Camera for Visual Test ===\n";
-
     // Create the FIRST PERSON CAMERA PLAYER with raycast testing
     uint32_t player = CreateEntity();
     std::cout << "Created player entity: " << player << std::endl;
 
     // Add the first person camera script
-    FirstPersonCameraScript* cameraScript = new FirstPersonCameraScript("Player");
-    if (AddCustomScript(player, cameraScript)) {
+    FirstPersonCameraScript *cameraScript = new FirstPersonCameraScript("Player");
+    if (AddCustomScript(player, cameraScript))
+    {
         std::cout << "✓ First Person Camera added\n";
-        
+
         // Configure camera for testing
         cameraScript->SetMovementSpeed(5.0f);
         cameraScript->SetMouseSensitivity(0.002f);
-        
+
         // Set camera entity for raycasting
         SetCameraEntity(player);
         std::cout << "✓ Camera entity registered for raycasting\n";
-    } else {
+    }
+    else
+    {
         std::cout << "✗ ERROR: Failed to add First Person Camera\n";
         return -1;
     }
 
-    std::cout << "\n=== Creating Asteroid Field using DLL API ===\n";
-    
+    // Activating Raycast
+    uint32_t raycastTester = CreateEntity();
+    RaycastTestScript *raycastScript = new RaycastTestScript("RaycastController");
+    if (AddCustomScript(raycastTester, raycastScript))
+    {
+        std::cout << "✓ Raycast Test Controller added\n";
+    }
+    else
+    {
+        std::cout << "✗ ERROR: Failed to add Raycast Test Script\n";
+        return -1;
+    }
+
     // Create asteroid generator
-    void* asteroidGenerator = CreateAsteroidGenerator();
-    if (!asteroidGenerator) {
+    void *asteroidGenerator = CreateAsteroidGenerator();
+    if (!asteroidGenerator)
+    {
         std::cout << "✗ Failed to create asteroid generator\n";
         return -1;
     }
 
     // Generate an asteroid field
     std::cout << "Generating asteroid field...\n";
-    GenerateAsteroidField(asteroidGenerator, 5, 3.0f, 10.0f, 10, 50, 30.0f, 20.0f, 30.0f, "RainbowShader");
-
-    uint32_t raycastTester = CreateEntity();
-    RaycastTestScript* raycastScript = new RaycastTestScript("RaycastController");
-    if (AddCustomScript(raycastTester, raycastScript)) {
-        std::cout << "✓ Raycast Test Controller added\n";
-    }
-    else {
-        std::cout << "✗ ERROR: Failed to add Raycast Test Script\n";
-        return -1;
-    }
+    // GenerateAsteroidField(asteroidGenerator, 5, 3.0f, 10.0f, 10, 50, 30.0f, 20.0f, 30.0f, "RainbowShader");
 
     // Cleanup asteroid generator
     DestroyAsteroidGenerator(asteroidGenerator);
+
+    Target *target = new Target();
+    // Create test targets
+    uint32_t targetBox1 = CreateEntity();
+    AddTransformComponent(targetBox1, 0.0f, 2.0f, -5.0f);
+    AddBoxColliderComponent(targetBox1, 2.0f, 2.0f, 2.0f, false);
+    SetTransformScale(targetBox1, 2.0f, 2.0f, 2.0f);
+    AddMeshRendererComponent(targetBox1, PRIMITIVE_CUBE, "RainbowShader");
+    AddCustomScript(targetBox1, target);
+    std::cout << "Created target box 1 (RED) at (0, 2, -5)\n";
+
+    uint32_t targetBox2 = CreateEntity();
+    AddTransformComponent(targetBox2, 5.0f, 2.0f, -3.0f);
+    AddBoxColliderComponent(targetBox2, 1.5f, 3.0f, 1.5f, false);
+    SetTransformScale(targetBox2, 1.5f, 3.0f, 1.5f);
+    AddMeshRendererComponent(targetBox2, PRIMITIVE_CUBE, "RainbowShader");
+    AddCustomScript(targetBox2, target);
+    std::cout << "Created target box 2 (GREEN) at (5, 2, -3)\n";
+
+    uint32_t targetBox3 = CreateEntity();
+    AddTransformComponent(targetBox3, -3.0f, 5.0f, -4.0f);
+    AddBoxColliderComponent(targetBox3, 1.0f, 1.0f, 1.0f, false);
+    SetTransformScale(targetBox3, 1.0f, 1.0f, 1.0f);
+    AddMeshRendererComponent(targetBox3, PRIMITIVE_CUBE, "RainbowShader");
+    AddCustomScript(targetBox3, target);
+    std::cout << "Created target box 3 (BLUE) at (-3, 5, -4)\n";
+
+    uint32_t targetBox4 = CreateEntity();
+    AddTransformComponent(targetBox4, 10.0f, 2.0f, -10.0f);
+    AddBoxColliderComponent(targetBox4, 2.0f, 2.0f, 2.0f, false);
+    SetTransformScale(targetBox4, 2.0f, 2.0f, 2.0f);
+    AddMeshRendererComponent(targetBox4, PRIMITIVE_CUBE, "RainbowShader");
+    AddCustomScript(targetBox4, target);
+    std::cout << "Created target box 4 (YELLOW) at (10, 2, -10)\n";
+
+    uint32_t targetBox5 = CreateEntity();
+    AddTransformComponent(targetBox5, -10.0f, 2.0f, -10.0f);
+    AddBoxColliderComponent(targetBox5, 2.0f, 2.0f, 2.0f, false);
+    SetTransformScale(targetBox5, 2.0f, 2.0f, 2.0f);
+    AddMeshRendererComponent(targetBox5, PRIMITIVE_CUBE, "RainbowShader");
+    AddCustomScript(targetBox5, target);
+    std::cout << "Created target box 5 (PURPLE) at (-10, 2, -10)\n";
+
+    uint32_t targetBox6 = CreateEntity();
+    AddTransformComponent(targetBox6, 0.0f, 2.0f, 10.0f);
+    AddBoxColliderComponent(targetBox6, 2.0f, 2.0f, 2.0f, false);
+    SetTransformScale(targetBox6, 2.0f, 2.0f, 2.0f);
+    AddMeshRendererComponent(targetBox6, PRIMITIVE_CUBE, "RainbowShader");
+    AddCustomScript(targetBox6, target);
+    std::cout << "Created target box 6 (CYAN) at (0, 2, 10)\n";
+
+    uint32_t targetBox7 = CreateEntity();
+    AddTransformComponent(targetBox7, 10.0f, 2.0f, 10.0f);
+    AddBoxColliderComponent(targetBox7, 2.0f, 2.0f, 2.0f, false);
+    SetTransformScale(targetBox7, 2.0f, 2.0f, 2.0f);
+    AddMeshRendererComponent(targetBox7, PRIMITIVE_CUBE, "RainbowShader");
+    AddCustomScript(targetBox7, target);
+    std::cout << "Created target box 7 (ORANGE) at (10, 2, 10)\n";
+
+    uint32_t targetBox8 = CreateEntity();
+    AddTransformComponent(targetBox8, -10.0f, 2.0f, 10.0f);
+    AddBoxColliderComponent(targetBox8, 2.0f, 2.0f, 2.0f, false);
+    SetTransformScale(targetBox8, 2.0f, 2.0f, 2.0f);
+    AddMeshRendererComponent(targetBox8, PRIMITIVE_CUBE, "RainbowShader");
+    AddCustomScript(targetBox8, target);
+    std::cout << "Created target box 8 (PINK) at (-10, 2, 10)\n";
+
+    delete target; // Clean up the target script instance
+    delete cameraScript; // Clean up the camera script instance
+    delete raycastScript; // Clean up the raycast script instance
 
     // Set up physics
     SetPhysicsGridCellSize(5.0f);
@@ -132,20 +204,20 @@ int main() {
 
     // Cleanup
     std::cout << "\n=== Test Complete - Printing Final Stats ===\n";
-    
+
     // Print final raycast statistics
     uint32_t raycastCount, aabbTestCount;
     float lastRaycastMs;
     GetRaycastStats(&raycastCount, &aabbTestCount, &lastRaycastMs);
-    
+
     std::cout << "Final Raycast Statistics:\n";
     std::cout << "  Total raycasts: " << raycastCount << "\n";
     std::cout << "  Total AABB tests: " << aabbTestCount << "\n";
     std::cout << "  Last raycast time: " << lastRaycastMs << " ms\n";
-    
+
     // Print physics stats
     PrintPhysicsSystemStats();
-    
+
     DestroyGlobalEngine();
     std::cout << "Engine cleanup: SUCCESS\n\n";
 

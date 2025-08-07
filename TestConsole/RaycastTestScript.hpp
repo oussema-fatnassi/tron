@@ -25,9 +25,6 @@ public:
     void Start() override {
         std::cout << "\n[" << scriptName << "] ========== RAYCAST TEST STARTED ==========\n";
         
-        // Set up the test scene
-        CreateTestTargets();
-        
         // Enable raycast debug visualization
         SetRaycastDebugDraw(true);
         

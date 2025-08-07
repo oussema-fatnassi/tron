@@ -167,8 +167,10 @@ copy "$(SolutionDir)bin\$(Configuration)\*.cso" "$(SolutionDir)TestConsole\"</Co
     <ClInclude Include="ParticleTestScript.hpp" />
     <ClInclude Include="PhysicsTestScript.hpp" />
     <ClInclude Include="PlayerScript.hpp" />
+    <ClInclude Include="Projectile.hpp" />
     <ClInclude Include="RaycastTestScript.hpp" />
     <ClInclude Include="SecondScript.hpp" />
+    <ClInclude Include="Target.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
