@@ -104,7 +104,7 @@ private:
         targetBox1 = CreateEntity();
         AddTransformComponent(targetBox1, 0.0f, 2.0f, -5.0f);
         AddBoxColliderComponent(targetBox1, 2.0f, 2.0f, 2.0f, false);
-        AddMeshRendererComponent(targetBox1, PRIMITIVE_CUBE, "red");
+        AddMeshRendererComponent(targetBox1, PRIMITIVE_CUBE, "blue");
         SetTransformUniformScale(targetBox1, 2.0f);
         std::cout << "  Target 1 (RED): Position (0, 2, -5), Size 2x2x2\n";
         
@@ -112,7 +112,7 @@ private:
         targetBox2 = CreateEntity();
         AddTransformComponent(targetBox2, 5.0f, 2.0f, -3.0f);
         AddBoxColliderComponent(targetBox2, 1.5f, 3.0f, 1.5f, false);
-        AddMeshRendererComponent(targetBox2, PRIMITIVE_CUBE, "green");
+        AddMeshRendererComponent(targetBox2, PRIMITIVE_CUBE, "blue");
         SetTransformScale(targetBox2, 1.5f, 3.0f, 1.5f);
         std::cout << "  Target 2 (GREEN): Position (5, 2, -3), Size 1.5x3x1.5\n";
         
@@ -122,12 +122,6 @@ private:
         AddBoxColliderComponent(targetBox3, 1.0f, 1.0f, 1.0f, false);
         AddMeshRendererComponent(targetBox3, PRIMITIVE_CUBE, "blue");
         std::cout << "  Target 3 (BLUE): Position (-3, 5, -4), Size 1x1x1\n";
-        
-        // Create some trigger zones for testing
-        uint32_t triggerZone = CreateEntity();
-        AddTransformComponent(triggerZone, 0.0f, 0.0f, 0.0f);
-        AddBoxColliderComponent(triggerZone, 10.0f, 0.1f, 10.0f, true); // Floor trigger
-        std::cout << "  Trigger Zone: Ground plane at Y=0\n";
     }
     
     void TestForwardRaycast() {
@@ -242,6 +236,7 @@ private:
             
             // Flash white briefly
             SetMeshRendererColor(hitEntity, 1.0f, 1.0f, 1.0f, 1.0f);
+            SafeDestroyEntity(hitEntity);
         } else {
             std::cout << "✗ No entity under mouse cursor\n";
         }

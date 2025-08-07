@@ -26,10 +26,6 @@ int main() {
     std::cout << GetEngineInfo() << std::endl;
 
     std::cout << "\n=== Setting Up Raycast Test Scene ===\n";
-    std::cout << "\n=== Testing Asteroid Generator API ===\n";
-
-    // Test the asteroid generator API
-    TestAsteroidGenerator();
 
     std::cout << "\n=== Creating Camera for Visual Test ===\n";
 
@@ -63,27 +59,9 @@ int main() {
         return -1;
     }
 
-    // Generate some individual asteroids
-    std::cout << "Generating individual asteroids...\n";
-    for (int i = 0; i < 3; i++) {
-        float x = (i - 1) * 5.0f;
-        uint32_t asteroid = GenerateSingleAsteroid(asteroidGenerator, 2.0f + i, 8, x, 0.0f, -15.0f, "RainbowShader");
-        if (asteroid != 0) {
-            std::cout << "✓ Generated asteroid " << i << " (Entity: " << asteroid << ") at (" << x << ", 0, -15)\n";
-        }
-    }
-
     // Generate an asteroid field
     std::cout << "Generating asteroid field...\n";
     GenerateAsteroidField(asteroidGenerator, 5, 3.0f, 10.0f, 10, 50, 30.0f, 20.0f, 30.0f, "RainbowShader");
-
-    // Add some reference objects
-    uint32_t referenceBox = CreateEntity();
-    AddTransformComponent(referenceBox, 0.0f, 5.0f, 0.0f);
-    AddMeshRendererComponent(referenceBox, PRIMITIVE_CUBE, "blue");
-    SetMeshRendererColor(referenceBox, 0.0f, 1.0f, 0.0f, 1.0f); // Green reference
-    SetTransformUniformScale(referenceBox, 1.0f);
-    std::cout << "✓ Added green reference cube at (0, 5, 0)\n";
 
     uint32_t raycastTester = CreateEntity();
     RaycastTestScript* raycastScript = new RaycastTestScript("RaycastController");
@@ -101,9 +79,6 @@ int main() {
     // Set up physics
     SetPhysicsGridCellSize(5.0f);
     SetPhysicsDebugOutput(false);
-    
-    // Enable raycast debug visualization initially
-    SetRaycastDebugDraw(true);
 
     std::cout << "\n========================================\n";
     std::cout << "         RAYCAST TEST CONTROLS         \n";
