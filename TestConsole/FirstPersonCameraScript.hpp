@@ -83,10 +83,6 @@ public:
         }
         
         // Manual debug
-        if (IsKeyPressed('P') || IsKeyPressed('p')) {
-            PrintStatus();
-            PrintCameraMatrices(); // Print matrix debug info
-        }
         if (IsKeyPressed(VK_TAB)) {
             mouseLocked = !mouseLocked;
             EnableMouseLock(mouseLocked);

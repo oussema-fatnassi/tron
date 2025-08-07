@@ -1,17 +1,12 @@
-<<<<<<< HEAD
 // TestConsole.cpp - Raycast System Test
-=======
 // Asteroid Generator Test - TestConsole.cpp
->>>>>>> feat/procedural-generation
 #include <iostream>
 #include <windows.h>
 #include "TronEngine.hpp"
 #include "FirstPersonCameraScript.hpp"
-<<<<<<< HEAD
 #include "ParticleTestScript.hpp"  // Include our particle test script
 #include "RaycastTestScript.hpp"
-=======
->>>>>>> feat/procedural-generation
+
 
 #pragma comment(lib, "TronEngine.lib")
 
@@ -80,7 +75,7 @@ int main() {
 
     // Generate an asteroid field
     std::cout << "Generating asteroid field...\n";
-    GenerateAsteroidField(asteroidGenerator, 50, 3.0f, 10.0f, 10, 50, 30.0f, 20.0f, 30.0f, "RainbowShader");
+    GenerateAsteroidField(asteroidGenerator, 5, 3.0f, 10.0f, 10, 50, 30.0f, 20.0f, 30.0f, "RainbowShader");
 
     // Add some reference objects
     uint32_t referenceBox = CreateEntity();
@@ -89,6 +84,16 @@ int main() {
     SetMeshRendererColor(referenceBox, 0.0f, 1.0f, 0.0f, 1.0f); // Green reference
     SetTransformUniformScale(referenceBox, 1.0f);
     std::cout << "✓ Added green reference cube at (0, 5, 0)\n";
+
+    uint32_t raycastTester = CreateEntity();
+    RaycastTestScript* raycastScript = new RaycastTestScript("RaycastController");
+    if (AddCustomScript(raycastTester, raycastScript)) {
+        std::cout << "✓ Raycast Test Controller added\n";
+    }
+    else {
+        std::cout << "✗ ERROR: Failed to add Raycast Test Script\n";
+        return -1;
+    }
 
     // Cleanup asteroid generator
     DestroyAsteroidGenerator(asteroidGenerator);
