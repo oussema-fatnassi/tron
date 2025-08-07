@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Game\AsteroidGenerator.h" />
     <ClInclude Include="Include\ScriptAPI.hpp" />
     <ClInclude Include="Source\Headers\Communication\RenderCommand.hpp" />
     <ClInclude Include="Source\Headers\Core\InputManager.hpp" />
@@ -65,6 +66,8 @@
     <ClInclude Include="Source\Headers\Game\World.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Game\AsteroidGenerator.cpp" />
+    <ClCompile Include="Source\Cpp\Core\AsteroidGeneratorAPI.cpp" />
     <ClCompile Include="Source\Cpp\Core\InputManager.cpp" />
     <ClCompile Include="Source\Cpp\Game\CameraMatrixSystem.cpp" />
     <ClCompile Include="Source\Cpp\Game\CameraSystem.cpp" />
