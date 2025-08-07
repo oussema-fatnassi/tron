@@ -148,4 +148,12 @@ extern "C" {
 
     ENGINE_API void SetRaycastDebugDraw(bool enabled);
     ENGINE_API void GetRaycastStats(uint32_t* raycastCount, uint32_t* aabbTestCount, float* lastRaycastMs);
+    // ASTEROID GENERATOR API
+    ENGINE_API void* CreateAsteroidGenerator();
+    ENGINE_API void DestroyAsteroidGenerator(void* generator);
+    ENGINE_API uint32_t GenerateSingleAsteroid(void* generator, float radius, int complexity, float x, float y, float z, const char* shaderName);
+    ENGINE_API void GenerateAsteroidField(void* generator, int count, float minRadius, float maxRadius, 
+                                         int minComplexity, int maxComplexity, float areaWidth, float areaHeight, float areaDepth, 
+                                         const char* shaderName);
+    ENGINE_API void TestAsteroidGenerator();
 }

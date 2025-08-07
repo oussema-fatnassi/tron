@@ -1,10 +1,17 @@
+<<<<<<< HEAD
 // TestConsole.cpp - Raycast System Test
+=======
+// Asteroid Generator Test - TestConsole.cpp
+>>>>>>> feat/procedural-generation
 #include <iostream>
 #include <windows.h>
 #include "TronEngine.hpp"
 #include "FirstPersonCameraScript.hpp"
+<<<<<<< HEAD
 #include "ParticleTestScript.hpp"  // Include our particle test script
 #include "RaycastTestScript.hpp"
+=======
+>>>>>>> feat/procedural-generation
 
 #pragma comment(lib, "TronEngine.lib")
 
@@ -12,6 +19,7 @@ int main() {
     std::cout << "========================================\n";
     std::cout << "     TRON ENGINE - RAYCAST TEST        \n";
     std::cout << "========================================\n\n";
+    std::cout << "=== ASTEROID GENERATOR DLL TEST ===\n";
 
     // Create and initialize engine
     if (!CreateAndInitializeEngine()) {
@@ -23,6 +31,12 @@ int main() {
     std::cout << GetEngineInfo() << std::endl;
 
     std::cout << "\n=== Setting Up Raycast Test Scene ===\n";
+    std::cout << "\n=== Testing Asteroid Generator API ===\n";
+
+    // Test the asteroid generator API
+    TestAsteroidGenerator();
+
+    std::cout << "\n=== Creating Camera for Visual Test ===\n";
 
     // Create the FIRST PERSON CAMERA PLAYER with raycast testing
     uint32_t player = CreateEntity();
@@ -45,47 +59,41 @@ int main() {
         return -1;
     }
 
-    // Create ONE test box directly in front of the camera
-    std::cout << "\n=== Creating Test Box ===\n";
-    uint32_t testBox = CreateEntity();
+    std::cout << "\n=== Creating Asteroid Field using DLL API ===\n";
     
-    // Position: 5 units in front of camera (camera starts at Z=5, looking toward negative Z)
-    // So box at Z=0 should be visible
-    AddTransformComponent(testBox, 0.0f, 2.0f, 0.0f);  // Same height as camera (Y=2)
-    AddMeshRendererComponent(testBox, PRIMITIVE_CUBE, "RainbowShader");
-    SetMeshRendererColor(testBox, 1.0f, 0.0f, 0.0f, 1.0f); // Bright red
-    SetTransformUniformScale(testBox, 2.0f); // Make it bigger to be easily visible
-    AddBoxColliderComponent(testBox, 2.0f, 2.0f, 2.0f, false);
-
-    std::cout << "✓ Red test box created at (0, 2, 0) with 2x scale\n";
-    std::cout << "✓ Camera starts at (0, 2, 5) looking toward (0, 2, 0)\n";
-
-    // Create a second box to the right for reference
-    uint32_t sideBox = CreateEntity();
-    AddTransformComponent(sideBox, 3.0f, 2.0f, 0.0f);  // To the right
-    AddMeshRendererComponent(sideBox, PRIMITIVE_CUBE, "blue");
-    SetMeshRendererColor(sideBox, 0.0f, 0.0f, 1.0f, 1.0f); // Bright blue
-    SetTransformUniformScale(sideBox, 1.0f);
-    AddBoxColliderComponent(sideBox, 1.0f, 1.0f, 1.0f, false);
-    
-    std::cout << "✓ Blue reference box created at (3, 2, 0)\n";
-
-    uint32_t circle = CreateEntity();
-    AddTransformComponent(circle, -3.0f, 2.0f, -3.0f);
-    AddMeshRendererComponent(circle, PRIMITIVE_SPHERE,"RainbowShader");
-    SetTransformUniformScale(circle, 1.0f);
-    AddBoxColliderComponent(circle, 1.0f, 1.0f, 1.0f, false);
-
-    uint32_t raycastTester = CreateEntity();
-    RaycastTestScript* raycastScript = new RaycastTestScript("RaycastController");
-    if (AddCustomScript(raycastTester, raycastScript)) {
-        std::cout << "✓ Raycast Test Controller added\n";
-    } else {
-        std::cout << "✗ ERROR: Failed to add Raycast Test Script\n";
+    // Create asteroid generator
+    void* asteroidGenerator = CreateAsteroidGenerator();
+    if (!asteroidGenerator) {
+        std::cout << "✗ Failed to create asteroid generator\n";
         return -1;
     }
 
-    // Set up physics system for raycast optimization
+    // Generate some individual asteroids
+    std::cout << "Generating individual asteroids...\n";
+    for (int i = 0; i < 3; i++) {
+        float x = (i - 1) * 5.0f;
+        uint32_t asteroid = GenerateSingleAsteroid(asteroidGenerator, 2.0f + i, 8, x, 0.0f, -15.0f, "RainbowShader");
+        if (asteroid != 0) {
+            std::cout << "✓ Generated asteroid " << i << " (Entity: " << asteroid << ") at (" << x << ", 0, -15)\n";
+        }
+    }
+
+    // Generate an asteroid field
+    std::cout << "Generating asteroid field...\n";
+    GenerateAsteroidField(asteroidGenerator, 50, 3.0f, 10.0f, 10, 50, 30.0f, 20.0f, 30.0f, "RainbowShader");
+
+    // Add some reference objects
+    uint32_t referenceBox = CreateEntity();
+    AddTransformComponent(referenceBox, 0.0f, 5.0f, 0.0f);
+    AddMeshRendererComponent(referenceBox, PRIMITIVE_CUBE, "blue");
+    SetMeshRendererColor(referenceBox, 0.0f, 1.0f, 0.0f, 1.0f); // Green reference
+    SetTransformUniformScale(referenceBox, 1.0f);
+    std::cout << "✓ Added green reference cube at (0, 5, 0)\n";
+
+    // Cleanup asteroid generator
+    DestroyAsteroidGenerator(asteroidGenerator);
+
+    // Set up physics
     SetPhysicsGridCellSize(5.0f);
     SetPhysicsDebugOutput(false);
     
@@ -122,6 +130,22 @@ int main() {
 
     std::cout << "Total entities: " << GetEntityCount() << "\n";
     std::cout << "\n=== Starting Raycast Test ===\n";
+    std::cout << "\n=== ASTEROID FIELD TEST CONTROLS ===\n";
+    std::cout << "ZQSD     - Move forward/left/backward/right\n";
+    std::cout << "Mouse    - Look around\n";
+    std::cout << "Space    - Move up\n";
+    std::cout << "Shift    - Move down\n";
+    std::cout << "P        - Print camera position\n";
+    std::cout << "ESC      - Close window\n";
+
+    std::cout << "\n=== EXPECTED BEHAVIOR ===\n";
+    std::cout << "- Console should show asteroid generation results\n";
+    std::cout << "- You should see spheres representing asteroids\n";
+    std::cout << "- Navigate around to explore the asteroid field\n";
+    std::cout << "- Green cube is a reference point\n";
+
+    std::cout << "\nTotal entities: " << GetEntityCount() << "\n";
+    std::cout << "\n=== Starting Asteroid Field Test ===\n";
 
     // Start the engine
     RunEngine();
@@ -147,6 +171,7 @@ int main() {
 
     std::cout << "========================================\n";
     std::cout << "      RAYCAST TEST COMPLETED!          \n";
+    std::cout << "  ASTEROID GENERATOR DLL TEST COMPLETED!\n";
     std::cout << "========================================\n";
     std::cout << "\nPress Enter to exit...";
     std::cin.get();

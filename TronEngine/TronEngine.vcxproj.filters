@@ -101,6 +101,8 @@
     <ClCompile Include="Source\Cpp\Game\RaycastSystem.cpp">
       <Filter>Source\Cpp\Game</Filter>
     </ClCompile>
+    <ClCompile Include="Game\AsteroidGenerator.cpp" />
+    <ClCompile Include="Source\Cpp\Core\AsteroidGeneratorAPI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\EngineExports.hpp">
@@ -242,6 +244,7 @@
     <ClInclude Include="Source\Headers\Math\Vector3.hpp">
       <Filter>Source\Headers\Math</Filter>
     </ClInclude>
+    <ClInclude Include="Game\AsteroidGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Include">
