@@ -64,85 +64,84 @@ int main()
         return -1;
     }
 
-    // Create asteroid generator
-    void *asteroidGenerator = CreateAsteroidGenerator();
-    if (!asteroidGenerator)
-    {
-        std::cout << "✗ Failed to create asteroid generator\n";
-        return -1;
-    }
+    //// Create asteroid generator
+    //void *asteroidGenerator = CreateAsteroidGenerator();
+    //if (!asteroidGenerator)
+    //{
+    //    std::cout << "✗ Failed to create asteroid generator\n";
+    //    return -1;
+    //}
 
-    // Generate an asteroid field
-    std::cout << "Generating asteroid field...\n";
-    // GenerateAsteroidField(asteroidGenerator, 5, 3.0f, 10.0f, 10, 50, 30.0f, 20.0f, 30.0f, "RainbowShader");
+    // //Generate an asteroid field
+    //std::cout << "Generating asteroid field...\n";
+    //GenerateAsteroidField(asteroidGenerator, 20, 3.0f, 10.0f, 10, 50, 30.0f, 20.0f, 30.0f, "RainbowShader");
 
-    // Cleanup asteroid generator
-    DestroyAsteroidGenerator(asteroidGenerator);
+    //// Cleanup asteroid generator
+    //DestroyAsteroidGenerator(asteroidGenerator);
 
-    Target *target = new Target();
     // Create test targets
+    Target *target = new Target();
     uint32_t targetBox1 = CreateEntity();
     AddTransformComponent(targetBox1, 0.0f, 2.0f, -5.0f);
-    AddBoxColliderComponent(targetBox1, 2.0f, 2.0f, 2.0f, false);
-    SetTransformScale(targetBox1, 2.0f, 2.0f, 2.0f);
     AddMeshRendererComponent(targetBox1, PRIMITIVE_CUBE, "RainbowShader");
+    AddBoxColliderComponent(targetBox1, 1.0f, 1.0f, 1.0f, true);
     AddCustomScript(targetBox1, target);
     std::cout << "Created target box 1 (RED) at (0, 2, -5)\n";
 
+    Target* target2 = new Target();
     uint32_t targetBox2 = CreateEntity();
     AddTransformComponent(targetBox2, 5.0f, 2.0f, -3.0f);
-    AddBoxColliderComponent(targetBox2, 1.5f, 3.0f, 1.5f, false);
-    SetTransformScale(targetBox2, 1.5f, 3.0f, 1.5f);
     AddMeshRendererComponent(targetBox2, PRIMITIVE_CUBE, "RainbowShader");
-    AddCustomScript(targetBox2, target);
+    AddBoxColliderComponent(targetBox2, 1.0f, 1.0f, 1.0f, true);
+    AddCustomScript(targetBox2, target2);
     std::cout << "Created target box 2 (GREEN) at (5, 2, -3)\n";
 
+    Target* target3 = new Target();
     uint32_t targetBox3 = CreateEntity();
     AddTransformComponent(targetBox3, -3.0f, 5.0f, -4.0f);
-    AddBoxColliderComponent(targetBox3, 1.0f, 1.0f, 1.0f, false);
-    SetTransformScale(targetBox3, 1.0f, 1.0f, 1.0f);
     AddMeshRendererComponent(targetBox3, PRIMITIVE_CUBE, "RainbowShader");
-    AddCustomScript(targetBox3, target);
+    AddBoxColliderComponent(targetBox3, 1.0f, 1.0f, 1.0f, true);
+    AddCustomScript(targetBox3, target3);
     std::cout << "Created target box 3 (BLUE) at (-3, 5, -4)\n";
 
+    Target* target4 = new Target();
     uint32_t targetBox4 = CreateEntity();
     AddTransformComponent(targetBox4, 10.0f, 2.0f, -10.0f);
-    AddBoxColliderComponent(targetBox4, 2.0f, 2.0f, 2.0f, false);
-    SetTransformScale(targetBox4, 2.0f, 2.0f, 2.0f);
     AddMeshRendererComponent(targetBox4, PRIMITIVE_CUBE, "RainbowShader");
-    AddCustomScript(targetBox4, target);
+    AddBoxColliderComponent(targetBox4, 1.0f, 1.0f, 1.0f, true);
+    AddCustomScript(targetBox4, target4);
     std::cout << "Created target box 4 (YELLOW) at (10, 2, -10)\n";
 
+    Target* target5 = new Target();
     uint32_t targetBox5 = CreateEntity();
     AddTransformComponent(targetBox5, -10.0f, 2.0f, -10.0f);
-    AddBoxColliderComponent(targetBox5, 2.0f, 2.0f, 2.0f, false);
-    SetTransformScale(targetBox5, 2.0f, 2.0f, 2.0f);
+    AddBoxColliderComponent(targetBox5, 1.0f, 1.0f, 1.0f, true);
     AddMeshRendererComponent(targetBox5, PRIMITIVE_CUBE, "RainbowShader");
-    AddCustomScript(targetBox5, target);
+    AddCustomScript(targetBox5, target5);
     std::cout << "Created target box 5 (PURPLE) at (-10, 2, -10)\n";
 
+    Target* target6 = new Target();
     uint32_t targetBox6 = CreateEntity();
     AddTransformComponent(targetBox6, 0.0f, 2.0f, 10.0f);
-    AddBoxColliderComponent(targetBox6, 2.0f, 2.0f, 2.0f, false);
-    SetTransformScale(targetBox6, 2.0f, 2.0f, 2.0f);
+    AddBoxColliderComponent(targetBox6, 1.0f, 1.0f, 1.0f, true);
     AddMeshRendererComponent(targetBox6, PRIMITIVE_CUBE, "RainbowShader");
-    AddCustomScript(targetBox6, target);
+    AddCustomScript(targetBox6, target6);
     std::cout << "Created target box 6 (CYAN) at (0, 2, 10)\n";
 
+    Target* target7 = new Target();
     uint32_t targetBox7 = CreateEntity();
     AddTransformComponent(targetBox7, 10.0f, 2.0f, 10.0f);
-    AddBoxColliderComponent(targetBox7, 2.0f, 2.0f, 2.0f, false);
-    SetTransformScale(targetBox7, 2.0f, 2.0f, 2.0f);
+    AddBoxColliderComponent(targetBox7, 1.0f, 1.0f, 1.0f, true);
     AddMeshRendererComponent(targetBox7, PRIMITIVE_CUBE, "RainbowShader");
-    AddCustomScript(targetBox7, target);
+    AddCustomScript(targetBox7, target7);
     std::cout << "Created target box 7 (ORANGE) at (10, 2, 10)\n";
 
+    Target* target8 = new Target();
     uint32_t targetBox8 = CreateEntity();
     AddTransformComponent(targetBox8, -10.0f, 2.0f, 10.0f);
-    AddBoxColliderComponent(targetBox8, 2.0f, 2.0f, 2.0f, false);
-    SetTransformScale(targetBox8, 2.0f, 2.0f, 2.0f);
+    AddBoxColliderComponent(targetBox8, 1.0f, 1.0f, 1.0f, true);
     AddMeshRendererComponent(targetBox8, PRIMITIVE_CUBE, "RainbowShader");
-    AddCustomScript(targetBox8, target);
+    AddCustomScript(targetBox8, target8);
     std::cout << "Created target box 8 (PINK) at (-10, 2, 10)\n";
 
     // Set up physics

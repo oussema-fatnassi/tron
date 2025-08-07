@@ -44,6 +44,7 @@ uint32_t GenerateSingleAsteroid(void* generator, float radius, int complexity, f
         // Vary the scale based on radius
         SetTransformUniformScale(entity, radius / 2.0f);
         AddBoxColliderComponent(entity, radius / 2.0f, radius / 2.0f, radius / 2.0f, false);
+        //AddBoxColliderComponent(entity, 1.0f, 1.0f, 1.0f, true);
         
         // Add some random rotation
         std::random_device rd;

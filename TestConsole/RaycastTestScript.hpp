@@ -233,7 +233,7 @@ private:
             
             // Flash white briefly
             SetMeshRendererColor(hitEntity, 1.0f, 1.0f, 1.0f, 1.0f);
-            //SafeDestroyEntity(hitEntity);
+            SafeDestroyEntity(hitEntity);
         } else {
             std::cout << "✗ No entity under mouse cursor\n";
         }
@@ -280,10 +280,13 @@ private:
             std::cout << "  Entity: " << hitEntity << "\n";
             std::cout << "  Hit point: (" << hitX << ", " << hitY << ", " << hitZ << ")\n";
             std::cout << "  Distance: " << hitDistance << "\n";
+            SafeDestroyEntity(hitEntity);
         } else {
             std::cout << "✗ Camera ray didn't hit anything\n";
         }
         std::cout << "----------------------------------------\n";
+
+        
     }
     
     void AutomaticSweepTest() {

@@ -36,8 +36,4 @@ public:
 			return;
 		}
 	}
-	void OnDestroy() override {}
-	void OnTriggerEnter(uint32_t otherEntity) override
-	{
-	}
 };
