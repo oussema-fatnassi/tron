@@ -35,10 +35,9 @@ public:
         std::cout << "[" << scriptName << "] START() - Particle emitter starting\n";
         
         // Add visual representation (emitter sphere)
-        AddTransformComponent(entity, 0.0f, 2.0f, 0.0f);
-        AddMeshRendererComponent(entity, PRIMITIVE_SPHERE, "RainbowShader");
-        SetMeshRendererColor(entity, 1.0f, 1.0f, 0.0f, 1.0f); // Yellow emitter
-        SetTransformUniformScale(entity, 0.2f); // Small emitter sphere
+        //AddTransformComponent(entity, 2.0f, 2.0f, 50.0f);
+        //AddMeshRendererComponent(entity, PRIMITIVE_SPHERE, "RainbowShader");
+        //SetTransformUniformScale(entity, 0.2f); // Small emitter sphere
     }
 
     void Update(float deltaTime) override {
@@ -160,7 +159,7 @@ public:
         // Clean up all particle entities
         for (auto& particle : particles) {
             if (particle.active) {
-                SafeDestroyEntity(particle.entityId);
+                DestroyEntity(particle.entityId);
             }
         }
         std::cout << "[" << scriptName << "] Particle system destroyed\n";
