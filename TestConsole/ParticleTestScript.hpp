@@ -26,7 +26,7 @@ private:
 public:
     ParticleTestScript(const std::string& name = "ParticleTest") 
         : scriptName(name), emissionTimer(0.0f), emissionRate(10.0f), maxParticles(50),
-          velocityDist(-2.0f, 2.0f), lifeDist(1.0f, 3.0f) {
+          velocityDist(-4.0f, 4.0f), lifeDist(1.0f, 3.0f) {
         particles.reserve(maxParticles);
         std::cout << "[" << scriptName << "] Particle emitter created with max " << maxParticles << " particles\n";
     }
@@ -93,9 +93,9 @@ public:
             float startZ = emitterZ + velocityDist(randomEngine) * 0.1f;
             
             AddTransformComponent(particle.entityId, startX, startY, startZ);
-            AddMeshRendererComponent(particle.entityId, PRIMITIVE_CUBE, "blue");
+            AddMeshRendererComponent(particle.entityId, PRIMITIVE_CUBE, "RainbowShader");
             SetMeshRendererColor(particle.entityId, 1.0f, 0.5f, 0.0f, 1.0f); // Orange particles
-            SetTransformUniformScale(particle.entityId, 0.05f); // Very small particles
+            //SetTransformUniformScale(particle.entityId, 0.05f); // Very small particles
             
             // Set particle properties
             particle.vx = velocityDist(randomEngine);

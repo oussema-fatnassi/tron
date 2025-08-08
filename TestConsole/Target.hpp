@@ -7,7 +7,7 @@ class Target : public ScriptBase
 private:
     uint32_t _particles = 0;
     float _particleTimer = 0.0f;
-    float _maxParticleTImer = 5.0f;
+    float _maxParticleTImer = 3.0f;
     bool _hasSpawnParticle = false;
 public:
     Target() {}
